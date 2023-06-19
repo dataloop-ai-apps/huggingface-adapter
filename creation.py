@@ -38,10 +38,7 @@ def package_creation(project):
 
 if __name__ == "__main__":
     env = 'prod'
-    project_name = 'nlp-experiments'
-    project_id = "e370fbba-7b8a-4f72-abf3-52b079f019e9"
+    project_id = "<project-id>"
     dl.setenv(env)
     project = dl.projects.get(project_id=project_id)
     package = package_creation(project)
-    for req in package.requirements:
-        print(f"{req.name} {req.operator} {req.version}")
