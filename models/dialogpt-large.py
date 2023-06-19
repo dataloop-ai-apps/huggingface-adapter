@@ -58,7 +58,7 @@ class HuggingAdapter:
                                 }}
                         })
             annotations.append(item_annotations)
-            return annotations
+        return annotations
 
 
 def model_creation(package: dl.Package):
