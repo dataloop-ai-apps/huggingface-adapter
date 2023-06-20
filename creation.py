@@ -3,7 +3,7 @@ import dtlpy as dl
 from model_adapter import ModelAdapter
 
 
-def package_creation(project):
+def package_creation(project: dl.Project) -> dl.Package:
     metadata = dl.Package.get_ml_metadata(cls=ModelAdapter,
                                           default_configuration={'weights_filename': 'huggingface.pt',
                                                                  'epochs': 10,
@@ -15,11 +15,7 @@ def package_creation(project):
     package = project.packages.push(package_name='hugging-face',
                                     ignore_sanity_check=True,
                                     src_path=os.getcwd(),
-                                    # description='Global Dataloop ResNet implemented in pytorch',
-                                    # scope='public',
                                     package_type='ml',
-                                    # codebase=dl.GitCodebase(git_url='https://github.com/dataloop-ai/pytorch_adapters',
-                                    #                         git_tag='mgmt3'),
                                     modules=[modules],
                                     service_config={
                                         'runtime': dl.KubernetesRuntime(pod_type=dl.INSTANCE_CATALOG_GPU_K80_S,
@@ -28,17 +24,12 @@ def package_creation(project):
                                                                             max_replicas=1),
                                                                         concurrency=1).to_json()},
                                     metadata=metadata)
-    # s = package.services.list().items[0]
-    # s.package_revision = package.version
-    # s.versions['dtlpy'] = '1.63.2'
-    # s.update(True)
     print("Package created!")
     return package
 
 
 if __name__ == "__main__":
     env = 'prod'
-    project_id = "<project-id>"
+    project_id = "<insert-project-id>"
     dl.setenv(env)
-    project = dl.projects.get(project_id=project_id)
-    package = package_creation(project)
+    package = package_creation(dl.projects.get(project_id=project_id))
