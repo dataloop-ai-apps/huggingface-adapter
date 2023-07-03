@@ -3,4 +3,5 @@ requests
 transformers==4.30.2
 timm
 sentencepiece
+datasets
 accelerate==0.20.3

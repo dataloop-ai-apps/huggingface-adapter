@@ -1,7 +1,9 @@
 import dtlpy as dl
 import torch
 import json
-from transformers import LlamaTokenizer, LlamaForCausalLM
+import os
+from transformers import LlamaTokenizer, LlamaForCausalLM, TrainingArguments, DefaultDataCollator
+from datasets import load_dataset
 
 
 class HuggingAdapter:
@@ -10,6 +12,7 @@ class HuggingAdapter:
         self.tokenizer = LlamaTokenizer.from_pretrained(model_path)
         self.model = LlamaForCausalLM.from_pretrained(model_path, torch_dtype=torch.float16, device_map='auto')
         self.top_k = configuration.get("top_k", 5)
+        self.configuration = configuration
     
     def prepare_item_func(self, item: dl.Item):
         buffer = json.load(item.download(save_locally=False))
@@ -50,6 +53,52 @@ class HuggingAdapter:
                         })
             annotations.append(item_annotations)
             return annotations
+
+    @staticmethod
+    def convert_from_dtlpy(data_path, **kwargs):
+        for subset in ["train", "validation"]:
+            os.makedirs(os.path.join(data_path, subset,'texts'), exist_ok=True)
+            for json_file in os.listdir(os.path.join(data_path, subset)):
+                with open(json_file, 'r') as jf:
+                    prompts = json.load(jf)["prompts"]
+                    for prompt_key, prompt_content in prompts.items():
+                        for i, question in enumerate(prompt_content.values()):
+                            with open(os.path.join(data_path, subset, 'texts', f"{prompt_key}_{i}.txt"), 'w') \
+                                     as text_file:
+                                text_file.write(question['value'])
+
+    def create_training_args(self, data_path, output_path, **kwargs):
+        return TrainingArguments(
+                output_dir=output_path,
+                evaluation_strategy=self.configuration.get("evaluation_strategy", "epoch"),
+                learning_rate=self.configuration.get("learning_rate", 2e-5),
+                per_device_train_batch_size=self.configuration.get("train_batch_size", 16),
+                per_device_eval_batch_size=self.configuration.get("eval_batch_size", 16),
+                num_train_epochs=self.configuration.get("epochs", 3),
+                weight_decay=self.configuration.get("weight_decay", 0.01),
+                push_to_hub=self.configuration.get("push_to_hub", False)
+            )
+
+    def create_datasets(self, data_path):
+        train_path = os.path.join(data_path, 'train', 'texts')
+        evaluate_path = os.path.join(data_path, 'validation', 'texts')
+        dataset = load_dataset("text",
+                               data_files={'train': os.listdir(train_path),
+                                           'test': os.listdir(evaluate_path)},
+                               sample_by='paragraph')
+
+        def tokenize_function(examples):
+            return self.tokenizer(examples['text'], padding='max_length', truncation=True)
+
+        tokenized_dataset = dataset.map(tokenize_function, batched=True)
+        return tokenized_dataset['train'], tokenized_dataset['test']
+
+    def select_tokenizer(self):
+        return self.tokenizer
+
+    @staticmethod
+    def create_data_collator():
+        return DefaultDataCollator()
 
 
 def model_creation(package: dl.Package):
