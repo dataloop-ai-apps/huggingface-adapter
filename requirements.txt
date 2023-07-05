@@ -4,4 +4,5 @@ transformers==4.30.2
 timm
 sentencepiece
 datasets
+evaluate
 accelerate==0.20.3

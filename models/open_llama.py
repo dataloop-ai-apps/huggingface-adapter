@@ -58,7 +58,7 @@ class HuggingAdapter:
     def convert_from_dtlpy(data_path, **kwargs):
         for subset in ["train", "validation"]:
             os.makedirs(os.path.join(data_path, subset,'texts'), exist_ok=True)
-            for json_file in os.listdir(os.path.join(data_path, subset)):
+            for json_file in os.listdir(os.path.join(data_path, subset, 'items', subset)):
                 with open(json_file, 'r') as jf:
                     prompts = json.load(jf)["prompts"]
                     for prompt_key, prompt_content in prompts.items():
@@ -101,19 +101,21 @@ class HuggingAdapter:
         return DefaultDataCollator()
 
 
-def model_creation(package: dl.Package):
+def model_creation(package: dl.Package, dtst):
 
     model = package.models.create(model_name='openllama-huggingface',
                                   description='openllama for chatting - HF',
                                   tags=['llm', 'pretrained', "hugging-face"],
-                                  dataset_id=None,
-                                  status='trained',
+                                  dataset_id=dtst.id,
+                                  status='created',
                                   scope='project',
                                   configuration={
                                       'weights_filename': 'openllama.pt',
                                       'model_path': 'openlm-research/open_llama_3b',
                                       "module_name": "models.open_llama",
                                       'device': 'cuda:0'},
-                                  project_id=package.project.id
+                                  project_id=package.project.id,
+                                  train_filter=dl.Filters(field="dir", values="/train"),
+                                  validation_filter=dl.Filters(field="dir", values="/validation")
                                   )
     return model

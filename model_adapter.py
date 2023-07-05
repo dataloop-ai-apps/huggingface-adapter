@@ -49,7 +49,9 @@ class ModelAdapter(dl.BaseModelAdapter):
 
     def is_hugging_adapter_training_enabled(self):
         requirements = ['create_datasets', 'create_training_args']
-        optionals = ['create_data_collator', 'model_initialization', ]
+        optionals = ['create_data_collator', 'model_initialization', 'select_tokenizer',
+                     'create_callbacks', 'create_optimizers', 'compute_metrics',
+                     'preprocess_logits']
         not_implemented = [req for req in requirements if not hasattr(self.hugging, req)]
         if not_implemented:
             raise NotImplementedError(f'Hugging Face adapter missing methods {", ".join(not_implemented)}. Cannot train'
@@ -78,6 +80,10 @@ class ModelAdapter(dl.BaseModelAdapter):
                         preprocess_logits_for_metrics=training_options.get("preprocess_logits")
                     )
                 trainer.train()
+                eval_results = trainer.evaluate()
+                print("*" * 50)
+                print(f"Training results: {eval_results}")
+                print("*" * 50)
             elif training_mode == "rlhf":
                 raise NotImplementedError("RHLF training still not implemented.")
             else:
