@@ -4,6 +4,7 @@ import json
 import os
 from transformers import LlamaTokenizer, LlamaForCausalLM, TrainingArguments, DefaultDataCollator
 from datasets import load_dataset
+from glob import glob
 
 
 class HuggingAdapter:
@@ -58,7 +59,7 @@ class HuggingAdapter:
     def convert_from_dtlpy(data_path, **kwargs):
         for subset in ["train", "validation"]:
             os.makedirs(os.path.join(data_path, subset,'texts'), exist_ok=True)
-            for json_file in os.listdir(os.path.join(data_path, subset, 'items', subset)):
+            for json_file in glob(os.path.join(data_path, subset, 'items', subset, '*')):
                 with open(json_file, 'r') as jf:
                     prompts = json.load(jf)["prompts"]
                     for prompt_key, prompt_content in prompts.items():
@@ -80,11 +81,11 @@ class HuggingAdapter:
             )
 
     def create_datasets(self, data_path):
-        train_path = os.path.join(data_path, 'train', 'texts')
-        evaluate_path = os.path.join(data_path, 'validation', 'texts')
+        train_path = os.path.join(data_path, 'train', 'texts', '*')
+        evaluate_path = os.path.join(data_path, 'validation', 'texts', '*')
         dataset = load_dataset("text",
-                               data_files={'train': os.listdir(train_path),
-                                           'test': os.listdir(evaluate_path)},
+                               data_files={'train': glob(train_path),
+                                           'test': glob(evaluate_path)},
                                sample_by='paragraph')
 
         def tokenize_function(examples):
