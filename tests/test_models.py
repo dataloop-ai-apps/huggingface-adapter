@@ -13,9 +13,6 @@ from transformers import (GPT2LMHeadModel, GPT2TokenizerFast, LlamaTokenizer, Ll
                           DetrForObjectDetection)
 
 SEED = 1337
-random.seed(SEED)
-np.random.seed(SEED)
-torch.manual_seed(SEED)
 
 
 class MyTestCase(unittest.TestCase):
@@ -24,8 +21,6 @@ class MyTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(SEED)
         if dl.token_expired():
             dl.login()
         try:
@@ -35,51 +30,17 @@ class MyTestCase(unittest.TestCase):
             cls.project = dl.projects.get("hugging_face_adapter_tests")
         cls.package = package_creation(cls.project, "../model_adapter.py")
 
+    def setUp(self) -> None:
+        random.seed(SEED)
+        np.random.seed(SEED)
+        torch.manual_seed(SEED)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(SEED)
+
     @classmethod
     def tearDownClass(cls) -> None:
         cls.project.delete(sure=True, really=True)
         dl.logout()
-
-    def test_open_llama(self):
-        random.seed(SEED)
-        np.random.seed(SEED)
-        torch.manual_seed(SEED)
-        model = open_llama.model_creation(self.package)
-        model_adapter = ModelAdapter(model)
-        model_adapter.hugging.model.config.seed = SEED
-        with open("./test_input.json", "r") as f:
-            inp = json.load(f)
-        ans = model_adapter.predict([inp])
-        self.assertTrue(isinstance(model_adapter.hugging.model, LlamaForCausalLM))
-        self.assertTrue(isinstance(model_adapter.hugging.tokenizer, LlamaTokenizer))
-        self.assertTrue('open_llama' in model_adapter.hugging.model.name_or_path.lower())
-        self.assertEqual(
-            ans[0][0]['coordinates'],
-            "I'm not sure if this is a test or not.\nI'm not sure if this is a test or not. I'm not sure if this is a test or not. I'm not sure if this is a test or not. I'm not sure if this is a test or not. I'm not sure if this is a test or not. I'm not sure if this is a test or not. I"
-            )
-        self.assertAlmostEqual(
-            ans[0][0]['metadata']['user']['model']['confidence'],
-            0.7106203436851501, 3
-            )
-
-    def test_dialogpt(self):
-        model = dialogpt_large.model_creation(self.package)
-        model_adapter = ModelAdapter(model)
-        model_adapter.hugging.model.config.seed = SEED
-        with open("./test_input.json", "r") as f:
-            inp = json.load(f)
-        ans = model_adapter.predict([inp])
-        self.assertTrue(isinstance(model_adapter.hugging.model, GPT2LMHeadModel))
-        self.assertTrue(isinstance(model_adapter.hugging.tokenizer, GPT2TokenizerFast))
-        self.assertTrue('dialogpt' in model_adapter.hugging.model.name_or_path.lower())
-        self.assertEqual(
-            ans[0][0]['coordinates'],
-            "It's a test of our faith."
-            )
-        self.assertAlmostEqual(
-            ans[0][0]['metadata']['user']['model']['confidence'],
-            0.3476366400718689, 3
-            )
 
     def test_bert_base(self):
         model = dslim_bert_base_ner.create_model_entity(self.package)
@@ -101,6 +62,46 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(isinstance(model_adapter.hugging.model, DetrForObjectDetection))
         self.assertTrue(isinstance(model_adapter.hugging.feature_extractor, DetrFeatureExtractor))
         self.assertTrue('detr-resnet-101' in model_adapter.hugging.model.name_or_path.lower())
+
+    def test_open_llama(self):
+        model = open_llama.model_creation(self.package)
+        model_adapter = ModelAdapter(model)
+        model_adapter.hugging.model.config.seed = SEED
+        with open("./test_input.json", "r") as f:
+            inp = json.load(f)
+        ans = model_adapter.predict([inp])
+        self.assertTrue(isinstance(model_adapter.hugging.model, LlamaForCausalLM))
+        self.assertTrue(isinstance(model_adapter.hugging.tokenizer, LlamaTokenizer))
+        self.assertTrue('open_llama' in model_adapter.hugging.model.name_or_path.lower())
+        self.assertEqual(
+            ans[0][0]['coordinates'],
+            "I'm not sure if this is a test or not.\nI'm not sure if this is a test or not. I'm not sure if this is a "
+            "test or not. I'm not sure if this is a test or not. I'm not sure if this is a test or not. "
+            "I'm not sure if this is a test or not. I'm not sure if this is a test or not. I"
+            )
+        self.assertAlmostEqual(
+            ans[0][0]['metadata']['user']['model']['confidence'],
+            0.7106203436851501, 3
+            )
+
+    def test_dialogpt(self):
+        model = dialogpt_large.model_creation(self.package)
+        model_adapter = ModelAdapter(model)
+        model_adapter.hugging.model.config.seed = SEED
+        with open("./test_input.json", "r") as f:
+            inp = json.load(f)
+        ans = model_adapter.predict([inp])
+        self.assertTrue(isinstance(model_adapter.hugging.model, GPT2LMHeadModel))
+        self.assertTrue(isinstance(model_adapter.hugging.tokenizer, GPT2TokenizerFast))
+        self.assertTrue('dialogpt' in model_adapter.hugging.model.name_or_path.lower())
+        self.assertEqual(
+            ans[0][0]['coordinates'],
+            "Nah, it's a test to see if you can handle it"
+            )
+        self.assertAlmostEqual(
+            ans[0][0]['metadata']['user']['model']['confidence'],
+            0.3476366400718689, 3
+            )
 
 
 if __name__ == '__main__':
