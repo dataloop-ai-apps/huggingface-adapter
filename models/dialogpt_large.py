@@ -70,7 +70,7 @@ def model_creation(package: dl.Package):
                                   scope='project',
                                   configuration={
                                       'weights_filename': 'dialogpt.pt',
-                                      "module_name": "models.dialogpt-large",
+                                      "module_name": "models.dialogpt_large",
                                       'device': 'cuda:0'},
                                   project_id=package.project.id
                                   )

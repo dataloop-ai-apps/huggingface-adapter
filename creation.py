@@ -3,7 +3,7 @@ import dtlpy as dl
 from model_adapter import ModelAdapter
 
 
-def package_creation(project: dl.Project) -> dl.Package:
+def package_creation(project: dl.Project, entry_point_path: str = 'model_adapter.py') -> dl.Package:
     metadata = dl.Package.get_ml_metadata(cls=ModelAdapter,
                                           default_configuration={'weights_filename': 'huggingface.pt',
                                                                  'epochs': 10,
@@ -11,7 +11,7 @@ def package_creation(project: dl.Project) -> dl.Package:
                                                                  'top_k': 5,
                                                                  'device': 'cuda:0'}
                                           )
-    modules = dl.PackageModule.from_entry_point(entry_point='model_adapter.py')
+    modules = dl.PackageModule.from_entry_point(entry_point=entry_point_path)
     package = project.packages.push(package_name='hugging-face',
                                     ignore_sanity_check=True,
                                     src_path=os.getcwd(),
