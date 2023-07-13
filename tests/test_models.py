@@ -25,7 +25,7 @@ class MyTestCase(unittest.TestCase):
             dl.login()
         try:
             cls.project = dl.projects.create("hugging_face_adapter_tests")
-        except dl.exceptions.Conflict:
+        except dl.exceptions.InternalServerError:
             print("Dummy project already exists")
             cls.project = dl.projects.get("hugging_face_adapter_tests")
         cls.package = package_creation(cls.project, "../model_adapter.py")
