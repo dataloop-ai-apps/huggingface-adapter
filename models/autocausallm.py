@@ -1,7 +1,6 @@
 import dtlpy as dl
 import torch
 import json
-import os
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
