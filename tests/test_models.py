@@ -1,5 +1,6 @@
 import unittest
 import dtlpy as dl
+import os
 import json
 import random
 import torch
@@ -13,6 +14,9 @@ from transformers import (GPT2LMHeadModel, GPT2TokenizerFast, LlamaTokenizer, Ll
                           DetrForObjectDetection)
 
 SEED = 1337
+BOT_EMAIL = os.environ['BOT_EMAIL']
+BOT_PWD = os.environ['BOT_PWD']
+PROJECT_ID = os.environ['PROJECT_ID']
 
 
 class MyTestCase(unittest.TestCase):
@@ -21,13 +25,11 @@ class MyTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        dl.setenv('prod')
         if dl.token_expired():
-            dl.login()
-        try:
-            cls.project = dl.projects.create("hugging_face_adapter_tests")
-        except dl.exceptions.InternalServerError:
-            print("Dummy project already exists")
-            cls.project = dl.projects.get("hugging_face_adapter_tests")
+            print(f"{BOT_EMAIL}\n{BOT_PWD}")
+            dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
+        cls.project = dl.projects.get(project_id=PROJECT_ID)
         cls.package = package_creation(cls.project, "../model_adapter.py")
 
     def setUp(self) -> None:
@@ -39,7 +41,9 @@ class MyTestCase(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        cls.project.delete(sure=True, really=True)
+        for model in cls.project.models.list().all():
+            model.delete()
+        cls.package.delete()
         dl.logout()
 
     def test_bert_base(self):
