@@ -63,19 +63,14 @@ class HuggingAdapter:
         return annotations
 
 
-def model_creation(package: dl.Package):
-    model = package.models.create(model_name='dolly-huggingface',
+def model_creation(package: dl.Package, model_name: str, config: dict):
+    model = package.models.create(model_name=model_name,
                                   description='Flexible autocausalLM adapter for HF models',
                                   tags=['llm', 'pretrained', "hugging-face"],
                                   dataset_id=None,
                                   status='trained',
                                   scope='project',
-                                  configuration={
-                                      'weights_filename': 'dialogpt.pt',
-                                      "module_name": "models.autocausallm",
-                                      "model_name": "databricks/dolly-v2-12b",
-                                      "tokenizer": "databricks/dolly-v2-12b",
-                                      'device': 'cuda:0'},
+                                  configuration=config,
                                   project_id=package.project.id
                                   )
     return model

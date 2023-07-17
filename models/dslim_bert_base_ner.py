@@ -4,7 +4,8 @@ import dtlpy as dl
 
 
 class HuggingAdapter:
-    def __init__(self, configuration):
+    def __init__(self, configuration=None):
+        self.configuration = configuration if configuration else {}
         self.tokenizer = AutoTokenizer.from_pretrained("dslim/bert-base-NER")
         self.model = AutoModelForTokenClassification.from_pretrained("dslim/bert-base-NER")
         self.nlp = pipeline("ner", model=self.model, tokenizer=self.tokenizer)
@@ -26,9 +27,7 @@ class HuggingAdapter:
         return batch_annotations
 
 
-def create_model_entity():
-    package = dl.packages.get(package_name='hugging-face')
-    project = dl.projects.get(project_name='Hugging Face')
+def create_model_entity(package: dl.Package) -> dl.Model:
     hugging = HuggingAdapter()
     id2label = hugging.model.config.id2label
     model = package.models.create(model_name='dslim/bert-base-NER',
@@ -41,8 +40,9 @@ def create_model_entity():
                                   configuration={'module_name': 'models.dslim_bert_base_ner',
                                                  'id_to_label_map': id2label,
                                                  'label_to_id_map': {v:k for k,v in id2label.items()}},
-                                  project_id=project.id
+                                  project_id=package.project.id
                                   )
+    return model
 
 
 def script():

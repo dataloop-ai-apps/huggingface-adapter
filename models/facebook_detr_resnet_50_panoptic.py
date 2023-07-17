@@ -1,10 +1,10 @@
 import dtlpy as dl
 import torch
-import numpy
+import numpy as np
 import io
 
 from transformers import DetrFeatureExtractor, DetrForSegmentation
-from transformers.models.detr.feature_extraction_detr import rgb_to_id
+from PIL import Image
 
 
 class HuggingAdapter:
@@ -33,6 +33,14 @@ class HuggingAdapter:
                     batch_annotations.append(collection)
         return batch_annotations
 
+    @staticmethod
+    def rgb_to_id(color):
+        if isinstance(color, np.ndarray) and len(color.shape) == 3:
+            if color.dtype == np.uint8:
+                color = color.astype(np.int32)
+            return color[:, :, 0] + 256 * color[:, :, 1] + 256 * 256 * color[:, :, 2]
+        return int(color[0] + 256 * color[1] + 256 * 256 * color[2])
+
     def make_prediction(self, image):
 
         # prepare image for the model
@@ -45,16 +53,14 @@ class HuggingAdapter:
         processed_sizes = torch.as_tensor(inputs["pixel_values"].shape[-2:]).unsqueeze(0)
         result = self.feature_extractor.post_process_panoptic(outputs, processed_sizes)[0]
         panoptic_seg = Image.open(io.BytesIO(result["png_string"]))
-        panoptic_seg = numpy.array(panoptic_seg, dtype=numpy.uint8)
+        panoptic_seg = np.array(panoptic_seg, dtype=np.uint8)
         # retrieve the ids corresponding to each mask
-        panoptic_seg_id = rgb_to_id(panoptic_seg)
+        panoptic_seg_id = self.rgb_to_id(panoptic_seg)
         return panoptic_seg_id
 
 
-def create_model_entity():
-    package = dl.packages.get(package_name='hugging-face')
-    project = dl.projects.get(project_name='Hugging Face')
-    hugging = HuggingAdapter()
+def create_model_entity(package: dl.Package) -> dl.Model:
+    hugging = HuggingAdapter({})
     id2label = hugging.model.config.id2label
     model = package.models.create(model_name='facebook/detr-resnet-50-panoptic',
                                   description='facebook/detr-resnet-50-panoptic',
@@ -66,8 +72,9 @@ def create_model_entity():
                                   configuration={'module_name': 'models.facebook_detr_resnet_50_panoptic',
                                                  'id_to_label_map': id2label,
                                                  'label_to_id_map': {v: k for k, v in id2label.items()}},
-                                  project_id=project.id
+                                  project_id=package.project.id
                                   )
+    return model
 
 
 def script():
