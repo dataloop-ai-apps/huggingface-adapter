@@ -101,8 +101,8 @@ def script():
 
     # the segmentation is stored in a special-format png
     panoptic_seg = Image.open(io.BytesIO(result["png_string"]))
-    panoptic_seg = numpy.array(panoptic_seg, dtype=numpy.uint8)
+    panoptic_seg = np.array(panoptic_seg, dtype=np.uint8)
     # retrieve the ids corresponding to each mask
-    panoptic_seg_id = rgb_to_id(panoptic_seg)
+    panoptic_seg_id = hugging.rgb_to_id(panoptic_seg)
     plt.figure()
     plt.imshow(panoptic_seg_id)
