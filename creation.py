@@ -15,8 +15,11 @@ def package_creation(project: dl.Project) -> dl.Package:
     package = project.packages.push(package_name='hugging-face',
                                     ignore_sanity_check=True,
                                     src_path=os.getcwd(),
+                                    is_global=True,
                                     package_type='ml',
                                     modules=[modules],
+                                    codebase=dl.GitCodebase(git_url='https://github.com/dataloop-ai-apps/huggingface-adapter.git',
+                                                            git_tag='v0.1.9'),
                                     service_config={
                                         'runtime': dl.KubernetesRuntime(pod_type=dl.INSTANCE_CATALOG_GPU_K80_S,
                                                                         autoscaler=dl.KubernetesRabbitmqAutoscaler(
@@ -30,6 +33,6 @@ def package_creation(project: dl.Project) -> dl.Package:
 
 if __name__ == "__main__":
     env = 'prod'
-    project_id = "0cf49805-927a-4067-b3de-a26dac993800"
+    project_id = "<SET-PROJECT-ID>"
     dl.setenv(env)
     package = package_creation(dl.projects.get(project_id=project_id))

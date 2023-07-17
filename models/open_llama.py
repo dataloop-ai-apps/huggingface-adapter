@@ -59,7 +59,7 @@ def model_creation(package: dl.Package):
                                   tags=['llm', 'pretrained', "hugging-face"],
                                   dataset_id=None,
                                   status='trained',
-                                  scope='project',
+                                  scope='public',
                                   configuration={
                                       'weights_filename': 'openllama.pt',
                                       'model_path': 'openlm-research/open_llama_3b',

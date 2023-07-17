@@ -67,7 +67,7 @@ def model_creation(package: dl.Package):
                                   tags=['llm', 'pretrained', "hugging-face"],
                                   dataset_id=None,
                                   status='trained',
-                                  scope='project',
+                                  scope='public',
                                   configuration={
                                       'weights_filename': 'dialogpt.pt',
                                       "module_name": "models.dialogpt-large",
