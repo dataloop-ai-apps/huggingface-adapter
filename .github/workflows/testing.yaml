@@ -1,0 +1,27 @@
+name: Run unit tests
+
+on:
+  pull_request:
+    # Pattern matched against refs/tags
+    tags:
+      - 'opened'
+      - 'reopened'
+      - 'edited'
+
+jobs:
+ run-unit-tests:
+   runs-on: ubuntu-latest
+   container:
+     image: docker.io/dataloopai/py3.8.node16:1.74.14
+   steps:
+     - name: Install dependencies
+       run: |
+         pip3 install dtlpy --upgrade
+         pip3 install -r requirements.txt
+     - name: Run tests
+       env:
+         PROJECT_ID: "${{ secrets.PROJECT_ID }}"
+         BOT_EMAIL: "${{ secrets.BOT_EMAIL }}"
+         BOT_PWD: "${{ secrets.BOT_PWD }}"
+       run: |
+         python3 -m unittest tests.test_models
