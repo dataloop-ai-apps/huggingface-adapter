@@ -27,7 +27,6 @@ class MyTestCase(unittest.TestCase):
     def setUpClass(cls) -> None:
         dl.setenv('prod')
         if dl.token_expired():
-            print(f"{BOT_EMAIL}\n{BOT_PWD}")
             dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
         cls.project = dl.projects.get(project_id=PROJECT_ID)
         cls.package = package_creation(cls.project, "../model_adapter.py")
