@@ -1,6 +1,7 @@
 Pillow
 requests
 transformers
+dtlpy
 timm
 sentencepiece
 accelerate==0.20.3
