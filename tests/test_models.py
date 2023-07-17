@@ -6,7 +6,7 @@ import random
 import torch
 import numpy as np
 from models import (open_llama, dialogpt_large, dslim_bert_base_ner, facebook_detr_resnet_50_panoptic,
-                    facebook_detr_resnet_101)
+                    facebook_detr_resnet_101, autocausallm)
 from creation import package_creation
 from model_adapter import ModelAdapter
 from transformers import (GPT2LMHeadModel, GPT2TokenizerFast, LlamaTokenizer, LlamaForCausalLM,
@@ -90,6 +90,32 @@ class MyTestCase(unittest.TestCase):
 
     def test_dialogpt(self):
         model = dialogpt_large.model_creation(self.package)
+        model_adapter = ModelAdapter(model)
+        model_adapter.hugging.model.config.seed = SEED
+        with open("./test_input.json", "r") as f:
+            inp = json.load(f)
+        ans = model_adapter.predict([inp])
+        self.assertTrue(isinstance(model_adapter.hugging.model, GPT2LMHeadModel))
+        self.assertTrue(isinstance(model_adapter.hugging.tokenizer, GPT2TokenizerFast))
+        self.assertTrue('dialogpt' in model_adapter.hugging.model.name_or_path.lower())
+        self.assertEqual(
+            ans[0][0]['coordinates'],
+            "Nah, it's a test to see if you can handle it"
+            )
+        self.assertAlmostEqual(
+            ans[0][0]['metadata']['user']['model']['confidence'],
+            0.3476366400718689, 3
+            )
+
+    def test_autocausallm_dialogpt(self):
+        config = {
+                      'weights_filename': 'dialogpt-auto.pt',
+                      "module_name": "models.autocausallm",
+                      "model_name": "microsoft/DialoGPT-large",
+                      "tokenizer": "microsoft/DialoGPT-large",
+                      'device': 'cpu'
+            }
+        model = autocausallm.model_creation(self.package, "dialogpt-autocausallm", config)
         model_adapter = ModelAdapter(model)
         model_adapter.hugging.model.config.seed = SEED
         with open("./test_input.json", "r") as f:
