@@ -33,6 +33,6 @@ def package_creation(project: dl.Project, entry_point_path: str = 'model_adapter
 
 if __name__ == "__main__":
     env = 'prod'
-    project_id = "d7ac8ef8-aaa0-47de-a800-db5ae58ff917"
+    project_id = "<SET-PROJECT-ID>"
     dl.setenv(env)
     package = package_creation(dl.projects.get(project_id=project_id))

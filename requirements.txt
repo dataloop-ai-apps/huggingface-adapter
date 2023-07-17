@@ -1,6 +1,6 @@
 Pillow
 requests
-transformers==4.30.2
+transformers
 dtlpy
 timm
 sentencepiece
