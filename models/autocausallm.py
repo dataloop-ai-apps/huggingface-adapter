@@ -7,8 +7,10 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, padding_side='left')
-        self.model = AutoModelForCausalLM.from_pretrained(configuration.get("tokenizer"))
+        trust_remote_code = configuration.get("trust_remote_code", False)
+        padding_side = configuration.get("padding_side", 'left')
+        self.tokenizer = AutoTokenizer.from_pretrained(configuration.get("tokenizer"), padding_side=padding_side)
+        self.model = AutoModelForCausalLM.from_pretrained(self.model_name, trust_remote_code=trust_remote_code)
         self.top_k = configuration.get("top_k", 5)
 
     def prepare_item_func(self, item: dl.Item):
@@ -62,7 +64,7 @@ class HuggingAdapter:
 
 
 def model_creation(package: dl.Package):
-    model = package.models.create(model_name='autocausallm-huggingface',
+    model = package.models.create(model_name='dolly-huggingface',
                                   description='Flexible autocausalLM adapter for HF models',
                                   tags=['llm', 'pretrained', "hugging-face"],
                                   dataset_id=None,
@@ -71,8 +73,8 @@ def model_creation(package: dl.Package):
                                   configuration={
                                       'weights_filename': 'dialogpt.pt',
                                       "module_name": "models.autocausallm",
-                                      "model_name": "microsoft/DialoGPT-large",
-                                      "tokenizer": "microsoft/DialoGPT-large",
+                                      "model_name": "databricks/dolly-v2-12b",
+                                      "tokenizer": "databricks/dolly-v2-12b",
                                       'device': 'cuda:0'},
                                   project_id=package.project.id
                                   )

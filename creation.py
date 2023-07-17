@@ -30,6 +30,6 @@ def package_creation(project: dl.Project) -> dl.Package:
 
 if __name__ == "__main__":
     env = 'prod'
-    project_id = "<insert-project-id>"
+    project_id = "0cf49805-927a-4067-b3de-a26dac993800"
     dl.setenv(env)
     package = package_creation(dl.projects.get(project_id=project_id))
