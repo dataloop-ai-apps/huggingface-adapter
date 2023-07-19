@@ -127,7 +127,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue('dialogpt' in model_adapter.hugging.model.name_or_path.lower())
         self.assertEqual(
             ans[0][0]['coordinates'],
-            "Nah, just a test for the people who have no idea how to spell."
+            "Nah, it's a test to see if you can handle it"
             )
         self.assertAlmostEqual(
             ans[0][0]['metadata']['user']['model']['confidence'],
