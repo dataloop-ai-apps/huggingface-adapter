@@ -70,7 +70,7 @@ class MyTestCase(unittest.TestCase):
         model = open_llama.model_creation(self.package, scope='project')
         model_adapter = ModelAdapter(model)
         model_adapter.hugging.model.config.seed = SEED
-        with open("./test_input.json", "r") as f:
+        with open("tests/test_input.json", "r") as f:
             inp = json.load(f)
         ans = model_adapter.predict([inp])
         self.assertTrue(isinstance(model_adapter.hugging.model, LlamaForCausalLM))
@@ -91,7 +91,7 @@ class MyTestCase(unittest.TestCase):
         model = dialogpt_large.model_creation(self.package, scope='project')
         model_adapter = ModelAdapter(model)
         model_adapter.hugging.model.config.seed = SEED
-        with open("./test_input.json", "r") as f:
+        with open("tests/test_input.json", "r") as f:
             inp = json.load(f)
         ans = model_adapter.predict([inp])
         self.assertTrue(isinstance(model_adapter.hugging.model, GPT2LMHeadModel))
@@ -117,7 +117,7 @@ class MyTestCase(unittest.TestCase):
         model = autocausallm.model_creation(self.package, "dialogpt-autocausallm", config, scope='project')
         model_adapter = ModelAdapter(model)
         model_adapter.hugging.model.config.seed = SEED
-        with open("./test_input.json", "r") as f:
+        with open("tests/test_input.json", "r") as f:
             inp = json.load(f)
         ans = model_adapter.predict([inp])
         self.assertTrue(isinstance(model_adapter.hugging.model, GPT2LMHeadModel))
