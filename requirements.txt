@@ -1,6 +1,7 @@
 Pillow
 requests
 transformers
+safetensors
 timm
 sentencepiece
 accelerate==0.20.3

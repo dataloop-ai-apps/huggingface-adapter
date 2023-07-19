@@ -30,6 +30,8 @@ class MyTestCase(unittest.TestCase):
             dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
         cls.project = dl.projects.get(project_id=PROJECT_ID)
         cls.package = package_creation(cls.project, "model_adapter.py", is_global=False)
+        for model in cls.package.models.list().all():
+            model.delete()
 
     def setUp(self) -> None:
         random.seed(SEED)
@@ -125,7 +127,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue('dialogpt' in model_adapter.hugging.model.name_or_path.lower())
         self.assertEqual(
             ans[0][0]['coordinates'],
-            "Nah, it's a test to see if you can handle it"
+            "Nah, just a test for the people who have no idea how to spell."
             )
         self.assertAlmostEqual(
             ans[0][0]['metadata']['user']['model']['confidence'],
