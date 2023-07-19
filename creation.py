@@ -3,7 +3,7 @@ import dtlpy as dl
 from model_adapter import ModelAdapter
 
 
-def package_creation(project: dl.Project, entry_point_path: str = 'model_adapter.py') -> dl.Package:
+def package_creation(project: dl.Project, entry_point_path: str = 'model_adapter.py', is_global=True) -> dl.Package:
     metadata = dl.Package.get_ml_metadata(cls=ModelAdapter,
                                           default_configuration={'weights_filename': 'huggingface.pt',
                                                                  'epochs': 10,
@@ -15,7 +15,7 @@ def package_creation(project: dl.Project, entry_point_path: str = 'model_adapter
     package = project.packages.push(package_name='hugging-face',
                                     ignore_sanity_check=True,
                                     src_path=os.getcwd(),
-                                    is_global=True,
+                                    is_global=is_global,
                                     package_type='ml',
                                     modules=[modules],
                                     codebase=dl.GitCodebase(git_url='https://github.com/dataloop-ai-apps/huggingface-adapter.git',

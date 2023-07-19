@@ -27,14 +27,14 @@ class HuggingAdapter:
         return batch_annotations
 
 
-def create_model_entity(package: dl.Package) -> dl.Model:
+def create_model_entity(package: dl.Package, scope: str = 'project') -> dl.Model:
     hugging = HuggingAdapter()
     id2label = hugging.model.config.id2label
     model = package.models.create(model_name='dslim/bert-base-NER',
                                   description='dslim/bert-base-NER',
                                   tags=['pretrained', 'ner', 'huggingface'],
                                   dataset_id=None,
-                                  scope='project',
+                                  scope=scope,
                                   status='trained',
                                   labels=list(id2label.values()),
                                   configuration={'module_name': 'models.dslim_bert_base_ner',

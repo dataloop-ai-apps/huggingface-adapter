@@ -59,14 +59,14 @@ class HuggingAdapter:
         return panoptic_seg_id
 
 
-def create_model_entity(package: dl.Package) -> dl.Model:
+def create_model_entity(package: dl.Package, scope: str = 'project') -> dl.Model:
     hugging = HuggingAdapter({})
     id2label = hugging.model.config.id2label
     model = package.models.create(model_name='facebook/detr-resnet-50-panoptic',
                                   description='facebook/detr-resnet-50-panoptic',
                                   tags=['pretrained', 'facebook', 'huggingface', 'panoptic'],
                                   dataset_id=None,
-                                  scope='project',
+                                  scope=scope,
                                   status='trained',
                                   labels=list(id2label.values()),
                                   configuration={'module_name': 'models.facebook_detr_resnet_50_panoptic',

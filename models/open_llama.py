@@ -52,14 +52,14 @@ class HuggingAdapter:
             return annotations
 
 
-def model_creation(package: dl.Package):
+def model_creation(package: dl.Package, scope: str = 'public'):
 
     model = package.models.create(model_name='openllama-huggingface',
                                   description='openllama for chatting - HF',
                                   tags=['llm', 'pretrained', "hugging-face"],
                                   dataset_id=None,
                                   status='trained',
-                                  scope='public',
+                                  scope=scope,
                                   configuration={
                                       'weights_filename': 'openllama.pt',
                                       'model_path': 'openlm-research/open_llama_3b',

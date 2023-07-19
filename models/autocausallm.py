@@ -63,13 +63,13 @@ class HuggingAdapter:
         return annotations
 
 
-def model_creation(package: dl.Package, model_name: str, config: dict):
+def model_creation(package: dl.Package, model_name: str, config: dict, scope: str = 'public'):
     model = package.models.create(model_name=model_name,
                                   description='Flexible autocausalLM adapter for HF models',
                                   tags=['llm', 'pretrained', "hugging-face"],
                                   dataset_id=None,
                                   status='trained',
-                                  scope='project',
+                                  scope=scope,
                                   configuration=config,
                                   project_id=package.project.id
                                   )

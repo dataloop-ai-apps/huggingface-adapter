@@ -61,13 +61,13 @@ class HuggingAdapter:
         return annotations
 
 
-def model_creation(package: dl.Package):
+def model_creation(package: dl.Package, scope: str = 'public'):
     model = package.models.create(model_name='dialogpt-huggingface',
                                   description='dialogpt for chatting - HF',
                                   tags=['llm', 'pretrained', "hugging-face"],
                                   dataset_id=None,
                                   status='trained',
-                                  scope='public',
+                                  scope=scope,
                                   configuration={
                                       'weights_filename': 'dialogpt.pt',
                                       "module_name": "models.dialogpt_large",

@@ -29,7 +29,7 @@ class MyTestCase(unittest.TestCase):
         if dl.token_expired():
             dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
         cls.project = dl.projects.get(project_id=PROJECT_ID)
-        cls.package = package_creation(cls.project, "../model_adapter.py")
+        cls.package = package_creation(cls.project, "../model_adapter.py", is_global=False)
 
     def setUp(self) -> None:
         random.seed(SEED)
@@ -46,28 +46,28 @@ class MyTestCase(unittest.TestCase):
         dl.logout()
 
     def test_bert_base(self):
-        model = dslim_bert_base_ner.create_model_entity(self.package)
+        model = dslim_bert_base_ner.create_model_entity(self.package, scope='project')
         model_adapter = ModelAdapter(model)
         self.assertTrue(isinstance(model_adapter.hugging.model, BertForTokenClassification))
         self.assertTrue(isinstance(model_adapter.hugging.tokenizer, BertTokenizerFast))
         self.assertTrue('bert-base' in model_adapter.hugging.model.name_or_path.lower())
 
     def test_detr_resnet_50_panoptic(self):
-        model = facebook_detr_resnet_50_panoptic.create_model_entity(self.package)
+        model = facebook_detr_resnet_50_panoptic.create_model_entity(self.package, scope='project')
         model_adapter = ModelAdapter(model)
         self.assertTrue(isinstance(model_adapter.hugging.model, DetrForSegmentation))
         self.assertTrue(isinstance(model_adapter.hugging.feature_extractor, DetrFeatureExtractor))
         self.assertTrue('detr-resnet-50-panoptic' in model_adapter.hugging.model.name_or_path.lower())
 
     def test_detr_resnet_101(self):
-        model = facebook_detr_resnet_101.create_model_entity(self.package)
+        model = facebook_detr_resnet_101.create_model_entity(self.package, scope='project')
         model_adapter = ModelAdapter(model)
         self.assertTrue(isinstance(model_adapter.hugging.model, DetrForObjectDetection))
         self.assertTrue(isinstance(model_adapter.hugging.feature_extractor, DetrFeatureExtractor))
         self.assertTrue('detr-resnet-101' in model_adapter.hugging.model.name_or_path.lower())
 
     def test_open_llama(self):
-        model = open_llama.model_creation(self.package)
+        model = open_llama.model_creation(self.package, scope='project')
         model_adapter = ModelAdapter(model)
         model_adapter.hugging.model.config.seed = SEED
         with open("./test_input.json", "r") as f:
@@ -88,7 +88,7 @@ class MyTestCase(unittest.TestCase):
             )
 
     def test_dialogpt(self):
-        model = dialogpt_large.model_creation(self.package)
+        model = dialogpt_large.model_creation(self.package, scope='project')
         model_adapter = ModelAdapter(model)
         model_adapter.hugging.model.config.seed = SEED
         with open("./test_input.json", "r") as f:
@@ -114,7 +114,7 @@ class MyTestCase(unittest.TestCase):
                       "tokenizer": "microsoft/DialoGPT-large",
                       'device': 'cpu'
             }
-        model = autocausallm.model_creation(self.package, "dialogpt-autocausallm", config)
+        model = autocausallm.model_creation(self.package, "dialogpt-autocausallm", config, scope='project')
         model_adapter = ModelAdapter(model)
         model_adapter.hugging.model.config.seed = SEED
         with open("./test_input.json", "r") as f:
