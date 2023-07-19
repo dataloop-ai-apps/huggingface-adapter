@@ -1,12 +1,10 @@
 name: Run unit tests
 
 on:
-  pull_request:
+  push:
     # Pattern matched against refs/tags
     tags:
-      - 'opened'
-      - 'reopened'
-      - 'edited'
+      - '*'
 
 jobs:
  run-unit-tests:
