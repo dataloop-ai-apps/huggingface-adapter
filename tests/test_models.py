@@ -29,10 +29,7 @@ class MyTestCase(unittest.TestCase):
         if dl.token_expired():
             dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
         cls.project = dl.projects.get(project_id=PROJECT_ID)
-        print(os.getcwd())
-        print(os.listdir())
-        print(os.listdir(".."))
-        cls.package = package_creation(cls.project, "../model_adapter.py", is_global=False)
+        cls.package = package_creation(cls.project, "model_adapter.py", is_global=False)
 
     def setUp(self) -> None:
         random.seed(SEED)
