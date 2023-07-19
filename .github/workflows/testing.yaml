@@ -8,6 +8,8 @@ jobs:
    container:
      image: docker.io/dataloopai/py3.8.node16:1.74.14
    steps:
+     - name: Checkout code
+       uses: actions/checkout@v2
      - name: Install dependencies
        run: |
          ls
