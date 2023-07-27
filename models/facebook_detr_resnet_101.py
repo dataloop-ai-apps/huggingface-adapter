@@ -45,10 +45,8 @@ class HuggingAdapter:
         return processed_outputs[0]
 
 
-def create_model_entity():
-    package = dl.packages.get(package_name='hugging-face')
-    project = dl.projects.get(project_name='Hugging Face')
-    hugging = HuggingAdapter()
+def create_model_entity(package: dl.Package) -> dl.Model:
+    hugging = HuggingAdapter({})
     id2label = hugging.model.config.id2label
     model = package.models.create(model_name='facebook/detr-resnet-101',
                                   description='facebook/detr-resnet-101',
@@ -57,9 +55,10 @@ def create_model_entity():
                                   scope='project',
                                   status='trained',
                                   labels=list(id2label.values()),
-                                  configuration={'module_name': 'models.facebook.detr_resnet_101',
+                                  configuration={'module_name': 'models.facebook_detr_resnet_101',
                                                  'id_to_label_map': id2label,
                                                  'label_to_id_map': {v: k for k, v in id2label.items()}},
-                                  project_id=project.id,
+                                  project_id=package.project.id,
 
                                   )
+    return model

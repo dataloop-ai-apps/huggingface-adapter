@@ -1,14 +1,16 @@
 import dtlpy as dl
 import torch
 import json
-import os
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-large", padding_side='left')
-        self.model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-large")
+        self.model_name = configuration.get("model_name")
+        trust_remote_code = configuration.get("trust_remote_code", False)
+        padding_side = configuration.get("padding_side", 'left')
+        self.tokenizer = AutoTokenizer.from_pretrained(configuration.get("tokenizer"), padding_side=padding_side)
+        self.model = AutoModelForCausalLM.from_pretrained(self.model_name, trust_remote_code=trust_remote_code)
         self.top_k = configuration.get("top_k", 5)
 
     def prepare_item_func(self, item: dl.Item):
@@ -52,7 +54,7 @@ class HuggingAdapter:
                             "user": {
                                 "annotation_type": "prediction",
                                 "model": {
-                                    "name": "DialoGPT-Large",
+                                    "name": self.model_name,
                                     "confidence": self.compute_confidence(new_user_input_ids)
                                     }
                                 }}
@@ -61,17 +63,14 @@ class HuggingAdapter:
         return annotations
 
 
-def model_creation(package: dl.Package):
-    model = package.models.create(model_name='dialogpt-huggingface',
-                                  description='dialogpt for chatting - HF',
+def model_creation(package: dl.Package, model_name: str, config: dict):
+    model = package.models.create(model_name=model_name,
+                                  description='Flexible autocausalLM adapter for HF models',
                                   tags=['llm', 'pretrained', "hugging-face"],
                                   dataset_id=None,
                                   status='trained',
                                   scope='project',
-                                  configuration={
-                                      'weights_filename': 'dialogpt.pt',
-                                      "module_name": "models.dialogpt-large",
-                                      'device': 'cuda:0'},
+                                  configuration=config,
                                   project_id=package.project.id
                                   )
     return model
