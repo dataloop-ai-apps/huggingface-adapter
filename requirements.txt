@@ -5,3 +5,5 @@ dtlpy
 timm
 sentencepiece
 accelerate==0.20.3
+diffusers
+safetensors
