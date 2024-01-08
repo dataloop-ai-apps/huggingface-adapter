@@ -29,34 +29,28 @@ class HuggingAdapter:
         annotations = []
         for item in batch:
             prompts = item["prompts"]
-            item_annotations = []
+            item_annotations = dl.AnnotationCollection()
             for prompt_key, prompt_content in prompts.items():
                 chat_history_ids = torch.tensor([])
-                for question in prompt_content.values():
-                    print(f"User: {question['value']}")
-                    new_user_input_ids = self.tokenizer.encode(question["value"] + self.tokenizer.eos_token,
-                                                               return_tensors='pt')
-                    bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1) \
-                        if len(chat_history_ids) else new_user_input_ids
-                    chat_history_ids = self.model.generate(bot_input_ids, max_new_tokens=1000, do_sample=True,
-                                                           pad_token_id=self.tokenizer.eos_token_id, top_k=self.top_k)
-                    response = self.tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0],
-                                                     skip_special_tokens=True)
-                    print("Response: {}".format(response))
-                    item_annotations.append({
-                        "type": "text",
-                        "label": "q",
-                        "coordinates": response,
-                        "metadata": {
-                            "system": {"promptId": prompt_key},
-                            "user": {
-                                "annotation_type": "prediction",
-                                "model": {
-                                    "name": "DialoGPT-Large",
-                                    "confidence": self.compute_confidence(new_user_input_ids)
-                                    }
-                                }}
-                        })
+                for question in prompt_content:
+                    if question['mimetype'] == dl.PromptType.TEXT:
+                        print(f"User: {question['value']}")
+                        new_user_input_ids = self.tokenizer.encode(question["value"] + self.tokenizer.eos_token,
+                                                                   return_tensors='pt')
+                        bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1) \
+                            if len(chat_history_ids) else new_user_input_ids
+                        chat_history_ids = self.model.generate(bot_input_ids, max_new_tokens=1000, do_sample=True,
+                                                               pad_token_id=self.tokenizer.eos_token_id,
+                                                               top_k=self.top_k)
+                        response = self.tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0],
+                                                         skip_special_tokens=True)
+                        print("Response: {}".format(response))
+                        item_annotations.add(annotation_definition=dl.FreeText(text=response),
+                                             prompt_id=prompt_key,
+                                             model_info={'name': "DialoGPT-Large",
+                                                         'confidence': self.compute_confidence(new_user_input_ids)})
+                    else:
+                        print("Entry ignored. DialoGPT can only answer to text prompts.")
             annotations.append(item_annotations)
         return annotations
 
@@ -71,7 +65,7 @@ def model_creation(package: dl.Package):
                                   configuration={
                                       'weights_filename': 'dialogpt.pt',
                                       "module_name": "models.dialogpt_large",
-                                      'device': 'cuda:0'},
+                                      'device': 'cpu'},
                                   project_id=package.project.id
                                   )
     return model

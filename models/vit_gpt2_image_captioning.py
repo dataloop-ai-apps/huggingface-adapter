@@ -46,7 +46,7 @@ class HuggingAdapter:
     def predict(self, batch, **kwargs):
         annotations = []
         for prompts in batch:
-            item_annotations = []
+            item_annotations = dl.AnnotationCollection()
             prompts_zip = list(zip(*prompts))
             prompt_keys = prompts_zip[0]
             image_buffers = prompts_zip[1]
@@ -55,21 +55,11 @@ class HuggingAdapter:
             for i, response in enumerate(preds):
                 prompt_key = prompt_keys[i]
                 print("Response: {}".format(response))
-
-                item_annotations.append({
-                    "type": "text",
-                    "label": "q",
-                    "coordinates": response,
-                    "metadata": {
-                        "system": {"promptId": prompt_key},
-                        "user": {
-                            "annotation_type": "prediction",
-                            "model": {
-                                "name": self.model_name
-                            }
-                        }
-                    }
-                })
+                item_annotations.add(annotation_definition=dl.FreeText(text=response),
+                                     prompt_id=prompt_key,
+                                     model_info={
+                                         'name': self.model_name
+                                         })
             annotations.append(item_annotations)
         return annotations
 

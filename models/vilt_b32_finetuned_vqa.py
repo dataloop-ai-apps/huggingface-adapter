@@ -32,7 +32,7 @@ class HuggingAdapter:
     def predict(self, batch, **kwargs):
         annotations = []
         for prompts in batch:
-            item_annotations = []
+            item_annotations = dl.AnnotationCollection()
             for prompt_key, image_buffer, prompt_text in prompts:
                 encoding = self.processor(PIL.Image.open(image_buffer), prompt_text, return_tensors="pt")
                 outputs = self.model(**encoding)
@@ -40,21 +40,13 @@ class HuggingAdapter:
                 idx = logits.argmax(-1).item()
                 response = self.model.config.id2label[idx]
                 print("Response: {}".format(response))
-
-                item_annotations.append({
-                    "type": "text",
-                    "label": "q",
-                    "coordinates": response,
-                    "metadata": {
-                        "system": {"promptId": prompt_key},
-                        "user": {
-                            "annotation_type": "prediction",
-                            "model": {
-                                "name": self.model_name
-                            }
+                item_annotations.add(
+                    annotation_definition=dl.FreeText(text=response),
+                    prompt_id=prompt_key,
+                    model_info={
+                        'name': self.model_name
                         }
-                    }
-                })
+                    )
             annotations.append(item_annotations)
         return annotations
 
