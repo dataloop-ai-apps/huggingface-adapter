@@ -28,7 +28,8 @@ class HuggingAdapter:
             prompts = item["prompts"]
             item_annotations = dl.AnnotationCollection()
             for prompt_key, prompt_content in prompts.items():
-                for question in prompt_content:
+                questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
+                for question in questions:
                     if question["mimetype"] == dl.PromptType.TEXT:
                         print(f"User: {question['value']}")
                         new_user_input_ids = self.tokenizer(question['value'], return_tensors='pt').input_ids

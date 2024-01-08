@@ -9,7 +9,7 @@ def package_creation(project: dl.Project, entry_point_path: str = 'model_adapter
                                                                  'epochs': 10,
                                                                  'batch': 4,
                                                                  'top_k': 5,
-                                                                 'device': 'cuda:0'}
+                                                                 'device': 'cpu'}
                                           )
     modules = dl.PackageModule.from_entry_point(entry_point=entry_point_path)
     package = project.packages.push(package_name='hugging-face',
@@ -21,7 +21,7 @@ def package_creation(project: dl.Project, entry_point_path: str = 'model_adapter
                                     codebase=dl.GitCodebase(git_url='https://github.com/dataloop-ai-apps/huggingface-adapter.git',
                                                             git_tag='v0.1.9'),
                                     service_config={
-                                        'runtime': dl.KubernetesRuntime(pod_type=dl.INSTANCE_CATALOG_GPU_K80_S,
+                                        'runtime': dl.KubernetesRuntime(pod_type=dl.INSTANCE_CATALOG_REGULAR_L,
                                                                         autoscaler=dl.KubernetesRabbitmqAutoscaler(
                                                                             min_replicas=1,
                                                                             max_replicas=1),

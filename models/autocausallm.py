@@ -34,7 +34,8 @@ class HuggingAdapter:
             item_annotations = dl.AnnotationCollection()
             for prompt_key, prompt_content in prompts.items():
                 chat_history_ids = torch.tensor([])
-                for question in prompt_content:
+                questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
+                for question in questions:
                     if question['type'] == dl.PromptType.TEXT:
                         print(f"User: {question['value']}")
                         new_user_input_ids = self.tokenizer.encode(question["value"] + self.tokenizer.eos_token,
