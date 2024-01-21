@@ -4,6 +4,6 @@ transformers
 dtlpy
 timm
 sentencepiece
-accelerate==0.20.3
+accelerate
 diffusers
 safetensors
