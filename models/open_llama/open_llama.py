@@ -10,7 +10,7 @@ class HuggingAdapter:
         self.tokenizer = LlamaTokenizer.from_pretrained(model_path)
         self.model = LlamaForCausalLM.from_pretrained(model_path, torch_dtype=torch.float16, device_map='auto')
         self.top_k = configuration.get("top_k", 5)
-    
+
     def prepare_item_func(self, item: dl.Item):
         buffer = json.load(item.download(save_locally=False))
         return buffer
@@ -24,36 +24,31 @@ class HuggingAdapter:
 
     def predict(self, batch, **kwargs):
         annotations = []
+        model_device = self.model.device
         for item in batch:
             prompts = item["prompts"]
-            item_annotations = []
+            item_annotations = dl.AnnotationCollection()
             for prompt_key, prompt_content in prompts.items():
-                for question in prompt_content.values():
-                    print(f"User: {question['value']}")
-                    new_user_input_ids = self.tokenizer(question['value'], return_tensors='pt').input_ids
-                    generation_output = self.model.generate(input_ids=new_user_input_ids, max_length=100)
-                    response = self.tokenizer.decode(generation_output[:, new_user_input_ids.shape[-1] + 1:][0])
-                    print("Response: {}".format(response))
-                    item_annotations.append({
-                        "type": "text",
-                        "label": "q",
-                        "coordinates": response,
-                        "metadata": {
-                            "system": {"promptId": prompt_key},
-                            "user": {
-                                "annotation_type": "prediction",
-                                "model": {
-                                    "name": "OpenLLaMa",
-                                    "confidence": self.compute_confidence(new_user_input_ids)
-                                    }
-                                }}
-                        })
+                for question in prompt_content:
+                    if question["mimetype"] == dl.PromptType.TEXT:
+                        print(f"User: {question['value']}")
+                        new_user_input_ids = self.tokenizer(question['value'],
+                                                            return_tensors='pt').input_ids.to(model_device)
+                        generation_output = self.model.generate(input_ids=new_user_input_ids, max_length=100)
+                        response = self.tokenizer.decode(generation_output[:, new_user_input_ids.shape[-1] + 1:][0])
+                        print("Response: {}".format(response))
+                        item_annotations.add(annotation_definition=dl.FreeText(text=response), prompt_id=prompt_key,
+                                             model_info={
+                                                 "name": "OpenLlama",
+                                                 "confidence": self.compute_confidence(new_user_input_ids)
+                                             })
+                    else:
+                        print(f"OpenLlama only accepts text prompts, ignoring the current prompt.")
             annotations.append(item_annotations)
-            return annotations
+        return annotations
 
 
 def model_creation(package: dl.Package):
-
     model = package.models.create(model_name='openllama-huggingface',
                                   description='openllama for chatting - HF',
                                   tags=['llm', 'pretrained', "hugging-face"],

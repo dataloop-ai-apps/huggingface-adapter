@@ -1,0 +1,103 @@
+{
+    "name": "openllama-huggingface-app",
+    "description": "openllama for chatting - HF",
+    "attributes": {
+        "provider": "Hugging Face",
+        "license": "apache-2.0",
+        "category": "Model",
+        "Computer Vision": "NLP"
+    },
+    "displayName": "Openllama Huggingface App",
+    "version": "v0.0.1",
+    "scope": "project",
+    "codebaseZ": {
+        "type": "git",
+        "gitUrl": "https://github.com/dataloop-ai-apps/nvidia-models.git",
+        "gitTag": "v0.0.1"
+    },
+    "codebase": {
+        "type": "local",
+        "src_path": "../.."
+    },
+    "components": {
+        "computeConfigs": [
+            {
+                "name": "openllama-huggingface-deploy",
+                "versions": {
+                    "dtlpy": "1.89.6"
+                },
+                "secrets": [],
+                "runtime": {
+                    "podType": "gpu-t4",
+                    "concurrency": 1,
+                    "runnerImageX": "gcr.io/viewo-g/piper/agent/runner/gpu/nvidia-tao:0.1.2",
+                    "autoscaler": {
+                        "type": "rabbitmq",
+                        "minReplicas": 0,
+                        "maxReplicas": 2,
+                        "queueLength": 1000
+                    },
+                    "preemptible": false
+                }
+            }
+        ],
+        "modules": [
+            {
+                "name": "openllama-module",
+                "entryPoint": "model_adapter.py",
+                "className": "ModelAdapter",
+                "computeConfig": "openllama-huggingface-deploy",
+                "initInputs": [
+                    {
+                        "type": "Model",
+                        "name": "model_entity"
+                    }
+                ],
+                "functions": [
+                    {
+                        "name": "predict_items",
+                        "input": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The input images for prediction."
+                            }
+                        ],
+                        "output": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The same input images for prediction."
+                            },
+                            {
+                                "type": "Annotations[]",
+                                "name": "annotations",
+                                "description": "The predicted annotations."
+                            }
+                        ],
+                        "displayName": "Predict Items",
+                        "displayIcon": "",
+                        "description": "The inference function of the model."
+                    }
+                ]
+            }
+        ],
+        "models": [
+            {
+                "name": "openllama-huggingface-model",
+                "moduleName": "openllama-module",
+                "scope": "project",
+                "status": "trained",
+                "configuration": {"weights_filename": "openllama.pt",
+                                  "model_path": "openlm-research/open_llama_3b",
+                                  "module_name": "models.open_llama.open_llama",
+                                  "device": "cuda:0"},
+                "tags": ["llm", "pretrained", "hugging-face"],
+                "inputTypeX": "image",
+                "outputTypeX": "box",
+                "metadata": {},
+                "description": "openllama for chatting - HF"
+            }
+        ]
+    }
+}
