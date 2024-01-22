@@ -7,10 +7,21 @@ from transformers import LlamaTokenizer, LlamaForCausalLM
 class HuggingAdapter:
     def __init__(self, configuration):
         model_path = configuration.get("model_path", 'openlm-research/open_llama_3b')
+        torch_dtype = configuration.get("torch_dtype")
+        if torch_dtype == 'fp32':
+            torch_dtype = torch.float32
+        elif torch_dtype == 'fp16':
+            torch_dtype = torch.float16
+        elif torch_dtype == 'bf16':
+            torch_dtype = torch.bfloat16
+        else:
+            torch_dtype = torch.float32 if configuration.get("device", "cpu") else None
         self.tokenizer = LlamaTokenizer.from_pretrained(model_path)
-        self.model = LlamaForCausalLM.from_pretrained(model_path, torch_dtype=torch.float16, device_map='auto')
+        self.model = LlamaForCausalLM.from_pretrained(model_path,
+                                                      torch_dtype=torch_dtype,
+                                                      device_map='auto')
         self.top_k = configuration.get("top_k", 5)
-
+    
     def prepare_item_func(self, item: dl.Item):
         buffer = json.load(item.download(save_locally=False))
         return buffer
@@ -49,6 +60,7 @@ class HuggingAdapter:
 
 
 def model_creation(package: dl.Package):
+
     model = package.models.create(model_name='openllama-huggingface',
                                   description='openllama for chatting - HF',
                                   tags=['llm', 'pretrained', "hugging-face"],
@@ -59,7 +71,7 @@ def model_creation(package: dl.Package):
                                       'weights_filename': 'openllama.pt',
                                       'model_path': 'openlm-research/open_llama_3b',
                                       "module_name": "models.open_llama",
-                                      'device': 'cuda:0'},
+                                      'device': 'cpu'},
                                   project_id=package.project.id
                                   )
     return model
