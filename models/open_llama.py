@@ -55,7 +55,7 @@ class HuggingAdapter:
                     else:
                         print(f"OpenLlama only accepts text prompts, ignoring the current prompt.")
             annotations.append(item_annotations)
-            return annotations
+        return annotations
 
 
 def model_creation(package: dl.Package):
@@ -70,7 +70,7 @@ def model_creation(package: dl.Package):
                                       'weights_filename': 'openllama.pt',
                                       'model_path': 'openlm-research/open_llama_3b',
                                       "module_name": "models.open_llama",
-                                      'device': 'cuda:0'},
+                                      'device': 'cpu'},
                                   project_id=package.project.id
                                   )
     return model
