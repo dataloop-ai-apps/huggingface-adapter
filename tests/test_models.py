@@ -5,8 +5,9 @@ import json
 import random
 import torch
 import numpy as np
-from models import (open_llama, dialogpt_large, dslim_bert_base_ner, facebook_detr_resnet_50_panoptic,
-                    facebook_detr_resnet_101, autocausallm)
+from models import (open_llama, dialogpt_large, dslim_bert_base_ner, autocausallm)
+from models.detr_resnet_101 import facebook_detr_resnet_101
+from models.detr_restnet_50 import facebook_detr_resnet_50_panoptic
 from creation import package_creation
 from model_adapter import ModelAdapter
 from transformers import (GPT2LMHeadModel, GPT2TokenizerFast, LlamaTokenizer, LlamaForCausalLM,

@@ -1,0 +1,92 @@
+{
+  "name": "dslim-bert-huggingface-app",
+  "description": "Dslim Bert",
+  "attributes": {
+    "Provider": "Hugging Face",
+    "License": "Apache 2.0",
+    "Category": "Model",
+    "NLP": "Conversational",
+    "Gen AI": "LLM"
+  },
+  "displayName": "Bert Base NER",
+  "version": "v0.1.10",
+  "scope": "project",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+    "gitTag": "v0.1.10"
+  },
+  "components": {
+    "computeConfigs": [
+      {
+        "name": "dslim-bert-huggingface-deploy",
+        "secrets": [],
+        "runtime": {
+          "podType": "gpu-t4",
+          "concurrency": 1,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 1000
+          },
+          "preemptible": false
+        }
+      }
+    ],
+    "modules": [
+      {
+        "name": "dslim-bert-module",
+        "entryPoint": "model_adapter.py",
+        "className": "ModelAdapter",
+        "computeConfig": "dslim-bert-huggingface-deploy",
+        "initInputs": [
+          {
+            "type": "Model",
+            "name": "model_entity"
+          }
+        ],
+        "functions": [
+          {
+            "name": "predict_items",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The input images for prediction."
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input images for prediction."
+              },
+              {
+                "type": "Annotations[]",
+                "name": "annotations",
+                "description": "The predicted annotations."
+              }
+            ],
+            "displayName": "Predict Items",
+            "displayIcon": "",
+            "description": "The inference function of the model."
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "dslim-bert-huggingface-model",
+        "moduleName": "dslim-bert-module",
+        "scope": "project",
+        "status": "trained",
+        "configuration": {
+          "module_name": "models.dslim_bert_base_ner.dslim_bert_base_ner"
+        },
+        "metadata": {},
+        "description": "dialogpt for chatting - HF"
+      }
+    ]
+  }
+}
