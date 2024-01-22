@@ -2,7 +2,10 @@ import dtlpy as dl
 import torch
 import json
 import os
+import logging
 from transformers import AutoModelForCausalLM, AutoTokenizer
+
+logger = logging.getLogger("[DialoGPT]")
 
 
 class HuggingAdapter:
@@ -23,46 +26,41 @@ class HuggingAdapter:
         return confidence_score
 
     def train(self, data_path, output_path, **kwargs):
-        print("Training not implemented yet")
+        logger.info("Training not implemented yet")
 
     def predict(self, batch, **kwargs):
         annotations = []
         for item in batch:
             prompts = item["prompts"]
-            item_annotations = []
+            item_annotations = dl.AnnotationCollection()
             for prompt_key, prompt_content in prompts.items():
                 chat_history_ids = torch.tensor([])
-                for question in prompt_content.values():
-                    print(f"User: {question['value']}")
-                    new_user_input_ids = self.tokenizer.encode(question["value"] + self.tokenizer.eos_token,
-                                                               return_tensors='pt')
-                    bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1) \
-                        if len(chat_history_ids) else new_user_input_ids
-                    chat_history_ids = self.model.generate(bot_input_ids, max_new_tokens=1000, do_sample=True,
-                                                           pad_token_id=self.tokenizer.eos_token_id, top_k=self.top_k)
-                    response = self.tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0],
-                                                     skip_special_tokens=True)
-                    print("Response: {}".format(response))
-                    item_annotations.append({
-                        "type": "text",
-                        "label": "q",
-                        "coordinates": response,
-                        "metadata": {
-                            "system": {"promptId": prompt_key},
-                            "user": {
-                                "annotation_type": "prediction",
-                                "model": {
-                                    "name": "DialoGPT-Large",
-                                    "confidence": self.compute_confidence(new_user_input_ids)
-                                    }
-                                }}
-                        })
+                questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
+                for i, question in enumerate(questions):
+                    if question['mimetype'] == dl.PromptType.TEXT:
+                        logger.info(f"User: {question['value']}")
+                        new_user_input_ids = self.tokenizer.encode(question["value"] + self.tokenizer.eos_token,
+                                                                   return_tensors='pt')
+                        bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1) \
+                            if len(chat_history_ids) else new_user_input_ids
+                        chat_history_ids = self.model.generate(bot_input_ids, max_new_tokens=1000, do_sample=True,
+                                                               pad_token_id=self.tokenizer.eos_token_id,
+                                                               top_k=self.top_k)
+                        response = self.tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0],
+                                                         skip_special_tokens=True)
+                        logger.info("Response: {}".format(response))
+                        item_annotations.add(annotation_definition=dl.FreeText(text=response),
+                                             prompt_id=prompt_key,
+                                             model_info={'name': "DialoGPT-Large",
+                                                         'confidence': self.compute_confidence(new_user_input_ids)})
+                    else:
+                        logger.warning("Entry ignored. DialoGPT can only answer to text prompts.")
             annotations.append(item_annotations)
         return annotations
 
 
 def model_creation(package: dl.Package):
-    model = package.models.create(model_name='dialogpt-huggingface',
+    model = package.models.create(model_name='dialogpt-huggingface-test',
                                   description='dialogpt for chatting - HF',
                                   tags=['llm', 'pretrained', "hugging-face"],
                                   dataset_id=None,
@@ -71,7 +69,7 @@ def model_creation(package: dl.Package):
                                   configuration={
                                       'weights_filename': 'dialogpt.pt',
                                       "module_name": "models.dialogpt_large",
-                                      'device': 'cuda:0'},
+                                      'device': 'cpu'},
                                   project_id=package.project.id
                                   )
     return model

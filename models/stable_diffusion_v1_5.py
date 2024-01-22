@@ -38,7 +38,7 @@ class HuggingAdapter:
     def predict(self, batch, **kwargs):
         annotations = []
         for prompts in batch:
-            item_annotations = []
+            item_annotations = dl.AnnotationCollection()
             for prompt_key, prompt_text, dataset_id in prompts:
                 image_result = self.model(prompt_text).images[0]
 
@@ -53,20 +53,13 @@ class HuggingAdapter:
                 os.remove(image_result_path)
 
                 stream_url = STREAM_URL.format(str(result_item_id))
-                item_annotations.append({
-                    "type": "binary",
-                    "label": "q",
-                    "coordinates": stream_url,
-                    "metadata": {
-                        "system": {"promptId": prompt_key},
-                        "user": {
-                            "stream": True,
-                            "model": {
-                                "name": self.model_name
-                            }
-                        }
-                    }
-                })
+
+                item_annotations.add(annotation_definition=dl.RefImage(ref=stream_url, mimetype="image/png"),
+                                     prompt_id=prompt_key,
+                                     model_info={
+                                         'name': self.model_name,
+                                         'confidence': 1.0
+                                         })
             annotations.append(item_annotations)
         return annotations
 
