@@ -1,0 +1,92 @@
+{
+  "name": "pegasus-huggingface-app",
+  "description": "Pegasus for for summarize long text - HF",
+  "attributes": {
+    "Provider": "Hugging Face",
+    "License": "Apache 2.0",
+    "Category": "Model",
+    "NLP": "Other",
+    "Gen AI": "LLM"
+  },
+  "displayName": "Pegasus Huggingface App",
+  "version": "v0.1.10",
+  "scope": "project",
+  "components": {
+    "computeConfigs": [
+      {
+        "name": "pegasus-huggingface-deploy",
+        "versions": {
+          "dtlpy": "1.89.6"
+        },
+        "secrets": [],
+        "runtime": {
+          "podType": "gpu-t4",
+          "concurrency": 1,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 1000
+          },
+          "preemptible": false
+        }
+      }
+    ],
+    "modules": [
+      {
+        "name": "pegasus-module",
+        "entryPoint": "model_adapter.py",
+        "className": "ModelAdapter",
+        "computeConfig": "pegasus-huggingface-deploy",
+        "initInputs": [
+          {
+            "type": "Model",
+            "name": "model_entity"
+          }
+        ],
+        "functions": [
+          {
+            "name": "predict_items",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The input images for prediction."
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input images for prediction."
+              },
+              {
+                "type": "Annotations[]",
+                "name": "annotations",
+                "description": "The predicted annotations."
+              }
+            ],
+            "displayName": "Predict Items",
+            "displayIcon": "",
+            "description": "The inference function of the model."
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "pegasus-huggingface-model",
+        "moduleName": "pegasus-module",
+        "scope": "project",
+        "status": "trained",
+        "configuration": {
+          "module_name": "models.pegasus_sumarize",
+          "model_name": "google/pegasus-xsum"
+        },
+        "tags": ["llm", "pretrained", "hugging-face"],
+        "metadata": {},
+        "description": "Pegasus for for summarize long text - HF"
+      }
+    ]
+  }
+}

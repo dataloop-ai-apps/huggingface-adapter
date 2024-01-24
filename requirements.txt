@@ -6,3 +6,4 @@ sentencepiece
 accelerate
 diffusers
 safetensors
+dtlpy
