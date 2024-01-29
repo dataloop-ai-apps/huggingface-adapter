@@ -84,7 +84,7 @@
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "adapters.pix2pix.instruct_pix2pix"
+          "module_name": "adapters.instruct_pix2pix.instruct_pix2pix"
         },
         "metadata": {},
         "description": "pix2pix for chatting - HF"
