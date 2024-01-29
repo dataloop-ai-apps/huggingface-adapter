@@ -20,6 +20,9 @@
     "computeConfigs": [
       {
         "name": "dialogpt-huggingface-deploy",
+        "versions": {
+          "dtlpy": "1.89.6"
+        },
         "secrets": [],
         "runtime": {
           "podType": "gpu-t4",
@@ -84,7 +87,7 @@
         "configuration": {
           "weights_filename": "dialogpt.pt",
           "device": "cuda:0",
-          "module_name": "models.dialogpt_large.dialogpt_large"
+          "module_name": "adapters.dialogpt_large.dialogpt_large"
         },
         "metadata": {},
         "description": "dialogpt for chatting - HF"

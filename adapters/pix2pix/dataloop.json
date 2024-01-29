@@ -19,6 +19,9 @@
     "computeConfigs": [
       {
         "name": "pix2pix-huggingface-deploy",
+        "versions": {
+          "dtlpy": "1.89.6"
+        },
         "secrets": [],
         "runtime": {
           "podType": "gpu-t4",
@@ -77,14 +80,14 @@
     "models": [
       {
         "name": "pix2pix-huggingface-model",
-        "moduleName": "detr-resnet-50-module",
+        "moduleName": "pix2pix-module",
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "models.pix2pix.instruct_pix2pix"
+          "module_name": "adapters.pix2pix.instruct_pix2pix"
         },
         "metadata": {},
-        "description": "resnet-50 for chatting - HF"
+        "description": "pix2pix for chatting - HF"
       }
     ]
   }

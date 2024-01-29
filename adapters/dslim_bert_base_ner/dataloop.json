@@ -20,6 +20,9 @@
     "computeConfigs": [
       {
         "name": "dslim-bert-huggingface-deploy",
+        "versions": {
+          "dtlpy": "1.89.6"
+        },
         "secrets": [],
         "runtime": {
           "podType": "gpu-t4",
@@ -82,7 +85,7 @@
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "models.dslim_bert_base_ner.dslim_bert_base_ner"
+          "module_name": "adapters.dslim_bert_base_ner.dslim_bert_base_ner"
         },
         "metadata": {},
         "description": "dialogpt for chatting - HF"

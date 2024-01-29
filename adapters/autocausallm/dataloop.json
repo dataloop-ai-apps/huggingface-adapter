@@ -20,6 +20,9 @@
     "computeConfigs": [
       {
         "name": "autocausallm-huggingface-deploy",
+        "versions": {
+          "dtlpy": "1.89.6"
+        },
         "secrets": [],
         "runtime": {
           "podType": "gpu-t4",
@@ -83,7 +86,7 @@
         "status": "trained",
         "configuration": {
           "weights_filename": "dialogpt.pt",
-          "module_name": "models.autocausallm.autocausallm",
+          "module_name": "adapters.autocausallm.autocausallm",
           "model_name": "microsoft/DialoGPT-large",
           "tokenizer": "microsoft/DialoGPT-large",
           "device": "cuda:0"

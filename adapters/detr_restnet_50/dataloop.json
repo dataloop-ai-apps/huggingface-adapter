@@ -19,6 +19,9 @@
     "computeConfigs": [
       {
         "name": "detr-resnet-50-huggingface-deploy",
+        "versions": {
+          "dtlpy": "1.89.6"
+        },
         "secrets": [],
         "runtime": {
           "podType": "gpu-t4",
@@ -81,7 +84,7 @@
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "models.detr_restnet_50.facebook_detr_resnet_50_panoptic"
+          "module_name": "adapters.detr_restnet_50.facebook_detr_resnet_50_panoptic"
         },
         "metadata": {},
         "description": "resnet-50 for chatting - HF"

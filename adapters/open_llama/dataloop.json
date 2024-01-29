@@ -84,10 +84,12 @@
                 "moduleName": "openllama-module",
                 "scope": "project",
                 "status": "trained",
-                "configuration": {"weights_filename": "openllama.pt",
-                                  "model_path": "openlm-research/open_llama_3b",
-                                  "module_name": "models.open_llama.open_llama",
-                                  "device": "cuda:0"},
+                "configuration": {
+                    "weights_filename": "openllama.pt",
+                    "model_path": "openlm-research/open_llama_3b",
+                    "module_name": "adapters.open_llama.open_llama",
+                    "device": "cuda:0"
+                },
                 "tags": ["llm", "pretrained", "hugging-face"],
                 "metadata": {},
                 "description": "openllama for chatting - HF"
