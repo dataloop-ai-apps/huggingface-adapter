@@ -5,10 +5,10 @@ import json
 import random
 import torch
 import numpy as np
-from adapters import (open_llama, dialogpt_large, dslim_bert_base_ner, autocausallm)
+from adapters import (open_llama, dialogpt_large, dslim_bert_base_ner, auto_for_causal_lm)
 from adapters.detr_resnet_101 import facebook_detr_resnet_101
 from adapters.detr_restnet_50 import facebook_detr_resnet_50_panoptic
-from creation import package_creation
+# from creation import package_creation
 from model_adapter import ModelAdapter
 from transformers import (GPT2LMHeadModel, GPT2TokenizerFast, LlamaTokenizer, LlamaForCausalLM,
                           BertForTokenClassification, BertTokenizerFast, DetrForSegmentation, DetrFeatureExtractor,
@@ -126,7 +126,7 @@ class MyTestCase(unittest.TestCase):
         # }
         # model = autocausallm.model_creation(self.package, "dialogpt-autocausallm", config)
 
-        with open(r'../adapters/autocausallm/dataloop.json', 'r') as f:
+        with open(r'../adapters/auto_for_causal_lm/dataloop.json', 'r') as f:
             config = json.load(f)
         model = dl.Model.from_json(
             _json=config.get('components', dict()).get('models', list())[0],
