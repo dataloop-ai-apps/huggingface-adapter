@@ -1,6 +1,6 @@
 {
-  "name": "autocausallm-huggingface-app",
-  "description": "autocausallm for chatting - HF",
+  "name": "autoforcausallm-huggingface-app",
+  "description": "AutoForCausalLM for chatting - HF",
   "attributes": {
     "Provider": "Hugging Face",
     "License": "Apache 2.0",
@@ -8,7 +8,7 @@
     "NLP": "Conversational",
     "Gen AI": "LLM"
   },
-  "displayName": "autocausaLLM",
+  "displayName": "AutoForCausalLM",
   "version": "v0.1.10",
   "scope": "project",
   "codebase": {
@@ -19,9 +19,9 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "autocausallm-huggingface-deploy",
+        "name": "autoforcausallm-huggingface-deploy",
         "versions": {
-          "dtlpy": "1.89.6"
+          "dtlpy": "1.89.14"
         },
         "secrets": [],
         "runtime": {
@@ -39,10 +39,10 @@
     ],
     "modules": [
       {
-        "name": "autocausallm-module",
+        "name": "autoforcausallm-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "autocausallm-huggingface-deploy",
+        "computeConfig": "autoforcausallm-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -80,19 +80,19 @@
     ],
     "models": [
       {
-        "name": "autocausallm-huggingface-model",
-        "moduleName": "autocausallm-module",
+        "name": "autoforcausallm-huggingface-model",
+        "moduleName": "autoforcausallm-module",
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "weights_filename": "dialogpt.pt",
-          "module_name": "adapters.autocausallm.autocausallm",
+          "weights_filename": "dialogpt-auto.pt",
+          "module_name": "adapters.auto_for_causal_lm.auto_for_causal_lm",
           "model_name": "microsoft/DialoGPT-large",
           "tokenizer": "microsoft/DialoGPT-large",
           "device": "cuda:0"
         },
         "metadata": {},
-        "description": "Flexible autocausalLM adapter for HF models"
+        "description": "Flexible AutoForCausalLM adapter for HF models"
       }
     ]
   }

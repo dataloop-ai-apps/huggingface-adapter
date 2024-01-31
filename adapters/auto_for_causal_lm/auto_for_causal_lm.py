@@ -43,7 +43,8 @@ class HuggingAdapter:
                         bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1) \
                             if len(chat_history_ids) else new_user_input_ids
                         chat_history_ids = self.model.generate(bot_input_ids, max_new_tokens=1000, do_sample=True,
-                                                               pad_token_id=self.tokenizer.eos_token_id, top_k=self.top_k)
+                                                               pad_token_id=self.tokenizer.eos_token_id,
+                                                               top_k=self.top_k)
                         response = self.tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0],
                                                          skip_special_tokens=True)
                         print("Response: {}".format(response))
@@ -63,12 +64,11 @@ class HuggingAdapter:
 
 def model_creation(package: dl.Package, model_name: str, config: dict):
     model = package.models.create(model_name=model_name,
-                                  description='Flexible autocausalLM adapter for HF models',
+                                  description='Flexible AutoForCausalLM adapter for HF models',
                                   tags=['llm', 'pretrained', "hugging-face"],
                                   dataset_id=None,
                                   status='trained',
                                   scope='project',
                                   configuration=config,
-                                  project_id=package.project.id
-                                  )
+                                  project_id=package.project.id)
     return model
