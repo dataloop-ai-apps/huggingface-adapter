@@ -17,15 +17,24 @@ class HuggingAdapter:
         ready_prompts = []
         for prompt_key, prompt_content in prompts.items():
             image_buffer, prompt_text = None, None
-            for prompt_part in prompt_content:
-                if "image" in prompt_part["mimetype"]:
-                    image_url = prompt_part["value"]
-                    item_id = image_url.split("/stream")[0].split("/items/")[-1]
-                    item = dl.items.get(item_id=item_id)
-                    image_buffer = item.download(save_locally=False)
-                elif "text" in prompt_part["mimetype"]:
-                    prompt_text = prompt_part["value"]
-            ready_prompts.append((prompt_key, image_buffer, prompt_text))
+            prompt_image_found, prompt_text_found = False, False
+            if isinstance(prompt_content, list):
+                for prompt_part in prompt_content:
+                    if "image" in prompt_part["mimetype"]:
+                        image_url = prompt_part["value"]
+                        item_id = image_url.split("/stream")[0].split("/items/")[-1]
+                        item = dl.items.get(item_id=item_id)
+                        image_buffer = item.download(save_locally=False)
+                        prompt_image_found = True
+                    elif "text" in prompt_part["mimetype"]:
+                        prompt_text = prompt_part["value"]
+                        prompt_text_found = True
+                if prompt_image_found and prompt_text_found:
+                    ready_prompts.append((prompt_key, image_buffer, prompt_text))
+                else:
+                    raise ValueError(f"{prompt_key} is missing either an image or a text.")
+            else:
+                raise ValueError(f"{prompt_key} must be a list of image and text.")
 
         return ready_prompts
 
@@ -44,7 +53,8 @@ class HuggingAdapter:
                     annotation_definition=dl.FreeText(text=response),
                     prompt_id=prompt_key,
                     model_info={
-                        'name': self.model_name
+                        'name': self.model_name,
+                        'confidence': 0.5
                         }
                     )
             annotations.append(item_annotations)
