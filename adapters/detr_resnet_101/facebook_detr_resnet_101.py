@@ -44,6 +44,10 @@ class HuggingAdapter:
         processed_outputs = self.feature_extractor.post_process(outputs, img_size)
         return processed_outputs[0]
 
+    def prepare_item_func(self, item: dl.Item):
+        image = item.download(save_locally=False, to_array=True)
+        return image
+
 
 def create_model_entity(package: dl.Package) -> dl.Model:
     hugging = HuggingAdapter({})

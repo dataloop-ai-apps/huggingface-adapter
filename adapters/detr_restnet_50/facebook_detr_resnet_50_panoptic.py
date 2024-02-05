@@ -58,6 +58,10 @@ class HuggingAdapter:
         panoptic_seg_id = self.rgb_to_id(panoptic_seg)
         return panoptic_seg_id
 
+    def prepare_item_func(self, item: dl.Item):
+        image = item.download(save_locally=False, to_array=True)
+        return image
+
 
 def create_model_entity(package: dl.Package) -> dl.Model:
     hugging = HuggingAdapter({})
