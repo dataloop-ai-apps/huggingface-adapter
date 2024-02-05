@@ -1,6 +1,6 @@
 {
   "name": "dialogpt-huggingface-app",
-  "description": "dialogpt for chatting - HF",
+  "description": "DialoGPT is a SOTA large-scale pretrained dialogue response generation model for multiturn conversations.",
   "attributes": {
     "Provider": "Hugging Face",
     "License": "Apache 2.0",
@@ -90,7 +90,7 @@
           "module_name": "adapters.dialogpt_large.dialogpt_large"
         },
         "metadata": {},
-        "description": "dialogpt for chatting - HF"
+        "description": "DialoGPT is a SOTA large-scale pretrained dialogue response generation model for multiturn conversations."
       }
     ]
   }

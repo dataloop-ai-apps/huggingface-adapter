@@ -1,6 +1,6 @@
 {
   "name": "resnet-101-huggingface-app",
-  "description": "Facebook resnet-101 for chatting - HF",
+  "description": "Facebook DETR (End-to-End Object Detection) model with ResNet-101 backbone - DEtection TRansformer (DETR) model trained end-to-end on COCO 2017 object detection (118k annotated images).",
   "attributes": {
     "Provider": "Hugging Face",
     "License": "Apache 2.0",
@@ -87,7 +87,7 @@
           "module_name": "adapters.detr_restnet_101.facebook_detr_resnet_101"
         },
         "metadata": {},
-        "description": "resnet-101 for chatting - HF"
+        "description": "Facebook DETR (End-to-End Object Detection) model with ResNet-101 backbone - DEtection TRansformer (DETR) model trained end-to-end on COCO 2017 object detection (118k annotated images)."
       }
     ]
   }

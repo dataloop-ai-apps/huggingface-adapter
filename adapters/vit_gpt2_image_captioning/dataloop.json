@@ -1,13 +1,13 @@
 {
-  "name": "stable-diffusion-v1-5-huggingface-app",
-  "description": "Stable Diffusion is a latent text-to-image diffusion model capable of generating photo-realistic images given any text input.",
+  "name": "vit-gpt2-image-captioning-huggingface-app",
+  "description": "Vision Transformer (ViT) GPT2 an image captioning model.",
   "attributes": {
     "Provider": "Hugging Face",
     "License": "Apache 2.0",
     "Category": "Model",
     "Computer Vision": "Object Detection"
   },
-  "displayName": "Stable-Diffusion-v1-5",
+  "displayName": "ViT-GPT2-Image-Captioning",
   "version": "v0.1.10",
   "scope": "project",
   "codebase": {
@@ -18,7 +18,7 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "stable-diffusion-v1-5-huggingface-deploy",
+        "name": "vit-gpt2-image-captioning-huggingface-deploy",
         "versions": {
           "dtlpy": "1.89.6"
         },
@@ -38,10 +38,10 @@
     ],
     "modules": [
       {
-        "name": "stable-diffusion-v1-5-module",
+        "name": "vit-gpt2-image-captioning-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "stable-diffusion-v1-5-huggingface-deploy",
+        "computeConfig": "vit-gpt2-image-captioning-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -79,15 +79,15 @@
     ],
     "models": [
       {
-        "name": "stable-diffusion-v1-5-huggingface-model",
-        "moduleName": "stable-diffusion-v1-5-module",
+        "name": "vit-gpt2-image-captioning-huggingface-model",
+        "moduleName": "vit-gpt2-image-captioning-module",
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "adapters.stable_diffusion_v1_5.stable_diffusion_v1_5"
+          "module_name": "adapters.vit_gpt2_image_captioning.vit_gpt2_image_captioning"
         },
         "metadata": {},
-        "description": "Stable Diffusion is a latent text-to-image diffusion model capable of generating photo-realistic images given any text input."
+        "description": "Vision Transformer (ViT) GPT2 an image captioning model."
       }
     ]
   }

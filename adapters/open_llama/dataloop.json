@@ -1,6 +1,6 @@
 {
     "name": "openllama-huggingface-app",
-    "description": "openllama for chatting - HF",
+    "description": "The model is mainly based on LLaMA with some modifications, incorporating memory-efficient attention from Xformers, stable embedding from Bloom, and shared input-output embedding from PaLM.",
     "attributes": {
         "Provider": "Hugging Face",
         "License": "Apache 2.0",
@@ -92,7 +92,7 @@
                 },
                 "tags": ["llm", "pretrained", "hugging-face"],
                 "metadata": {},
-                "description": "openllama for chatting - HF"
+                "description": "The model is mainly based on LLaMA with some modifications, incorporating memory-efficient attention from Xformers, stable embedding from Bloom, and shared input-output embedding from PaLM."
             }
         ]
     }

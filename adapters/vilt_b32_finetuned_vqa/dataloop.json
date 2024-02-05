@@ -1,13 +1,13 @@
 {
   "name": "vilt-b32-finetuned-vqa-huggingface-app",
-  "description": "vilt-b32-finetuned-vqa for chatting - HF",
+  "description": "Vision-and-Language Transformer (ViLT) model fine-tuned on VQAv2.",
   "attributes": {
     "Provider": "Hugging Face",
     "License": "Apache 2.0",
     "Category": "Model",
     "Computer Vision": "Object Detection"
   },
-  "displayName": "Vilt-B32-Finetuned-Vqa",
+  "displayName": "ViLT-B32-Finetuned-Vqa",
   "version": "v0.1.10",
   "scope": "project",
   "codebase": {
@@ -87,7 +87,7 @@
           "module_name": "adapters.vilt_b32_finetuned_vqa.vilt_b32_finetuned_vqa"
         },
         "metadata": {},
-        "description": "vilt-b32-finetuned-vqa for chatting - HF"
+        "description": "Vision-and-Language Transformer (ViLT) model fine-tuned on VQAv2."
       }
     ]
   }
