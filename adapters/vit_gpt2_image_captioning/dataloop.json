@@ -20,7 +20,7 @@
       {
         "name": "vit-gpt2-image-captioning-huggingface-deploy",
         "versions": {
-          "dtlpy": "1.89.6"
+          "dtlpy": "1.89.14"
         },
         "secrets": [],
         "runtime": {
