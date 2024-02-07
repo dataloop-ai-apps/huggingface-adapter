@@ -27,8 +27,7 @@ class HuggingAdapter:
                                        end=res['end']),
                                model_info={'name': model_entity.name,
                                            'confidence': res['score']})
-            item = dl.items.get(item_id='635625d0b9cd072b8ccea910')
-            item.annotations.upload(collection)
+            batch_annotations.append(collection)
         return batch_annotations
 
 
