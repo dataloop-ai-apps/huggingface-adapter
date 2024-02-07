@@ -6,3 +6,4 @@ sentencepiece
 accelerate
 diffusers
 safetensors
+numpy==1.23.5
