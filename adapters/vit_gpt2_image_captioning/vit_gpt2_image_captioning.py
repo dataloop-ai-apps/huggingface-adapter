@@ -55,11 +55,14 @@ class HuggingAdapter:
             for i, response in enumerate(preds):
                 prompt_key = prompt_keys[i]
                 print("Response: {}".format(response))
-                item_annotations.add(annotation_definition=dl.FreeText(text=response),
-                                     prompt_id=prompt_key,
-                                     model_info={
-                                         'name': self.model_name
-                                         })
+                item_annotations.add(
+                    annotation_definition=dl.FreeText(text=response),
+                    prompt_id=prompt_key,
+                    model_info={
+                        'name': self.model_name,
+                        'confidence': 1.0
+                    }
+                )
             annotations.append(item_annotations)
         return annotations
 

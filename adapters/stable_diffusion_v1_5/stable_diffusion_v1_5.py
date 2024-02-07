@@ -54,12 +54,14 @@ class HuggingAdapter:
 
                 stream_url = STREAM_URL.format(str(result_item_id))
 
-                item_annotations.add(annotation_definition=dl.RefImage(ref=stream_url, mimetype="image/png"),
-                                     prompt_id=prompt_key,
-                                     model_info={
-                                         'name': self.model_name,
-                                         'confidence': 1.0
-                                         })
+                item_annotations.add(
+                    annotation_definition=dl.RefImage(ref=stream_url, mimetype="image/png"),
+                    prompt_id=prompt_key,
+                    model_info={
+                        'name': self.model_name,
+                        'confidence': 1.0
+                    }
+                )
             annotations.append(item_annotations)
         return annotations
 

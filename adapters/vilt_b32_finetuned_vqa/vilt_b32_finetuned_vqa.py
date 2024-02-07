@@ -54,7 +54,7 @@ class HuggingAdapter:
                     prompt_id=prompt_key,
                     model_info={
                         'name': self.model_name,
-                        'confidence': 0.5
+                        'confidence': 1.0
                         }
                     )
             annotations.append(item_annotations)
