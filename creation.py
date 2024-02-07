@@ -19,11 +19,11 @@ def package_creation(project: dl.Project, entry_point_path: str = 'model_adapter
                                     package_type='ml',
                                     modules=[modules],
                                     codebase=dl.GitCodebase(git_url='https://github.com/dataloop-ai-apps/huggingface-adapter.git',
-                                                            git_tag='v0.1.9'),
+                                                            git_tag='v0.1.12'),
                                     service_config={
-                                        'runtime': dl.KubernetesRuntime(pod_type=dl.INSTANCE_CATALOG_REGULAR_L,
+                                        'runtime': dl.KubernetesRuntime(pod_type=dl.INSTANCE_CATALOG_REGULAR_M,
                                                                         autoscaler=dl.KubernetesRabbitmqAutoscaler(
-                                                                            min_replicas=1,
+                                                                            min_replicas=0,
                                                                             max_replicas=1),
                                                                         concurrency=1).to_json()},
                                     metadata=metadata)
@@ -33,6 +33,6 @@ def package_creation(project: dl.Project, entry_point_path: str = 'model_adapter
 
 if __name__ == "__main__":
     env = 'prod'
-    project_id = "<SET-PROJECT-ID>"
+    project_id = '<SET-PROJECT-ID>'
     dl.setenv(env)
     package = package_creation(dl.projects.get(project_id=project_id))
