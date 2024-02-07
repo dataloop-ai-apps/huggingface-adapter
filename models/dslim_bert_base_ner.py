@@ -10,6 +10,11 @@ class HuggingAdapter:
         self.model = AutoModelForTokenClassification.from_pretrained("dslim/bert-base-NER")
         self.nlp = pipeline("ner", model=self.model, tokenizer=self.tokenizer)
 
+    def prepare_item_func(self, item: dl.Item):
+        buffer = item.download(save_locally=False)
+        text = buffer.read().decode()
+        return text
+
     def predict(self, model_entity, batch, **kwargs):
         batch_annotations = list()
         for txt in batch:
@@ -27,7 +32,7 @@ class HuggingAdapter:
         return batch_annotations
 
 
-def create_model_entity(package: dl.Package) -> dl.Model:
+def create_model_entity(package: dl.Package, project: dl.Project) -> dl.Model:
     hugging = HuggingAdapter()
     id2label = hugging.model.config.id2label
     model = package.models.create(model_name='dslim/bert-base-NER',
@@ -40,7 +45,9 @@ def create_model_entity(package: dl.Package) -> dl.Model:
                                   configuration={'module_name': 'models.dslim_bert_base_ner',
                                                  'id_to_label_map': id2label,
                                                  'label_to_id_map': {v:k for k,v in id2label.items()}},
-                                  project_id=package.project.id
+                                  project_id=project.id,
+                                  input_type="text",
+                                  output_type="text"
                                   )
     return model
 
