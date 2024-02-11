@@ -6,7 +6,6 @@
     "License": "Apache 2.0",
     "Category": "Model",
     "Media Type": "Text",
-    "Computer Vision": "OCR",
     "NLP": "Text Classification"
   },
   "displayName": "Bert Base NER",
