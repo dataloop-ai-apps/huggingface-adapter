@@ -5,7 +5,8 @@
     "Provider": "Hugging Face",
     "License": "Apache 2.0",
     "Category": "Model",
-    "Computer Vision": "Object Detection"
+    "NLP": "Conversational",
+    "Gen AI": "LMM"
   },
   "displayName": "ViT-GPT2-Image-Captioning",
   "version": "v0.1.10",
