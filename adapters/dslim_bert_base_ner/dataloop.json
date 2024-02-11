@@ -5,8 +5,9 @@
     "Provider": "Hugging Face",
     "License": "Apache 2.0",
     "Category": "Model",
-    "NLP": "Conversational",
-    "Gen AI": "LLM"
+    "Media Type": "Text",
+    "Computer Vision": "OCR",
+    "NLP": "Text Classification"
   },
   "displayName": "Bert Base NER",
   "version": "v0.1.10",
