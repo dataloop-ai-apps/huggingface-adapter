@@ -1,7 +1,10 @@
 import dtlpy as dl
 import torch
 import json
+import logging
 from transformers import AutoModelForCausalLM, AutoTokenizer
+
+logger = logging.getLogger("[AutoModelForCausalLM]")
 
 
 class HuggingAdapter:
@@ -11,6 +14,7 @@ class HuggingAdapter:
         padding_side = configuration.get("padding_side", 'left')
         self.tokenizer = AutoTokenizer.from_pretrained(configuration.get("tokenizer"), padding_side=padding_side)
         self.model = AutoModelForCausalLM.from_pretrained(self.model_name, trust_remote_code=trust_remote_code)
+        self.model.to('cpu')
         self.top_k = configuration.get("top_k", 5)
 
     def prepare_item_func(self, item: dl.Item):
@@ -25,7 +29,7 @@ class HuggingAdapter:
         return confidence_score
 
     def train(self, data_path, output_path, **kwargs):
-        print("Training not implemented yet")
+        logger.info("Training not implemented yet")
 
     def predict(self, batch, **kwargs):
         annotations = []

@@ -1,7 +1,10 @@
 import dtlpy as dl
 import torch
 import json
+import logging
 from transformers import LlamaTokenizer, LlamaForCausalLM
+
+logger = logging.getLogger("[OpenLlama]")
 
 
 class HuggingAdapter:
@@ -32,6 +35,9 @@ class HuggingAdapter:
         top_k_probs, top_k_indices = torch.topk(probs, k=self.top_k)
         confidence_score = top_k_probs.sum().item()
         return confidence_score
+
+    def train(self, data_path, output_path, **kwargs):
+        logger.info("Training not implemented yet")
 
     def predict(self, batch, **kwargs):
         annotations = []

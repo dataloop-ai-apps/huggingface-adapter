@@ -4,10 +4,11 @@ import os
 import shutil
 import PIL
 import dtlpy as dl
-import torch
+import logging
 from diffusers import StableDiffusionInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
 
 STREAM_URL = r"https://gate.dataloop.ai/api/v1/items/{}/stream"
+logger = logging.getLogger("[Pix2Pix]")
 
 
 def create_folder(folder):
@@ -20,9 +21,11 @@ class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
 
-        self.model = StableDiffusionInstructPix2PixPipeline.from_pretrained("timbrooks/instruct-pix2pix",
-                                                                            torch_dtype=torch.float16,
-                                                                            safety_checker=None)
+        self.model = StableDiffusionInstructPix2PixPipeline.from_pretrained(
+            "timbrooks/instruct-pix2pix",
+            # torch_dtype=torch.float32,
+            safety_checker=None
+        )
         self.model.to("cuda")
         self.model.scheduler = EulerAncestralDiscreteScheduler.from_config(self.model.scheduler.config)
         self.results_local_path = "instruct_pix2pix_results"
@@ -56,12 +59,17 @@ class HuggingAdapter:
 
         return ready_prompts
 
+    def train(self, data_path, output_path, **kwargs):
+        logger.info("Training not implemented yet")
+
     def predict(self, batch, **kwargs):
         annotations = []
         for prompts in batch:
             item_annotations = dl.AnnotationCollection()
             for prompt_key, image_buffer, prompt_text, dataset_id in prompts:
-                image_result = self.model(prompt_text, image=PIL.Image.open(image_buffer), num_inference_steps=5,
+                image = PIL.Image.open(image_buffer)
+                image = image.resize(size=(300, 350))
+                image_result = self.model(prompt_text, image=image, num_inference_steps=5,
                                           image_guidance_scale=1).images[0]
                 image_result.show()
                 image_result_path = os.path.join(self.results_local_path,

@@ -1,8 +1,10 @@
 import json
-
 import PIL
 import dtlpy as dl
+import logging
 from transformers import ViltProcessor, ViltForQuestionAnswering
+
+logger = logging.getLogger("[ViLTB32FinetunedVqa]")
 
 
 class HuggingAdapter:
@@ -37,6 +39,9 @@ class HuggingAdapter:
                 raise ValueError(f"{prompt_key} must be a list of image and text.")
 
         return ready_prompts
+
+    def train(self, data_path, output_path, **kwargs):
+        logger.info("Training not implemented yet")
 
     def predict(self, batch, **kwargs):
         annotations = []

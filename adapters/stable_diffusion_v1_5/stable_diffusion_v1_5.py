@@ -4,9 +4,11 @@ import os
 import shutil
 import dtlpy as dl
 import torch
+import logging
 from diffusers import StableDiffusionPipeline
 
 STREAM_URL = r"https://gate.dataloop.ai/api/v1/items/{}/stream"
+logger = logging.getLogger("[StableDiffusionV1.5]")
 
 
 def create_folder(folder):
@@ -19,8 +21,10 @@ class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
 
-        self.model = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5",
-                                                             torch_dtype=torch.float16)
+        self.model = StableDiffusionPipeline.from_pretrained(
+            "runwayml/stable-diffusion-v1-5",
+            # torch_dtype=torch.float16
+        )
         self.model.to("cuda")
         self.results_local_path = "stable_diffusion_v1_5_results"
         create_folder(self.results_local_path)
@@ -34,6 +38,9 @@ class HuggingAdapter:
             prompt_text = prompt_content[0]["value"]
             ready_prompts.append((prompt_key, prompt_text, dataset_id))
         return ready_prompts
+
+    def train(self, data_path, output_path, **kwargs):
+        logger.info("Training not implemented yet")
 
     def predict(self, batch, **kwargs):
         annotations = []

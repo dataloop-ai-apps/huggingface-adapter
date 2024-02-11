@@ -1,6 +1,9 @@
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 import dtlpy as dl
+import logging
+
+logger = logging.getLogger("[DslimBertBaseNER]")
 
 
 class HuggingAdapter:
@@ -14,6 +17,9 @@ class HuggingAdapter:
         buffer = item.download(save_locally=False)
         text = buffer.read().decode()
         return text
+
+    def train(self, data_path, output_path, **kwargs):
+        logger.info("Training not implemented yet")
 
     def predict(self, model_entity, batch, **kwargs):
         batch_annotations = list()

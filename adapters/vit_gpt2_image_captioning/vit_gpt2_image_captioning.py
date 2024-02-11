@@ -1,12 +1,12 @@
-import datetime
 import json
 import os
 import shutil
 import dtlpy as dl
-import torch
-from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
-import torch
 from PIL import Image
+import logging
+from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
+
+logger = logging.getLogger("[ViTGPT2]")
 
 
 def create_folder(folder):
@@ -42,6 +42,9 @@ class HuggingAdapter:
                 ready_prompts.append((prompt_key, image_buffer))
 
         return ready_prompts
+
+    def train(self, data_path, output_path, **kwargs):
+        logger.info("Training not implemented yet")
 
     def predict(self, batch, **kwargs):
         annotations = []
