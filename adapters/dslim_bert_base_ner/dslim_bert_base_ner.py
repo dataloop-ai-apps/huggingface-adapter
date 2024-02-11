@@ -11,6 +11,7 @@ class HuggingAdapter:
         self.configuration = configuration if configuration else {}
         self.tokenizer = AutoTokenizer.from_pretrained("dslim/bert-base-NER")
         self.model = AutoModelForTokenClassification.from_pretrained("dslim/bert-base-NER")
+        self.model.to('cpu')
         self.nlp = pipeline("ner", model=self.model, tokenizer=self.tokenizer)
 
     def prepare_item_func(self, item: dl.Item):

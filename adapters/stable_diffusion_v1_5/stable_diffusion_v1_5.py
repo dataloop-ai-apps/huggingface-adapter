@@ -3,11 +3,10 @@ import json
 import os
 import shutil
 import dtlpy as dl
-import torch
 import logging
 from diffusers import StableDiffusionPipeline
 
-STREAM_URL = r"https://gate.dataloop.ai/api/v1/items/{}/stream"
+# STREAM_URL = r"https://gate.dataloop.ai/api/v1/items/{}/stream"
 logger = logging.getLogger("[StableDiffusionV1.5]")
 
 
@@ -35,8 +34,21 @@ class HuggingAdapter:
         prompts = buffer["prompts"]
         ready_prompts = []
         for prompt_key, prompt_content in prompts.items():
-            prompt_text = prompt_content[0]["value"]
-            ready_prompts.append((prompt_key, prompt_text, dataset_id))
+            questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
+
+            prompt_text_found = False
+            for prompt_part in questions:
+                if "text" in prompt_part["mimetype"]:
+                    prompt_text = prompt_content["value"]
+                    ready_prompts.append((prompt_key, prompt_text, dataset_id))
+                    prompt_text_found = True
+                    break
+                else:
+                    logger.warning(f"Stable Diffusion v1.5 only accepts text prompts, ignoring the current prompt.")
+
+            if not prompt_text_found:
+                raise ValueError(f"{prompt_key} is missing text prompts.")
+
         return ready_prompts
 
     def train(self, data_path, output_path, **kwargs):
@@ -55,12 +67,11 @@ class HuggingAdapter:
 
                 image_result.save(image_result_path)
                 dataset = dl.datasets.get(dataset_id=dataset_id)
-                result_item_id = dataset.items.upload(local_path=image_result_path,
-                                                      remote_path="stable_diffusion_v1_5_results").id
+                result_item = dataset.items.upload(local_path=image_result_path,
+                                                   remote_path="stable_diffusion_v1_5_results")
                 os.remove(image_result_path)
 
-                stream_url = STREAM_URL.format(str(result_item_id))
-
+                stream_url = result_item.stream
                 item_annotations.add(
                     annotation_definition=dl.RefImage(ref=stream_url, mimetype="image/png"),
                     prompt_id=prompt_key,
@@ -70,6 +81,7 @@ class HuggingAdapter:
                     }
                 )
             annotations.append(item_annotations)
+
         return annotations
 
 

@@ -34,12 +34,22 @@ class HuggingAdapter:
         prompts = buffer["prompts"]
         ready_prompts = []
         for prompt_key, prompt_content in prompts.items():
-            if "image" in prompt_content[0]["mimetype"]:
-                image_url = prompt_content[0]["value"]
-                item_id = image_url.split("/stream")[0].split("/items/")[-1]
-                item = dl.items.get(item_id=item_id)
-                image_buffer = item.download(save_locally=False)
-                ready_prompts.append((prompt_key, image_buffer))
+            questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
+
+            prompt_image_found = False
+            for prompt_part in questions:
+                if "image" in prompt_part["mimetype"] and not prompt_image_found:
+                    image_url = prompt_part["value"]
+                    item_id = image_url.split("/stream")[0].split("/items/")[-1]
+                    item = dl.items.get(item_id=item_id)
+                    image_buffer = item.download(save_locally=False)
+                    ready_prompts.append((prompt_key, image_buffer))
+                    prompt_image_found = True
+                else:
+                    logger.warning(f"ViT GPT2 only accepts image prompts, ignoring the current prompt.")
+
+            if not prompt_image_found:
+                raise ValueError(f"{prompt_key} is missing image prompts.")
 
         return ready_prompts
 

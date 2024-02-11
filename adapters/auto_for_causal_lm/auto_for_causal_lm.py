@@ -41,7 +41,7 @@ class HuggingAdapter:
                 questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
                 for question in questions:
                     if question['mimetype'] == dl.PromptType.TEXT:
-                        print(f"User: {question['value']}")
+                        logger.info(f"User: {question['value']}")
                         new_user_input_ids = self.tokenizer.encode(question["value"] + self.tokenizer.eos_token,
                                                                    return_tensors='pt')
                         bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1) \
@@ -51,7 +51,7 @@ class HuggingAdapter:
                                                                top_k=self.top_k)
                         response = self.tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0],
                                                          skip_special_tokens=True)
-                        print("Response: {}".format(response))
+                        logger.info("Response: {}".format(response))
 
                         item_annotations.add(annotation_definition=dl.FreeText(text=response),
                                              prompt_id=prompt_key,
@@ -60,8 +60,8 @@ class HuggingAdapter:
                                                  "confidence": self.compute_confidence(new_user_input_ids),
                                                  })
                     else:
-                        print(f"Model {self.model_name} is an AutoCausalLM and only accepts text prompts. "
-                              f"Ignoring prompt")
+                        logger.warning(f"Model {self.model_name} is an AutoCausalLM and only accepts text prompts. "
+                                       f"Ignoring prompt")
             annotations.append(item_annotations)
         return annotations
 

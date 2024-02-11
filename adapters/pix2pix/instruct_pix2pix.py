@@ -7,7 +7,7 @@ import dtlpy as dl
 import logging
 from diffusers import StableDiffusionInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
 
-STREAM_URL = r"https://gate.dataloop.ai/api/v1/items/{}/stream"
+# STREAM_URL = r"https://gate.dataloop.ai/api/v1/items/{}/stream"
 logger = logging.getLogger("[Pix2Pix]")
 
 
@@ -36,26 +36,32 @@ class HuggingAdapter:
         prompts = buffer["prompts"]
         ready_prompts = []
         for prompt_key, prompt_content in prompts.items():
+            questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
+
             image_buffer, prompt_text, dataset_id = None, None, None
             prompt_image_found, prompt_text_found = False, False
-            if isinstance(prompt_content, list):
-                for prompt_part in prompt_content:
-                    if "image" in prompt_part["mimetype"]:
-                        image_url = prompt_part["value"]
-                        item_id = image_url.split("/stream")[0].split("/items/")[-1]
-                        item = dl.items.get(item_id=item_id)
-                        dataset_id = item.dataset_id
-                        image_buffer = item.download(save_locally=False)
-                        prompt_image_found = True
-                    elif "text" in prompt_part["mimetype"]:
-                        prompt_text = prompt_part["value"]
-                        prompt_text_found = True
-                if prompt_image_found and prompt_text_found:
-                    ready_prompts.append((prompt_key, image_buffer, prompt_text, dataset_id))
+            for prompt_part in questions:
+                if "image" in prompt_part["mimetype"] and not prompt_image_found:
+                    image_url = prompt_part["value"]
+                    item_id = image_url.split("/stream")[0].split("/items/")[-1]
+                    item = dl.items.get(item_id=item_id)
+                    dataset_id = item.dataset_id
+                    image_buffer = item.download(save_locally=False)
+                    prompt_image_found = True
+                elif "text" in prompt_part["mimetype"] and not prompt_text_found:
+                    prompt_text = prompt_part["value"]
+                    prompt_text_found = True
                 else:
-                    raise ValueError(f"{prompt_key} is missing either an image or a text.")
+                    logger.warning(f"Pix2Pix only accepts text and image prompts, ignoring the current prompt.")
+
+                # Break loop after all inputs received
+                if prompt_image_found and prompt_text_found:
+                    break
+
+            if prompt_image_found and prompt_text_found:
+                ready_prompts.append((prompt_key, image_buffer, prompt_text, dataset_id))
             else:
-                raise ValueError(f"{prompt_key} must be a list of image and text.")
+                raise ValueError(f"{prompt_key} is missing either an image or a text.")
 
         return ready_prompts
 
@@ -68,7 +74,7 @@ class HuggingAdapter:
             item_annotations = dl.AnnotationCollection()
             for prompt_key, image_buffer, prompt_text, dataset_id in prompts:
                 image = PIL.Image.open(image_buffer)
-                image = image.resize(size=(300, 350))
+                image = image.resize(size=(512, 512))
                 image_result = self.model(prompt_text, image=image, num_inference_steps=5,
                                           image_guidance_scale=1).images[0]
                 image_result.show()
@@ -77,12 +83,11 @@ class HuggingAdapter:
 
                 image_result.save(image_result_path)
                 dataset = dl.datasets.get(dataset_id=dataset_id)
-                result_item_id = dataset.items.upload(local_path=image_result_path,
-                                                      remote_path="instruct_pix2pix_results").id
+                result_item = dataset.items.upload(local_path=image_result_path,
+                                                   remote_path="instruct_pix2pix_results")
                 os.remove(image_result_path)
 
-                stream_url = STREAM_URL.format(str(result_item_id))
-
+                stream_url = result_item.stream
                 item_annotations.add(annotation_definition=dl.RefImage(ref=stream_url, mimetype="image/png"),
                                      prompt_id=prompt_key,
                                      model_info={
