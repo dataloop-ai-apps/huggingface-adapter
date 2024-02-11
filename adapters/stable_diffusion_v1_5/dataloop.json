@@ -5,7 +5,7 @@
     "Provider": "Hugging Face",
     "License": "Apache 2.0",
     "Category": "Model",
-    "Computer Vision": "Object Detection"
+    "Gen AI": "LMM"
   },
   "displayName": "Stable-Diffusion-v1-5",
   "version": "v0.1.10",
