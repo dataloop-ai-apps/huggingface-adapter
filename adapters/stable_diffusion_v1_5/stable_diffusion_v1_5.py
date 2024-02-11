@@ -39,7 +39,7 @@ class HuggingAdapter:
             prompt_text_found = False
             for prompt_part in questions:
                 if "text" in prompt_part["mimetype"]:
-                    prompt_text = prompt_content["value"]
+                    prompt_text = prompt_part["value"]
                     ready_prompts.append((prompt_key, prompt_text, dataset_id))
                     prompt_text_found = True
                     break
