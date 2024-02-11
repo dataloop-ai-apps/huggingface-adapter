@@ -10,6 +10,11 @@ class HuggingAdapter:
         self.model = AutoModelForTokenClassification.from_pretrained("dslim/bert-base-NER")
         self.nlp = pipeline("ner", model=self.model, tokenizer=self.tokenizer)
 
+    def prepare_item_func(self, item: dl.Item):
+        buffer = item.download(save_locally=False)
+        text = buffer.read().decode()
+        return text
+
     def predict(self, model_entity, batch, **kwargs):
         batch_annotations = list()
         for txt in batch:
@@ -24,11 +29,6 @@ class HuggingAdapter:
                                            'confidence': res['score']})
             batch_annotations.append(collection)
         return batch_annotations
-
-    def prepare_item_func(self, item: dl.Item):
-        buffer = item.download(save_locally=False)
-        text = buffer.read().decode()
-        return text
 
 
 def create_model_entity(package: dl.Package) -> dl.Model:
