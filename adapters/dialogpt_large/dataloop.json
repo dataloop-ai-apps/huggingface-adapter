@@ -1,14 +1,14 @@
 {
-  "name": "dialogpt-huggingface-app",
+  "name": "dialogpt-large-huggingface-app",
   "description": "DialoGPT is a SOTA large-scale pretrained dialogue response generation model for multiturn conversations.",
   "attributes": {
     "Provider": "Hugging Face",
-    "License": "Apache 2.0",
+    "License": "MIT",
     "Category": "Model",
     "NLP": "Conversational",
     "Gen AI": "LLM"
   },
-  "displayName": "DialoGPT",
+  "displayName": "microsoft-DialoGPT-large",
   "version": "v0.1.10",
   "scope": "project",
   "codebase": {
@@ -19,7 +19,7 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "dialogpt-huggingface-deploy",
+        "name": "dialogpt-large-huggingface-deploy",
         "versions": {
           "dtlpy": "1.89.14"
         },
@@ -39,10 +39,10 @@
     ],
     "modules": [
       {
-        "name": "dialogpt-module",
+        "name": "dialogpt-large-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "dialogpt-huggingface-deploy",
+        "computeConfig": "dialogpt-large-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -80,8 +80,8 @@
     ],
     "models": [
       {
-        "name": "dialogpt-huggingface-model",
-        "moduleName": "dialogpt-module",
+        "name": "dialogpt-large-huggingface-model",
+        "moduleName": "dialogpt-large-module",
         "scope": "project",
         "status": "trained",
         "configuration": {

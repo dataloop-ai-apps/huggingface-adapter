@@ -8,7 +8,7 @@
     "NLP": "Conversational",
     "Gen AI": "LMM"
   },
-  "displayName": "ViT-GPT2-Image-Captioning",
+  "displayName": "nlpconnect-vit-gpt2-image-captioning",
   "version": "v0.1.10",
   "scope": "project",
   "codebase": {

@@ -1,14 +1,14 @@
 {
-  "name": "dslim-bert-huggingface-app",
+  "name": "bert-base-ner-huggingface-app",
   "description": "bert-base-NER is a fine-tuned BERT model that is ready to use for Named Entity Recognition and achieves state-of-the-art performance for the NER task.",
   "attributes": {
     "Provider": "Hugging Face",
-    "License": "Apache 2.0",
+    "License": "MIT",
     "Category": "Model",
     "Media Type": "Text",
-    "NLP": "Text Classification"
+    "NLP": "Token Classification"
   },
-  "displayName": "Bert Base NER",
+  "displayName": "dslim-bert-base-NER",
   "version": "v0.1.10",
   "scope": "project",
   "codebase": {
@@ -19,7 +19,7 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "dslim-bert-huggingface-deploy",
+        "name": "bert-base-ner-huggingface-deploy",
         "versions": {
           "dtlpy": "1.89.14"
         },
@@ -39,10 +39,10 @@
     ],
     "modules": [
       {
-        "name": "dslim-bert-module",
+        "name": "bert-base-ner-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "dslim-bert-huggingface-deploy",
+        "computeConfig": "bert-base-ner-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -80,12 +80,12 @@
     ],
     "models": [
       {
-        "name": "dslim-bert-huggingface-model",
-        "moduleName": "dslim-bert-module",
+        "name": "bert-base-ner-huggingface-model",
+        "moduleName": "bert-base-ner-module",
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "adapters.dslim_bert_base_ner.dslim_bert_base_ner"
+          "module_name": "adapters.bert_base_ner.bert_base_ner"
         },
         "metadata": {},
         "description": "bert-base-NER is a fine-tuned BERT model that is ready to use for Named Entity Recognition and achieves state-of-the-art performance for the NER task."

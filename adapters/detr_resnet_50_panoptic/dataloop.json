@@ -1,13 +1,13 @@
 {
-  "name": "detr-resnet-50-huggingface-app",
+  "name": "detr-resnet-50-panoptic-huggingface-app",
   "description": "Facebook DETR (End-to-End Object Detection) model with ResNet-50 backbone - DEtection TRansformer (DETR) model trained end-to-end on COCO 2017 object detection (118k annotated images).",
   "attributes": {
     "Provider": "Hugging Face",
     "License": "Apache 2.0",
     "Category": "Model",
-    "Computer Vision": "Object Detection"
+    "Computer Vision": "Semantic Segmentation"
   },
-  "displayName": "Detr-Resnet-50",
+  "displayName": "facebook-detr-resnet-50-panoptic",
   "version": "v0.1.10",
   "scope": "project",
   "codebase": {
@@ -18,7 +18,7 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "detr-resnet-50-huggingface-deploy",
+        "name": "detr-resnet-50-panoptic-huggingface-deploy",
         "versions": {
           "dtlpy": "1.89.14"
         },
@@ -38,10 +38,10 @@
     ],
     "modules": [
       {
-        "name": "detr-resnet-50-module",
+        "name": "detr-resnet-50-panoptic-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "detr-resnet-50-huggingface-deploy",
+        "computeConfig": "detr-resnet-50-panoptic-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -79,12 +79,12 @@
     ],
     "models": [
       {
-        "name": "detr-resnet-50-huggingface-model",
-        "moduleName": "detr-resnet-50-module",
+        "name": "detr-resnet-50-panoptic-huggingface-model",
+        "moduleName": "detr-resnet-50-panoptic-module",
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "adapters.detr_restnet_50.facebook_detr_resnet_50_panoptic"
+          "module_name": "adapters.detr_resnet_50_panoptic.detr_resnet_50_panoptic"
         },
         "metadata": {},
         "description": "Facebook DETR (End-to-End Object Detection) model with ResNet-50 backbone - DEtection TRansformer (DETR) model trained end-to-end on COCO 2017 object detection (118k annotated images)."

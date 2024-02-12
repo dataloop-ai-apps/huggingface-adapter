@@ -4,7 +4,7 @@ import dtlpy as dl
 import logging
 from transformers import ViltProcessor, ViltForQuestionAnswering
 
-logger = logging.getLogger("[ViLTB32FinetunedVqa]")
+logger = logging.getLogger("[ViLTB32FinetunedVQA]")
 
 
 class HuggingAdapter:

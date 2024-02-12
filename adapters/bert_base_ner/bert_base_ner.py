@@ -3,7 +3,7 @@ from transformers import pipeline
 import dtlpy as dl
 import logging
 
-logger = logging.getLogger("[DslimBertBaseNER]")
+logger = logging.getLogger("[BertBaseNER]")
 
 
 class HuggingAdapter:

@@ -4,7 +4,7 @@ import json
 import logging
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-logger = logging.getLogger("[DialoGPT]")
+logger = logging.getLogger("[DialoGPTLarge]")
 
 
 class HuggingAdapter:

@@ -1,13 +1,13 @@
 {
-  "name": "pix2pix-huggingface-app",
+  "name": "instruct-pix2pix-huggingface-app",
   "description": "InstructPix2Pix is a Stable Diffusion model trained to edit images from human-provided instructions.",
   "attributes": {
     "Provider": "Hugging Face",
-    "License": "Apache 2.0",
+    "License": "MIT",
     "Category": "Model",
     "Gen AI": "LMM"
   },
-  "displayName": "Pix2Pix",
+  "displayName": "timbrooks-instruct-pix2pix",
   "version": "v0.1.10",
   "scope": "project",
   "codebase": {
@@ -18,7 +18,7 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "pix2pix-huggingface-deploy",
+        "name": "instruct-pix2pix-huggingface-deploy",
         "versions": {
           "dtlpy": "1.89.14"
         },
@@ -38,10 +38,10 @@
     ],
     "modules": [
       {
-        "name": "pix2pix-module",
+        "name": "instruct-pix2pix-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "pix2pix-huggingface-deploy",
+        "computeConfig": "instruct-pix2pix-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -79,12 +79,12 @@
     ],
     "models": [
       {
-        "name": "pix2pix-huggingface-model",
-        "moduleName": "pix2pix-module",
+        "name": "instruct-pix2pix-huggingface-model",
+        "moduleName": "instruct-pix2pix-module",
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "adapters.pix2pix.instruct_pix2pix",
+          "module_name": "adapters.instruct_pix2pix.instruct_pix2pix",
           "image_width": 512,
           "image_height": 512
         },

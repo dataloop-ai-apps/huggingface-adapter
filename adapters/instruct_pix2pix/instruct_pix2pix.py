@@ -8,7 +8,7 @@ import logging
 from diffusers import StableDiffusionInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
 
 # STREAM_URL = r"https://gate.dataloop.ai/api/v1/items/{}/stream"
-logger = logging.getLogger("[Pix2Pix]")
+logger = logging.getLogger("[InstructPix2Pix]")
 
 
 def create_folder(folder):

@@ -4,7 +4,7 @@ import json
 import logging
 from transformers import LlamaTokenizer, LlamaForCausalLM
 
-logger = logging.getLogger("[OpenLlama]")
+logger = logging.getLogger("[OpenLlama3b]")
 
 
 class HuggingAdapter:

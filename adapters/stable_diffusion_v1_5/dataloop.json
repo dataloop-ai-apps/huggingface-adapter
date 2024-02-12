@@ -3,11 +3,11 @@
   "description": "Stable Diffusion is a latent text-to-image diffusion model capable of generating photo-realistic images given any text input.",
   "attributes": {
     "Provider": "Hugging Face",
-    "License": "Apache 2.0",
+    "License": "CreativeML Open RAIL-M",
     "Category": "Model",
     "Gen AI": "LMM"
   },
-  "displayName": "Stable-Diffusion-v1-5",
+  "displayName": "runwayml-stable-diffusion-v1-5",
   "version": "v0.1.10",
   "scope": "project",
   "codebase": {
