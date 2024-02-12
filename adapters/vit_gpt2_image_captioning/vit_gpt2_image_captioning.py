@@ -18,6 +18,9 @@ def create_folder(folder):
 class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
+        self.image_width = configuration.get("image_width", 512)
+        self.image_height = configuration.get("image_height", 512)
+
         model_id = "nlpconnect/vit-gpt2-image-captioning"
         self.model = VisionEncoderDecoderModel.from_pretrained(model_id)
         self.feature_extractor = ViTImageProcessor.from_pretrained(model_id)
@@ -83,6 +86,7 @@ class HuggingAdapter:
         images = []
         for image_buffer in image_buffers:
             i_image = Image.open(image_buffer)
+            i_image = i_image.resize(size=(self.image_width, self.image_height))
             if i_image.mode != "RGB":
                 i_image = i_image.convert(mode="RGB")
 

@@ -85,7 +85,9 @@
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "adapters.vit_gpt2_image_captioning.vit_gpt2_image_captioning"
+          "module_name": "adapters.vit_gpt2_image_captioning.vit_gpt2_image_captioning",
+          "image_width": 512,
+          "image_height": 512
         },
         "metadata": {},
         "description": "Vision Transformer (ViT) GPT2 an image captioning model."
