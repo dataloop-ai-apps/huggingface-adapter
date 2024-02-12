@@ -20,6 +20,8 @@ def create_folder(folder):
 class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
+        self.image_width = configuration.get("image_width", 512)
+        self.image_height = configuration.get("image_height", 512)
 
         self.model = StableDiffusionInstructPix2PixPipeline.from_pretrained(
             "timbrooks/instruct-pix2pix",
@@ -74,7 +76,7 @@ class HuggingAdapter:
             item_annotations = dl.AnnotationCollection()
             for prompt_key, image_buffer, prompt_text, dataset_id in prompts:
                 image = PIL.Image.open(image_buffer)
-                image = image.resize(size=(512, 512))
+                image = image.resize(size=(self.image_width, self.image_height))
                 image_result = self.model(prompt_text, image=image, num_inference_steps=5,
                                           image_guidance_scale=1).images[0]
                 image_result.show()

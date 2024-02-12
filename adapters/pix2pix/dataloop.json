@@ -84,7 +84,9 @@
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "adapters.pix2pix.instruct_pix2pix"
+          "module_name": "adapters.pix2pix.instruct_pix2pix",
+          "image_width": 512,
+          "image_height": 512
         },
         "metadata": {},
         "description": "InstructPix2Pix is a Stable Diffusion model trained to edit images from human-provided instructions."
