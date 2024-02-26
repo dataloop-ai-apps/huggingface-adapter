@@ -83,19 +83,3 @@ class HuggingAdapter:
             annotations.append(item_annotations)
 
         return annotations
-
-
-def model_creation(package: dl.Package):
-    model = package.models.create(model_name='stable-diffusion-v1-5',
-                                  description='make image by text',
-                                  tags=["hugging-face"],
-                                  dataset_id=None,
-                                  status='trained',
-                                  scope='public',
-                                  configuration={
-                                      'weights_filename': 'stable_diffusion_v1_5.pt',
-                                      "module_name": "models.stable_diffusion_v1_5",
-                                      'device': 'cuda:0'},
-                                  project_id=package.project.id
-                                  )
-    return model

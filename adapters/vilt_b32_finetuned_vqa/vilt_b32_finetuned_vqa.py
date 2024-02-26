@@ -72,19 +72,3 @@ class HuggingAdapter:
                     )
             annotations.append(item_annotations)
         return annotations
-
-
-def model_creation(package: dl.Package):
-    model = package.models.create(model_name='vilt_b32_finetuned_vqa',
-                                  description='ask question about an image',
-                                  tags=["hugging-face"],
-                                  dataset_id=None,
-                                  status='trained',
-                                  scope='public',
-                                  configuration={
-                                      'weights_filename': 'vilt_b32_finetuned_vqa.pt',
-                                      "module_name": "models.vilt_b32_finetuned_vqa",
-                                      'device': 'cuda:0'},
-                                  project_id=package.project.id
-                                  )
-    return model

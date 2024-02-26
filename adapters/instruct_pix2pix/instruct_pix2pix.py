@@ -98,19 +98,3 @@ class HuggingAdapter:
                                          })
             annotations.append(item_annotations)
         return annotations
-
-
-def model_creation(package: dl.Package):
-    model = package.models.create(model_name='instruct-pix2pix',
-                                  description='change image by text',
-                                  tags=["hugging-face"],
-                                  dataset_id=None,
-                                  status='trained',
-                                  scope='public',
-                                  configuration={
-                                      'weights_filename': 'pix2pix.pt',
-                                      "module_name": "models.instruct_pix2pix",
-                                      'device': 'cuda:0'},
-                                  project_id=package.project.id
-                                  )
-    return model

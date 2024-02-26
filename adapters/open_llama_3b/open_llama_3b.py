@@ -65,21 +65,3 @@ class HuggingAdapter:
                         logger.warning(f"OpenLlama only accepts text prompts, ignoring the current prompt.")
             annotations.append(item_annotations)
         return annotations
-
-
-def model_creation(package: dl.Package):
-
-    model = package.models.create(model_name='openllama-huggingface',
-                                  description='openllama for chatting - HF',
-                                  tags=['llm', 'pretrained', "hugging-face"],
-                                  dataset_id=None,
-                                  status='trained',
-                                  scope='public',
-                                  configuration={
-                                      'weights_filename': 'openllama.pt',
-                                      'model_path': 'openlm-research/open_llama_3b',
-                                      "module_name": "models.open_llama",
-                                      'device': 'cpu'},
-                                  project_id=package.project.id
-                                  )
-    return model

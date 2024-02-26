@@ -57,19 +57,3 @@ class HuggingAdapter:
                         logger.warning("Entry ignored. DialoGPT can only answer to text prompts.")
             annotations.append(item_annotations)
         return annotations
-
-
-def model_creation(package: dl.Package):
-    model = package.models.create(model_name='dialogpt-huggingface-test',
-                                  description='dialogpt for chatting - HF',
-                                  tags=['llm', 'pretrained', "hugging-face"],
-                                  dataset_id=None,
-                                  status='trained',
-                                  scope='public',
-                                  configuration={
-                                      'weights_filename': 'dialogpt.pt',
-                                      "module_name": "models.dialogpt_large",
-                                      'device': 'cpu'},
-                                  project_id=package.project.id
-                                  )
-    return model

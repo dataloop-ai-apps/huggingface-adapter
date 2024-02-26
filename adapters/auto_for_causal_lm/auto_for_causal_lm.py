@@ -64,15 +64,3 @@ class HuggingAdapter:
                                        f"Ignoring prompt")
             annotations.append(item_annotations)
         return annotations
-
-
-def model_creation(package: dl.Package, model_name: str, config: dict):
-    model = package.models.create(model_name=model_name,
-                                  description='Flexible AutoForCausalLM adapter for HF models',
-                                  tags=['llm', 'pretrained', "hugging-face"],
-                                  dataset_id=None,
-                                  status='trained',
-                                  scope='project',
-                                  configuration=config,
-                                  project_id=package.project.id)
-    return model

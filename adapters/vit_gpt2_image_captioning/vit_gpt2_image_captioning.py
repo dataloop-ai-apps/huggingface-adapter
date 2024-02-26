@@ -100,19 +100,3 @@ class HuggingAdapter:
         preds = self.tokenizer.batch_decode(output_ids, skip_special_tokens=True)
         preds = [pred.strip() for pred in preds]
         return preds
-
-
-def model_creation(package: dl.Package):
-    model = package.models.create(model_name='vit-gpt2-image-captioning',
-                                  description='Textual description for the image',
-                                  tags=["hugging-face"],
-                                  dataset_id=None,
-                                  status='trained',
-                                  scope='public',
-                                  configuration={
-                                      'weights_filename': 'vit-gpt2-image-captioning.pt',
-                                      "module_name": "models.vit_gpt2_image_captioning",
-                                      'device': 'cuda:0'},
-                                  project_id=package.project.id
-                                  )
-    return model

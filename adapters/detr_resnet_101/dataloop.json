@@ -8,12 +8,12 @@
     "Computer Vision": "Object Detection"
   },
   "displayName": "facebook-detr-resnet-101",
-  "version": "v0.1.10",
-  "scope": "project",
+  "version": "0.1.12",
+  "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "v0.1.10"
+    "gitTag": "0.1.10"
   },
   "components": {
     "computeConfigs": [
