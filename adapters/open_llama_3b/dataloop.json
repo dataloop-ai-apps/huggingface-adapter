@@ -14,7 +14,7 @@
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.10"
+        "gitTag": "0.1.13"
     },
     "components": {
         "computeConfigs": [
