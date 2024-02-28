@@ -9,7 +9,7 @@
     "NLP": "Token Classification"
   },
   "displayName": "dslim-bert-base-NER",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "scope": "public",
   "codebase": {
     "type": "git",

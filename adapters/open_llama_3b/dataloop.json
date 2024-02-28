@@ -9,7 +9,7 @@
         "Gen AI":"LLM"
     },
     "displayName": "openlm-research-open_llama_3b",
-    "version": "0.1.12",
+    "version": "0.1.13",
     "scope": "public",
     "codebase": {
         "type": "git",

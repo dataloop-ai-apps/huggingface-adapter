@@ -9,7 +9,7 @@
     "Gen AI": "LLM"
   },
   "displayName": "microsoft-DialoGPT-large",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "scope": "public",
   "codebase": {
     "type": "git",

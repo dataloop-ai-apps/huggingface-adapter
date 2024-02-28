@@ -9,7 +9,7 @@
     "Gen AI": "LLM"
   },
   "displayName": "AutoForCausalLM",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "scope": "public",
   "codebase": {
     "type": "git",

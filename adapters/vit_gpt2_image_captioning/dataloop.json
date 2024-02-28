@@ -9,7 +9,7 @@
     "Gen AI": "LMM"
   },
   "displayName": "nlpconnect-vit-gpt2-image-captioning",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "scope": "public",
   "codebase": {
     "type": "git",

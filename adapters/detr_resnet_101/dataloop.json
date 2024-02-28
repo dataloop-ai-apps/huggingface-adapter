@@ -8,7 +8,7 @@
     "Computer Vision": "Object Detection"
   },
   "displayName": "facebook-detr-resnet-101",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "scope": "public",
   "codebase": {
     "type": "git",
