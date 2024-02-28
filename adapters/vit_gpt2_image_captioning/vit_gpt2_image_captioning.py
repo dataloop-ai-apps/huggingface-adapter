@@ -20,12 +20,12 @@ class HuggingAdapter:
         self.model_name = configuration.get("model_name")
         self.image_width = configuration.get("image_width", 512)
         self.image_height = configuration.get("image_height", 512)
+        self.device = configuration.get("device")
 
         model_id = "nlpconnect/vit-gpt2-image-captioning"
         self.model = VisionEncoderDecoderModel.from_pretrained(model_id)
         self.feature_extractor = ViTImageProcessor.from_pretrained(model_id)
         self.tokenizer = AutoTokenizer.from_pretrained(model_id)
-        self.device = "cuda"
         self.model.to(self.device)
         self.gen_kwargs = {"max_length": configuration.get("max_length", 16),
                            "num_beams": configuration.get("num_beams", 4)}

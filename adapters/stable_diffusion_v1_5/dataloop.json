@@ -103,7 +103,8 @@
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "adapters.stable_diffusion_v1_5.stable_diffusion_v1_5"
+          "module_name": "adapters.stable_diffusion_v1_5.stable_diffusion_v1_5",
+          "device": "cuda"
         },
         "metadata": {},
         "description": "Stable Diffusion is a latent text-to-image diffusion model capable of generating photo-realistic images given any text input."

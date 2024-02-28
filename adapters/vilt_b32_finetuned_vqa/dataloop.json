@@ -104,7 +104,8 @@
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "adapters.vilt_b32_finetuned_vqa.vilt_b32_finetuned_vqa"
+          "module_name": "adapters.vilt_b32_finetuned_vqa.vilt_b32_finetuned_vqa",
+          "device": "cpu"
         },
         "metadata": {},
         "description": "Vision-and-Language Transformer (ViLT) model fine-tuned on VQAv2."

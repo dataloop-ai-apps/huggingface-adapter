@@ -106,7 +106,8 @@
         "configuration": {
           "module_name": "adapters.vit_gpt2_image_captioning.vit_gpt2_image_captioning",
           "image_width": 512,
-          "image_height": 512
+          "image_height": 512,
+          "device": "cuda"
         },
         "metadata": {},
         "description": "Vision Transformer (ViT) GPT2 an image captioning model."

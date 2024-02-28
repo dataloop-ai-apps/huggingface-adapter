@@ -10,9 +10,11 @@ logger = logging.getLogger("[ViLTB32FinetunedVQA]")
 class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
+        self.device = configuration.get("device")
+
         self.processor = ViltProcessor.from_pretrained("dandelin/vilt-b32-finetuned-vqa")
         self.model = ViltForQuestionAnswering.from_pretrained("dandelin/vilt-b32-finetuned-vqa")
-        self.model.to('cpu')
+        self.model.to(self.device)
 
     def prepare_item_func(self, item: dl.Item):
         buffer = json.load(item.download(save_locally=False))

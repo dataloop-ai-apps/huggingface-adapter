@@ -7,11 +7,12 @@ logger = logging.getLogger("[BertBaseNER]")
 
 
 class HuggingAdapter:
-    def __init__(self, configuration=None):
-        self.configuration = configuration if configuration else {}
+    def __init__(self, configuration):
+        self.device = configuration.get("device")
+
         self.tokenizer = AutoTokenizer.from_pretrained("dslim/bert-base-NER")
         self.model = AutoModelForTokenClassification.from_pretrained("dslim/bert-base-NER")
-        self.model.to('cpu')
+        self.model.to(self.device)
         self.nlp = pipeline("ner", model=self.model, tokenizer=self.tokenizer)
 
     def prepare_item_func(self, item: dl.Item):

@@ -22,13 +22,14 @@ class HuggingAdapter:
         self.model_name = configuration.get("model_name")
         self.image_width = configuration.get("image_width", 512)
         self.image_height = configuration.get("image_height", 512)
+        self.device = configuration.get("device")
 
         self.model = StableDiffusionInstructPix2PixPipeline.from_pretrained(
             "timbrooks/instruct-pix2pix",
             # torch_dtype=torch.float32,
             safety_checker=None
         )
-        self.model.to("cuda")
+        self.model.to(self.device)
         self.model.scheduler = EulerAncestralDiscreteScheduler.from_config(self.model.scheduler.config)
         self.results_local_path = "instruct_pix2pix_results"
         create_folder(self.results_local_path)

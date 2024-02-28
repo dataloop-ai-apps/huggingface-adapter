@@ -10,11 +10,13 @@ logger = logging.getLogger("[AutoModelForCausalLM]")
 class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
+        self.device = configuration.get("device")
+
         trust_remote_code = configuration.get("trust_remote_code", False)
         padding_side = configuration.get("padding_side", 'left')
         self.tokenizer = AutoTokenizer.from_pretrained(configuration.get("tokenizer"), padding_side=padding_side)
         self.model = AutoModelForCausalLM.from_pretrained(self.model_name, trust_remote_code=trust_remote_code)
-        self.model.to('cpu')
+        self.model.to(self.device)
         self.top_k = configuration.get("top_k", 5)
 
     def prepare_item_func(self, item: dl.Item):

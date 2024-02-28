@@ -9,9 +9,11 @@ logger = logging.getLogger("[DialoGPTLarge]")
 
 class HuggingAdapter:
     def __init__(self, configuration):
+        self.device = configuration.get("device")
+
         self.tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-large", padding_side='left')
         self.model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-large")
-        self.model.to('cpu')
+        self.model.to(self.device)
         self.top_k = configuration.get("top_k", 5)
 
     def prepare_item_func(self, item: dl.Item):

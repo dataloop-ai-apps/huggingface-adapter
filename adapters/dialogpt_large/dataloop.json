@@ -105,8 +105,8 @@
         "status": "trained",
         "configuration": {
           "weights_filename": "dialogpt.pt",
-          "device": "cuda:0",
-          "module_name": "adapters.dialogpt_large.dialogpt_large"
+          "module_name": "adapters.dialogpt_large.dialogpt_large",
+          "device": "cpu"
         },
         "metadata": {},
         "description": "DialoGPT is a SOTA large-scale pretrained dialogue response generation model for multiturn conversations."

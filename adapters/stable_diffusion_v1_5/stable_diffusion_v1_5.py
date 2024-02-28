@@ -19,12 +19,13 @@ def create_folder(folder):
 class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
+        self.device = configuration.get("device")
 
         self.model = StableDiffusionPipeline.from_pretrained(
             "runwayml/stable-diffusion-v1-5",
             # torch_dtype=torch.float16
         )
-        self.model.to("cuda")
+        self.model.to(self.device)
         self.results_local_path = "stable_diffusion_v1_5_results"
         create_folder(self.results_local_path)
 

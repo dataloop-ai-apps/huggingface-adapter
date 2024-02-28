@@ -108,7 +108,7 @@
           "module_name": "adapters.auto_for_causal_lm.auto_for_causal_lm",
           "model_name": "microsoft/DialoGPT-large",
           "tokenizer": "microsoft/DialoGPT-large",
-          "device": "cuda:0"
+          "device": "cpu"
         },
         "metadata": {},
         "description": "Flexible AutoForCausalLM adapter for HF models"
