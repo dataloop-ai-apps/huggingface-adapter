@@ -57,8 +57,8 @@ class HuggingAdapter:
         annotations = []
         for prompts in batch:
             item_annotations = dl.AnnotationCollection()
-            for prompt_key, image_buffer, prompt_text in prompts:
-                encoding = self.processor(PIL.Image.open(image_buffer), prompt_text, return_tensors="pt")
+            for prompt_key, image_buffer, prompt_txt in prompts:
+                encoding = self.processor(PIL.Image.open(image_buffer), prompt_txt, return_tensors="pt").to(self.device)
                 outputs = self.model(**encoding)
                 logits = outputs.logits
                 idx = logits.argmax(-1).item()
