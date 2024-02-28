@@ -5,7 +5,6 @@ import json
 import random
 import torch
 import numpy as np
-# from creation import package_creation
 from model_adapter import ModelAdapter
 from transformers import (GPT2LMHeadModel, GPT2TokenizerFast, LlamaTokenizer, LlamaForCausalLM,
                           BertForTokenClassification, BertTokenizerFast, DetrForSegmentation, DetrFeatureExtractor,
