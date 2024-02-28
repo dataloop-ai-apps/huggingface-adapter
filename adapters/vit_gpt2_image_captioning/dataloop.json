@@ -1,0 +1,117 @@
+{
+  "name": "vit-gpt2-image-captioning-huggingface-app",
+  "description": "Vision Transformer (ViT) GPT2 an image captioning model.",
+  "attributes": {
+    "Provider": "Hugging Face",
+    "License": "Apache 2.0",
+    "Category": "Model",
+    "NLP": "Conversational",
+    "Gen AI": "LMM"
+  },
+  "displayName": "nlpconnect-vit-gpt2-image-captioning",
+  "version": "0.1.12",
+  "scope": "public",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+    "gitTag": "0.1.10"
+  },
+  "components": {
+    "computeConfigs": [
+      {
+        "name": "vit-gpt2-image-captioning-huggingface-deploy",
+        "versions": {
+          "dtlpy": "1.89.14"
+        },
+        "secrets": [],
+        "runtime": {
+          "podType": "gpu-t4",
+          "concurrency": 1,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 1000
+          },
+          "preemptible": false
+        }
+      }
+    ],
+    "modules": [
+      {
+        "name": "vit-gpt2-image-captioning-module",
+        "entryPoint": "model_adapter.py",
+        "className": "ModelAdapter",
+        "computeConfig": "vit-gpt2-image-captioning-huggingface-deploy",
+        "initInputs": [
+          {
+            "type": "Model",
+            "name": "model_entity"
+          }
+        ],
+        "functions": [
+          {
+            "name": "predict_items",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The input images for prediction."
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input images for prediction."
+              },
+              {
+                "type": "Annotation[]",
+                "name": "annotations",
+                "description": "The predicted annotations."
+              }
+            ],
+            "displayName": "Predict Items",
+            "displayIcon": "",
+            "description": "The inference function of the model."
+          },
+          {
+            "name": "predict_dataset",
+            "input": [
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "The input dataset of the items required for prediction."
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "The DQL in json format to get all the items required for prediction."
+              }
+            ],
+            "output": [],
+            "displayName": "Predict Dataset",
+            "displayIcon": "",
+            "description": "Inference function of the model on a dataset."
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "vit-gpt2-image-captioning-huggingface-model",
+        "moduleName": "vit-gpt2-image-captioning-module",
+        "scope": "project",
+        "status": "trained",
+        "configuration": {
+          "module_name": "adapters.vit_gpt2_image_captioning.vit_gpt2_image_captioning",
+          "image_width": 512,
+          "image_height": 512,
+          "device": "cuda"
+        },
+        "metadata": {},
+        "description": "Vision Transformer (ViT) GPT2 an image captioning model."
+      }
+    ]
+  }
+}

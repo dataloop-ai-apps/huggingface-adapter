@@ -1,0 +1,116 @@
+{
+  "name": "dialogpt-large-huggingface-app",
+  "description": "DialoGPT is a SOTA large-scale pretrained dialogue response generation model for multiturn conversations.",
+  "attributes": {
+    "Provider": "Hugging Face",
+    "License": "MIT",
+    "Category": "Model",
+    "NLP": "Conversational",
+    "Gen AI": "LLM"
+  },
+  "displayName": "microsoft-DialoGPT-large",
+  "version": "0.1.12",
+  "scope": "public",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+    "gitTag": "0.1.10"
+  },
+  "components": {
+    "computeConfigs": [
+      {
+        "name": "dialogpt-large-huggingface-deploy",
+        "versions": {
+          "dtlpy": "1.89.14"
+        },
+        "secrets": [],
+        "runtime": {
+          "podType": "highmem-l",
+          "concurrency": 1,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 1000
+          },
+          "preemptible": false
+        }
+      }
+    ],
+    "modules": [
+      {
+        "name": "dialogpt-large-module",
+        "entryPoint": "model_adapter.py",
+        "className": "ModelAdapter",
+        "computeConfig": "dialogpt-large-huggingface-deploy",
+        "initInputs": [
+          {
+            "type": "Model",
+            "name": "model_entity"
+          }
+        ],
+        "functions": [
+          {
+            "name": "predict_items",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The input images for prediction."
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input images for prediction."
+              },
+              {
+                "type": "Annotation[]",
+                "name": "annotations",
+                "description": "The predicted annotations."
+              }
+            ],
+            "displayName": "Predict Items",
+            "displayIcon": "",
+            "description": "The inference function of the model."
+          },
+          {
+            "name": "predict_dataset",
+            "input": [
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "The input dataset of the items required for prediction."
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "The DQL in json format to get all the items required for prediction."
+              }
+            ],
+            "output": [],
+            "displayName": "Predict Dataset",
+            "displayIcon": "",
+            "description": "Inference function of the model on a dataset."
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "dialogpt-large-huggingface-model",
+        "moduleName": "dialogpt-large-module",
+        "scope": "project",
+        "status": "trained",
+        "configuration": {
+          "weights_filename": "dialogpt.pt",
+          "module_name": "adapters.dialogpt_large.dialogpt_large",
+          "device": "cpu"
+        },
+        "metadata": {},
+        "description": "DialoGPT is a SOTA large-scale pretrained dialogue response generation model for multiturn conversations."
+      }
+    ]
+  }
+}

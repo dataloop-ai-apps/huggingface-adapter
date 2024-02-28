@@ -1,12 +1,12 @@
-import datetime
 import json
 import os
 import shutil
 import dtlpy as dl
-import torch
-from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
-import torch
 from PIL import Image
+import logging
+from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
+
+logger = logging.getLogger("[ViTGPT2ImageCaptioning]")
 
 
 def create_folder(folder):
@@ -18,11 +18,14 @@ def create_folder(folder):
 class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
+        self.image_width = configuration.get("image_width", 512)
+        self.image_height = configuration.get("image_height", 512)
+        self.device = configuration.get("device")
+
         model_id = "nlpconnect/vit-gpt2-image-captioning"
         self.model = VisionEncoderDecoderModel.from_pretrained(model_id)
         self.feature_extractor = ViTImageProcessor.from_pretrained(model_id)
         self.tokenizer = AutoTokenizer.from_pretrained(model_id)
-        self.device = "cuda"
         self.model.to(self.device)
         self.gen_kwargs = {"max_length": configuration.get("max_length", 16),
                            "num_beams": configuration.get("num_beams", 4)}
@@ -34,14 +37,27 @@ class HuggingAdapter:
         prompts = buffer["prompts"]
         ready_prompts = []
         for prompt_key, prompt_content in prompts.items():
-            if "image" in prompt_content[0]["mimetype"]:
-                image_url = prompt_content[0]["value"]
-                item_id = image_url.split("/stream")[0].split("/items/")[-1]
-                item = dl.items.get(item_id=item_id)
-                image_buffer = item.download(save_locally=False)
-                ready_prompts.append((prompt_key, image_buffer))
+            questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
+
+            prompt_image_found = False
+            for prompt_part in questions:
+                if "image" in prompt_part["mimetype"] and not prompt_image_found:
+                    image_url = prompt_part["value"]
+                    item_id = image_url.split("/stream")[0].split("/items/")[-1]
+                    item = dl.items.get(item_id=item_id)
+                    image_buffer = item.download(save_locally=False)
+                    ready_prompts.append((prompt_key, image_buffer))
+                    prompt_image_found = True
+                else:
+                    logger.warning(f"ViT GPT2 only accepts image prompts, ignoring the current prompt.")
+
+            if not prompt_image_found:
+                raise ValueError(f"{prompt_key} is missing image prompts.")
 
         return ready_prompts
+
+    def train(self, data_path, output_path, **kwargs):
+        logger.info("Training not implemented yet")
 
     def predict(self, batch, **kwargs):
         annotations = []
@@ -55,11 +71,14 @@ class HuggingAdapter:
             for i, response in enumerate(preds):
                 prompt_key = prompt_keys[i]
                 print("Response: {}".format(response))
-                item_annotations.add(annotation_definition=dl.FreeText(text=response),
-                                     prompt_id=prompt_key,
-                                     model_info={
-                                         'name': self.model_name
-                                         })
+                item_annotations.add(
+                    annotation_definition=dl.FreeText(text=response),
+                    prompt_id=prompt_key,
+                    model_info={
+                        'name': self.model_name,
+                        'confidence': 1.0
+                    }
+                )
             annotations.append(item_annotations)
         return annotations
 
@@ -67,6 +86,7 @@ class HuggingAdapter:
         images = []
         for image_buffer in image_buffers:
             i_image = Image.open(image_buffer)
+            i_image = i_image.resize(size=(self.image_width, self.image_height))
             if i_image.mode != "RGB":
                 i_image = i_image.convert(mode="RGB")
 
@@ -80,19 +100,3 @@ class HuggingAdapter:
         preds = self.tokenizer.batch_decode(output_ids, skip_special_tokens=True)
         preds = [pred.strip() for pred in preds]
         return preds
-
-
-def model_creation(package: dl.Package):
-    model = package.models.create(model_name='vit-gpt2-image-captioning',
-                                  description='Textual description for the image',
-                                  tags=["hugging-face"],
-                                  dataset_id=None,
-                                  status='trained',
-                                  scope='public',
-                                  configuration={
-                                      'weights_filename': 'vit-gpt2-image-captioning.pt',
-                                      "module_name": "models.vit_gpt2_image_captioning",
-                                      'device': 'cuda:0'},
-                                  project_id=package.project.id
-                                  )
-    return model

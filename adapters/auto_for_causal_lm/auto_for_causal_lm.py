@@ -1,17 +1,22 @@
 import dtlpy as dl
 import torch
 import json
-import os
 import logging
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-logger = logging.getLogger("[DialoGPT]")
+logger = logging.getLogger("[AutoModelForCausalLM]")
 
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-large", padding_side='left')
-        self.model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-large")
+        self.model_name = configuration.get("model_name")
+        self.device = configuration.get("device")
+
+        trust_remote_code = configuration.get("trust_remote_code", False)
+        padding_side = configuration.get("padding_side", 'left')
+        self.tokenizer = AutoTokenizer.from_pretrained(configuration.get("tokenizer"), padding_side=padding_side)
+        self.model = AutoModelForCausalLM.from_pretrained(self.model_name, trust_remote_code=trust_remote_code)
+        self.model.to(self.device)
         self.top_k = configuration.get("top_k", 5)
 
     def prepare_item_func(self, item: dl.Item):
@@ -36,7 +41,7 @@ class HuggingAdapter:
             for prompt_key, prompt_content in prompts.items():
                 chat_history_ids = torch.tensor([])
                 questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
-                for i, question in enumerate(questions):
+                for question in questions:
                     if question['mimetype'] == dl.PromptType.TEXT:
                         logger.info(f"User: {question['value']}")
                         new_user_input_ids = self.tokenizer.encode(question["value"] + self.tokenizer.eos_token,
@@ -49,27 +54,15 @@ class HuggingAdapter:
                         response = self.tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0],
                                                          skip_special_tokens=True)
                         logger.info("Response: {}".format(response))
+
                         item_annotations.add(annotation_definition=dl.FreeText(text=response),
                                              prompt_id=prompt_key,
-                                             model_info={'name': "DialoGPT-Large",
-                                                         'confidence': self.compute_confidence(new_user_input_ids)})
+                                             model_info={
+                                                 "name": self.model_name,
+                                                 "confidence": self.compute_confidence(new_user_input_ids),
+                                                 })
                     else:
-                        logger.warning("Entry ignored. DialoGPT can only answer to text prompts.")
+                        logger.warning(f"Model {self.model_name} is an AutoCausalLM and only accepts text prompts. "
+                                       f"Ignoring prompt")
             annotations.append(item_annotations)
         return annotations
-
-
-def model_creation(package: dl.Package):
-    model = package.models.create(model_name='dialogpt-huggingface-test',
-                                  description='dialogpt for chatting - HF',
-                                  tags=['llm', 'pretrained', "hugging-face"],
-                                  dataset_id=None,
-                                  status='trained',
-                                  scope='public',
-                                  configuration={
-                                      'weights_filename': 'dialogpt.pt',
-                                      "module_name": "models.dialogpt_large",
-                                      'device': 'cpu'},
-                                  project_id=package.project.id
-                                  )
-    return model
