@@ -9,10 +9,6 @@ logger = logging.getLogger('huggingface-adapter')
                               description='Model Adapter for HuggingFace models',
                               init_inputs={'model_entity': dl.Model})
 class ModelAdapter(dl.BaseModelAdapter):
-    """
-
-    """
-
     def load(self, local_path, **kwargs):
         """ Loads model and populates self.model with a `runnable` model
 

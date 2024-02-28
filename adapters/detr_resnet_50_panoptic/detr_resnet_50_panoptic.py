@@ -42,7 +42,6 @@ class HuggingAdapter:
         return int(color[0] + 256 * color[1] + 256 * 256 * color[2])
 
     def make_prediction(self, image):
-
         # prepare image for the model
         inputs = self.feature_extractor(images=image, return_tensors="pt")
 
