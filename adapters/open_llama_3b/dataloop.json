@@ -106,7 +106,7 @@
                 "configuration": {
                     "weights_filename": "openllama.pt",
                     "model_path": "openlm-research/open_llama_3b",
-                    "module_name": "adapters.open_llama.open_llama",
+                    "module_name": "adapters.open_llama_3b.open_llama",
                     "device": "cuda:0"
                 },
                 "tags": ["llm", "pretrained", "hugging-face"],
