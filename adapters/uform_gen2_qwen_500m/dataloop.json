@@ -1,6 +1,6 @@
 {
-  "name": "vilt-b32-finetuned-vqa-huggingface-app",
-  "description": "Vision-and-Language Transformer (ViLT) model fine-tuned on VQAv2.",
+  "name": "uform-gen2-qwen-500m-huggingface-app",
+  "description": "UForm-Gen is a small generative vision-language model primarily designed for Image Captioning and Visual Question Answering.",
   "attributes": {
     "Provider": "Hugging Face",
     "License": "Apache 2.0",
@@ -8,7 +8,7 @@
     "NLP": "Conversational",
     "Gen AI": "LMM"
   },
-  "displayName": "dandelin-vilt-b32-finetuned-vqa",
+  "displayName": "uform-gen2-qwen-500m",
   "version": "0.1.17",
   "scope": "public",
   "codebase": {
@@ -19,13 +19,13 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "vilt-b32-finetuned-vqa-huggingface-deploy",
+        "name": "uform-gen2-qwen-500m-huggingface-deploy",
         "versions": {
           "dtlpy": "1.89.14"
         },
         "secrets": [],
         "runtime": {
-          "podType": "highmem-l",
+          "podType": "regular-m",
           "concurrency": 1,
           "autoscaler": {
             "type": "rabbitmq",
@@ -39,10 +39,10 @@
     ],
     "modules": [
       {
-        "name": "vilt-b32-finetuned-vqa-module",
+        "name": "uform-gen2-qwen-500m-vqa-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "vilt-b32-finetuned-vqa-huggingface-deploy",
+        "computeConfig": "uform-gen2-qwen-500m-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -99,13 +99,14 @@
     ],
     "models": [
       {
-        "name": "vilt-b32-finetuned-vqa-huggingface-model",
-        "moduleName": "vilt-b32-finetuned-vqa-module",
+        "name": "uform-gen2-qwen-500m-huggingface-model",
+        "moduleName": "uform-gen2-qwen-500m-module",
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "adapters.vilt_b32_finetuned_vqa.vilt_b32_finetuned_vqa",
-          "device": "cpu"
+          "module_name": "adapters.uform-gen2-qwen-500m.uform-gen2-qwen-500m",
+          "device": "cpu",
+          "captioning": false
         },
         "metadata": {},
         "description": "Vision-and-Language Transformer (ViLT) model fine-tuned on VQAv2."
