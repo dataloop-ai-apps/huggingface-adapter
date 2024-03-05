@@ -106,7 +106,7 @@
         "configuration": {
           "module_name": "adapters.blip_image_captioning_large.blip_image_captioning_large",
           "device": "cpu",
-          "captioning": true
+          "conditioning": false
         },
         "metadata": {},
         "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation"
