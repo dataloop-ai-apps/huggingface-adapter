@@ -39,7 +39,7 @@
     ],
     "modules": [
       {
-        "name": "uform-gen2-qwen-500m-vqa-module",
+        "name": "uform-gen2-qwen-500m-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
         "computeConfig": "uform-gen2-qwen-500m-huggingface-deploy",
@@ -109,7 +109,7 @@
           "captioning": false
         },
         "metadata": {},
-        "description": "Vision-and-Language Transformer (ViLT) model fine-tuned on VQAv2."
+        "description": "UForm-Gen is a small generative vision-language model primarily designed for Image Captioning and Visual Question Answering."
       }
     ]
   }
