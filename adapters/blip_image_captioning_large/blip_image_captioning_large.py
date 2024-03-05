@@ -13,7 +13,7 @@ class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
         self.device = configuration.get("device")
-        self.captioning = configuration.get("captioning", False)
+        self.conditioning = configuration.get("conditioning", False)
 
         self.model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large")
         self.processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
@@ -27,9 +27,9 @@ class HuggingAdapter:
             questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
 
             image_buffer = None
-            prompt_text = CAPTIONING_PROMPT if self.captioning else None
+            prompt_text = None
             prompt_image_found = False
-            prompt_text_found = self.captioning
+            prompt_text_found = not self.conditioning
             for prompt_part in questions:
                 if "image" in prompt_part["mimetype"] and not prompt_image_found:
                     image_url = prompt_part["value"]
