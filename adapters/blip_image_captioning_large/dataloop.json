@@ -1,14 +1,14 @@
 {
-  "name": "uform-gen2-qwen-500m-huggingface-app",
-  "description": "UForm-Gen is a small generative vision-language model primarily designed for Image Captioning and Visual Question Answering.",
+  "name": "blip-image-captioning-large-huggingface-app",
+  "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation",
   "attributes": {
     "Provider": "Hugging Face",
-    "License": "Apache 2.0",
+    "License": "BSD-3-Clause",
     "Category": "Model",
     "NLP": "Conversational",
     "Gen AI": "LMM"
   },
-  "displayName": "uform-gen2-qwen-500m",
+  "displayName": "blip-image-captioning-large",
   "version": "0.1.19",
   "scope": "public",
   "codebase": {
@@ -19,7 +19,7 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "uform-gen2-qwen-500m-huggingface-deploy",
+        "name": "blip-image-captioning-large-huggingface-deploy",
         "versions": {
           "dtlpy": "1.89.14"
         },
@@ -39,10 +39,10 @@
     ],
     "modules": [
       {
-        "name": "uform-gen2-qwen-500m-module",
+        "name": "blip-image-captioning-large-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "uform-gen2-qwen-500m-huggingface-deploy",
+        "computeConfig": "blip-image-captioning-large-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -99,17 +99,17 @@
     ],
     "models": [
       {
-        "name": "uform-gen2-qwen-500m-huggingface-model",
-        "moduleName": "uform-gen2-qwen-500m-module",
+        "name": "blip-image-captioning-large-huggingface-model",
+        "moduleName": "blip-image-captioning-large-module",
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "adapters.uform_gen2_qwen_500m.uform_gen2_qwen_500m",
+          "module_name": "adapters.blip_image_captioning_large.blip_image_captioning_large",
           "device": "cpu",
-          "captioning": false
+          "captioning": true
         },
         "metadata": {},
-        "description": "UForm-Gen is a small generative vision-language model primarily designed for Image Captioning and Visual Question Answering."
+        "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation"
       }
     ]
   }
