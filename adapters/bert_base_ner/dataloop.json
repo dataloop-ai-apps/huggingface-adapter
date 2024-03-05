@@ -9,12 +9,12 @@
     "NLP": "Token Classification"
   },
   "displayName": "dslim-bert-base-NER",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.18"
+    "gitTag": "0.1.19"
   },
   "components": {
     "computeConfigs": [
