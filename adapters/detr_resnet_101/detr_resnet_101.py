@@ -44,21 +44,6 @@ class HuggingAdapter:
         processed_outputs = self.feature_extractor.post_process(outputs, img_size)
         return processed_outputs[0]
 
-
-def create_model_entity(package: dl.Package) -> dl.Model:
-    hugging = HuggingAdapter({})
-    id2label = hugging.model.config.id2label
-    model = package.models.create(model_name='facebook/detr-resnet-101',
-                                  description='facebook/detr-resnet-101',
-                                  tags=['pretrained', 'microsoft', 'ocr', 'facebook', 'huggingface'],
-                                  dataset_id=None,
-                                  scope='project',
-                                  status='trained',
-                                  labels=list(id2label.values()),
-                                  configuration={'module_name': 'models.facebook_detr_resnet_101',
-                                                 'id_to_label_map': id2label,
-                                                 'label_to_id_map': {v: k for k, v in id2label.items()}},
-                                  project_id=package.project.id,
-
-                                  )
-    return model
+    def prepare_item_func(self, item: dl.Item):
+        image = item.download(save_locally=False, to_array=True)
+        return image

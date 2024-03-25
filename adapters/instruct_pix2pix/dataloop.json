@@ -1,0 +1,116 @@
+{
+  "name": "instruct-pix2pix-huggingface-app",
+  "description": "InstructPix2Pix is a Stable Diffusion model trained to edit images from human-provided instructions.",
+  "attributes": {
+    "Provider": "Hugging Face",
+    "License": "MIT",
+    "Category": "Model",
+    "Gen AI": "LMM"
+  },
+  "displayName": "timbrooks-instruct-pix2pix",
+  "version": "0.1.21",
+  "scope": "public",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+    "gitTag": "0.1.21"
+  },
+  "components": {
+    "computeConfigs": [
+      {
+        "name": "instruct-pix2pix-huggingface-deploy",
+        "versions": {
+          "dtlpy": "1.89.14"
+        },
+        "secrets": [],
+        "runtime": {
+          "podType": "gpu-t4",
+          "concurrency": 1,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 1000
+          },
+          "preemptible": false
+        }
+      }
+    ],
+    "modules": [
+      {
+        "name": "instruct-pix2pix-module",
+        "entryPoint": "model_adapter.py",
+        "className": "ModelAdapter",
+        "computeConfig": "instruct-pix2pix-huggingface-deploy",
+        "initInputs": [
+          {
+            "type": "Model",
+            "name": "model_entity"
+          }
+        ],
+        "functions": [
+          {
+            "name": "predict_items",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The input images for prediction."
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input images for prediction."
+              },
+              {
+                "type": "Annotation[]",
+                "name": "annotations",
+                "description": "The predicted annotations."
+              }
+            ],
+            "displayName": "Predict Items",
+            "displayIcon": "",
+            "description": "The inference function of the model."
+          },
+          {
+            "name": "predict_dataset",
+            "input": [
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "The input dataset of the items required for prediction."
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "The DQL in json format to get all the items required for prediction."
+              }
+            ],
+            "output": [],
+            "displayName": "Predict Dataset",
+            "displayIcon": "",
+            "description": "Inference function of the model on a dataset."
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "instruct-pix2pix-huggingface-model",
+        "moduleName": "instruct-pix2pix-module",
+        "scope": "project",
+        "status": "trained",
+        "configuration": {
+          "module_name": "adapters.instruct_pix2pix.instruct_pix2pix",
+          "image_width": 512,
+          "image_height": 512,
+          "device": "cuda"
+        },
+        "metadata": {},
+        "description": "InstructPix2Pix is a Stable Diffusion model trained to edit images from human-provided instructions."
+      }
+    ]
+  }
+}

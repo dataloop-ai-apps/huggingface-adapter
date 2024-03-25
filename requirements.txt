@@ -1,9 +1,10 @@
 Pillow
 requests
-transformers
+transformers>=4.30.2
 timm
+torch
 sentencepiece
 accelerate
 diffusers
 safetensors
-dtlpy
+numpy==1.23.5

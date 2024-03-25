@@ -1,7 +1,10 @@
 import dtlpy as dl
 import torch
 import json
+import logging
 from transformers import LlamaTokenizer, LlamaForCausalLM
+
+logger = logging.getLogger("[OpenLlama3b]")
 
 
 class HuggingAdapter:
@@ -33,6 +36,9 @@ class HuggingAdapter:
         confidence_score = top_k_probs.sum().item()
         return confidence_score
 
+    def train(self, data_path, output_path, **kwargs):
+        logger.info("Training not implemented yet")
+
     def predict(self, batch, **kwargs):
         annotations = []
         model_device = self.model.device
@@ -40,38 +46,22 @@ class HuggingAdapter:
             prompts = item["prompts"]
             item_annotations = dl.AnnotationCollection()
             for prompt_key, prompt_content in prompts.items():
-                for question in prompt_content:
+                questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
+
+                for question in questions:
                     if question["mimetype"] == dl.PromptType.TEXT:
-                        print(f"User: {question['value']}")
+                        logger.info(f"User: {question['value']}")
                         new_user_input_ids = self.tokenizer(question['value'],
                                                             return_tensors='pt').input_ids.to(model_device)
                         generation_output = self.model.generate(input_ids=new_user_input_ids, max_length=100)
                         response = self.tokenizer.decode(generation_output[:, new_user_input_ids.shape[-1] + 1:][0])
-                        print("Response: {}".format(response))
+                        logger.info("Response: {}".format(response))
                         item_annotations.add(annotation_definition=dl.FreeText(text=response), prompt_id=prompt_key,
                                              model_info={
                                                  "name": "OpenLlama",
                                                  "confidence": self.compute_confidence(new_user_input_ids)
                                              })
                     else:
-                        print(f"OpenLlama only accepts text prompts, ignoring the current prompt.")
+                        logger.warning(f"OpenLlama only accepts text prompts, ignoring the current prompt.")
             annotations.append(item_annotations)
         return annotations
-
-
-def model_creation(package: dl.Package):
-
-    model = package.models.create(model_name='openllama-huggingface',
-                                  description='openllama for chatting - HF',
-                                  tags=['llm', 'pretrained', "hugging-face"],
-                                  dataset_id=None,
-                                  status='trained',
-                                  scope='public',
-                                  configuration={
-                                      'weights_filename': 'openllama.pt',
-                                      'model_path': 'openlm-research/open_llama_3b',
-                                      "module_name": "models.open_llama",
-                                      'device': 'cpu'},
-                                  project_id=package.project.id
-                                  )
-    return model

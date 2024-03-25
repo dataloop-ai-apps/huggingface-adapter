@@ -1,6 +1,6 @@
 {
-    "name": "openllama-huggingface-app",
-    "description": "openllama for chatting - HF",
+    "name": "open-llama-3b-huggingface-app",
+    "description": "The model is mainly based on LLaMA with some modifications, incorporating memory-efficient attention from Xformers, stable embedding from Bloom, and shared input-output embedding from PaLM.",
     "attributes": {
         "Provider": "Hugging Face",
         "License": "Apache 2.0",
@@ -8,18 +8,18 @@
         "NLP": "Conversational",
         "Gen AI":"LLM"
     },
-    "displayName": "Openllama Huggingface App",
-    "version": "v0.1.10",
-    "scope": "project",
+    "displayName": "openlm-research-open_llama_3b",
+    "version": "0.1.21",
+    "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "v0.1.10"
+        "gitTag": "0.1.21"
     },
     "components": {
         "computeConfigs": [
             {
-                "name": "openllama-huggingface-deploy",
+                "name": "open-llama-3b-huggingface-deploy",
                 "versions": {
                     "dtlpy": "1.89.6"
                 },
@@ -39,10 +39,10 @@
         ],
         "modules": [
             {
-                "name": "openllama-module",
+                "name": "open-llama-3b-module",
                 "entryPoint": "model_adapter.py",
                 "className": "ModelAdapter",
-                "computeConfig": "openllama-huggingface-deploy",
+                "computeConfig": "open-llama-3b-huggingface-deploy",
                 "initInputs": [
                     {
                         "type": "Model",
@@ -66,7 +66,7 @@
                                 "description": "The same input images for prediction."
                             },
                             {
-                                "type": "Annotations[]",
+                                "type": "Annotation[]",
                                 "name": "annotations",
                                 "description": "The predicted annotations."
                             }
@@ -74,23 +74,44 @@
                         "displayName": "Predict Items",
                         "displayIcon": "",
                         "description": "The inference function of the model."
+                    },
+                    {
+                        "name": "predict_dataset",
+                        "input": [
+                            {
+                                "type": "Dataset",
+                                "name": "dataset",
+                                "description": "The input dataset of the items required for prediction."
+                            },
+                            {
+                                "type": "Json",
+                                "name": "filters",
+                                "description": "The DQL in json format to get all the items required for prediction."
+                            }
+                        ],
+                        "output": [],
+                        "displayName": "Predict Dataset",
+                        "displayIcon": "",
+                        "description": "Inference function of the model on a dataset."
                     }
                 ]
             }
         ],
         "models": [
             {
-                "name": "openllama-huggingface-model",
-                "moduleName": "openllama-module",
+                "name": "open-llama-3b-huggingface-model",
+                "moduleName": "open-llama-3b-module",
                 "scope": "project",
                 "status": "trained",
-                "configuration": {"weights_filename": "openllama.pt",
-                                  "model_path": "openlm-research/open_llama_3b",
-                                  "module_name": "models.open_llama.open_llama",
-                                  "device": "cuda:0"},
+                "configuration": {
+                    "weights_filename": "openllama.pt",
+                    "model_path": "openlm-research/open_llama_3b",
+                    "module_name": "adapters.open_llama_3b.open_llama_3b",
+                    "device": "cuda:0"
+                },
                 "tags": ["llm", "pretrained", "hugging-face"],
                 "metadata": {},
-                "description": "openllama for chatting - HF"
+                "description": "The model is mainly based on LLaMA with some modifications, incorporating memory-efficient attention from Xformers, stable embedding from Bloom, and shared input-output embedding from PaLM."
             }
         ]
     }
