@@ -9,12 +9,12 @@
         "Gen AI":"LLM"
     },
     "displayName": "openlm-research-open_llama_3b",
-    "version": "0.1.21",
+    "version": "0.1.22",
     "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.21"
+        "gitTag": "0.1.22"
     },
     "components": {
         "computeConfigs": [
