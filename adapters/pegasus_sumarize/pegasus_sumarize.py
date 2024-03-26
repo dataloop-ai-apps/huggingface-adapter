@@ -4,6 +4,8 @@ from transformers import PegasusForConditionalGeneration, PegasusTokenizer
 import torch
 import json
 
+logger = logging.getLogger("[pegasus-summarize]")
+
 
 class HuggingAdapter:
     def __init__(self, configuration):
@@ -17,7 +19,7 @@ class HuggingAdapter:
         return buffer
 
     def train(self, data_path, output_path, **kwargs):
-        print("Training not implemented yet")
+        logger.info("Training not implemented yet")
 
     def predict(self, batch, **kwargs):
         annotations = []
@@ -37,6 +39,6 @@ class HuggingAdapter:
                                                  "confidence": 1.0
                         })
                     else:
-                        print(f"Pegasus only accepts text prompts, ignoring the current prompt.")
+                        logger.warning(f"Model only accepts text prompts, ignoring the current prompt.")
             annotations.append(item_annotations)
         return annotations

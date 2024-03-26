@@ -1,6 +1,6 @@
 {
   "name": "pegasus-huggingface-app",
-  "description": "Pegasus for for summarize long text - HF",
+  "description": "Pegasus Huggingface Model to summarize long text",
   "attributes": {
     "Provider": "Hugging Face",
     "License": "Apache 2.0",
@@ -8,9 +8,14 @@
     "NLP": "Other",
     "Gen AI": "LLM"
   },
-  "displayName": "Pegasus Huggingface App",
-  "version": "v0.1.10",
-  "scope": "project",
+  "displayName": "Pegasus Huggingface Model",
+  "version": "0.1.21",
+  "scope": "public",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+    "gitTag": "0.1.21"
+  },
   "components": {
     "computeConfigs": [
       {
@@ -34,7 +39,7 @@
     ],
     "modules": [
       {
-        "name": "pegasus-module",
+        "name": "pegasus-huggingface-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
         "computeConfig": "pegasus-huggingface-deploy",
@@ -61,7 +66,7 @@
                 "description": "The same input images for prediction."
               },
               {
-                "type": "Annotations[]",
+                "type": "Annotation[]",
                 "name": "annotations",
                 "description": "The predicted annotations."
               }
@@ -69,6 +74,25 @@
             "displayName": "Predict Items",
             "displayIcon": "",
             "description": "The inference function of the model."
+          },
+          {
+            "name": "predict_dataset",
+            "input": [
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "The input dataset of the items required for prediction."
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "The DQL in json format to get all the items required for prediction."
+              }
+            ],
+            "output": [],
+            "displayName": "Predict Dataset",
+            "displayIcon": "",
+            "description": "Inference function of the model on a dataset."
           }
         ]
       }
@@ -76,16 +100,16 @@
     "models": [
       {
         "name": "pegasus-huggingface-model",
-        "moduleName": "pegasus-module",
+        "moduleName": "pegasus-huggingface-module",
         "scope": "project",
         "status": "trained",
         "configuration": {
-          "module_name": "models.pegasus_sumarize",
+          "module_name": "adapters.pegasus_sumarize.pegasus_sumarize",
           "model_name": "google/pegasus-xsum"
         },
         "tags": ["llm", "pretrained", "hugging-face"],
         "metadata": {},
-        "description": "Pegasus for for summarize long text - HF"
+        "description": "Pegasus Huggingface Model to summarize long text"
       }
     ]
   }
