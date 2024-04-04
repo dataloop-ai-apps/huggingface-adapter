@@ -9,12 +9,12 @@
     "Gen AI": "LLM"
   },
   "displayName": "Pegasus Huggingface Model",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.25"
+    "gitTag": "0.1.26"
   },
   "components": {
     "computeConfigs": [
