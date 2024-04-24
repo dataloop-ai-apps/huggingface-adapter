@@ -108,7 +108,8 @@
                     "weights_filename": "openllama.pt",
                     "model_path": "meta-llama/Meta-Llama-3-8B",
                     "module_name": "adapters.meta_llama_3_8b_instruct.meta_llama_3_8b_instruct",
-                    "device": "cuda:0"
+                    "device": "cuda:0",
+                    "cache_dir": "weights"
                 },
                 "tags": ["llm", "pretrained", "hugging-face"],
                 "metadata": {},
