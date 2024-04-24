@@ -1,0 +1,119 @@
+{
+    "name": "meta-llama3-8b-instruct-huggingface-app",
+    "description": "Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8 and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.",
+    "attributes": {
+        "Provider": "Hugging Face",
+        "License": "Other",
+        "Category": "Model",
+        "NLP": "Conversational",
+        "Gen AI":"LLM"
+    },
+    "displayName": "meta_llama_3_8b_instruct",
+    "version": "0.1.27",
+    "scope": "public",
+    "codebase": {
+        "type": "git",
+        "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+        "gitTag": "0.1.27"
+    },
+    "components": {
+        "computeConfigs": [
+            {
+                "name": "meta-llama-3-8b-instruct-huggingface-deploy",
+                "versions": {
+                    "dtlpy": "1.90.37"
+                },
+                "secrets": [],
+                "runtime": {
+                    "podType": "gpu-t4",
+                    "concurrency": 1,
+                    "autoscaler": {
+                        "type": "rabbitmq",
+                        "minReplicas": 0,
+                        "maxReplicas": 2,
+                        "queueLength": 1000
+                    },
+                    "executionTimeout": 864000,
+                    "preemptible": false
+                }
+            }
+        ],
+        "modules": [
+            {
+                "name": "meta-llama-3-8b-instruct-module",
+                "entryPoint": "model_adapter.py",
+                "className": "ModelAdapter",
+                "computeConfig": "meta-llama-3-8b-instruct-huggingface-deploy",
+                "initInputs": [
+                    {
+                        "type": "Model",
+                        "name": "model_entity"
+                    }
+                ],
+                "functions": [
+                    {
+                        "name": "predict_items",
+                        "input": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The input images for prediction."
+                            }
+                        ],
+                        "output": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The same input images for prediction."
+                            },
+                            {
+                                "type": "Annotation[]",
+                                "name": "annotations",
+                                "description": "The predicted annotations."
+                            }
+                        ],
+                        "displayName": "Predict Items",
+                        "displayIcon": "",
+                        "description": "The inference function of the model."
+                    },
+                    {
+                        "name": "predict_dataset",
+                        "input": [
+                            {
+                                "type": "Dataset",
+                                "name": "dataset",
+                                "description": "The input dataset of the items required for prediction."
+                            },
+                            {
+                                "type": "Json",
+                                "name": "filters",
+                                "description": "The DQL in json format to get all the items required for prediction."
+                            }
+                        ],
+                        "output": [],
+                        "displayName": "Predict Dataset",
+                        "displayIcon": "",
+                        "description": "Inference function of the model on a dataset."
+                    }
+                ]
+            }
+        ],
+        "models": [
+            {
+                "name": "meta-llama-3-8b-instruct-model",
+                "moduleName": "meta-llama-3-8b-instruct-module",
+                "scope": "project",
+                "status": "trained",
+                "configuration": {
+                    "weights_filename": "openllama.pt",
+                    "model_path": "meta-llama/Meta-Llama-3-8B",
+                    "module_name": "adapters.meta_llama_3_8b_instruct.meta_llama_3_8b_instruct",
+                    "device": "cuda:0"
+                },
+                "tags": ["llm", "pretrained", "hugging-face"],
+                "metadata": {},
+                "description": "Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8 and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks."
+            }
+        ]
+    }
+}
