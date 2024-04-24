@@ -9,12 +9,12 @@
     "Gen AI": "LMM"
   },
   "displayName": "blip-image-captioning-large",
-  "version": "0.1.29",
+  "version": "0.1.30",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.29"
+    "gitTag": "0.1.30"
   },
   "components": {
     "computeConfigs": [
