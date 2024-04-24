@@ -21,6 +21,7 @@ class ModelAdapter(dl.BaseModelAdapter):
 
         module_name = self.model_entity.configuration.get('module_name', 'models.ocr')
         module = __import__(module_name, fromlist=['HuggingAdapter'])
+        self.configuration['model_entity'] = self.model_entity
         self.hugging = getattr(module, 'HuggingAdapter')(self.configuration)
         logger.info("Loaded module {!r} successfully".format(module_name))
 

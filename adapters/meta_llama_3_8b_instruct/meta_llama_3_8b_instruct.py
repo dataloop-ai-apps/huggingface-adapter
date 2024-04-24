@@ -23,10 +23,13 @@ class HuggingAdapter:
                                  model=model_path,
                                  model_kwargs={
                                      "low_cpu_mem_usage": True,
-                                     "torch_dtype": torch_dtype
+                                     "torch_dtype": torch_dtype,
+                                     "cache_dir": configuration.get("cache_dir")
                                      },
-                                 device_map=configuration.get("device", "cpu"))
+                                 device_map=configuration.get("device", "cpu")
+                                 )
         self.configuration = configuration
+        self.configuration["model_entity"].artifacts.upload(configuration.get("cache_dir"), "*")
     
     def prepare_item_func(self, item: dl.Item):
         buffer = json.load(item.download(save_locally=False))
