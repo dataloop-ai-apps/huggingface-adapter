@@ -9,12 +9,12 @@
     "Gen AI": "LLM"
   },
   "displayName": "AutoForCausalLM",
-  "version": "0.1.32",
+  "version": "0.1.33",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.32"
+    "gitTag": "0.1.33"
   },
   "components": {
     "computeConfigs": [
