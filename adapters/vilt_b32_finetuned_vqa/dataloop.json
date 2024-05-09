@@ -103,7 +103,7 @@
         "name": "vilt-b32-finetuned-vqa-huggingface-model",
         "moduleName": "vilt-b32-finetuned-vqa-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "module_name": "adapters.vilt_b32_finetuned_vqa.vilt_b32_finetuned_vqa",
           "device": "cpu"

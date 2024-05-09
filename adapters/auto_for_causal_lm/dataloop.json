@@ -103,7 +103,7 @@
         "name": "autoforcausallm-huggingface-model",
         "moduleName": "autoforcausallm-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "weights_filename": "dialogpt-auto.pt",
           "module_name": "adapters.auto_for_causal_lm.auto_for_causal_lm",

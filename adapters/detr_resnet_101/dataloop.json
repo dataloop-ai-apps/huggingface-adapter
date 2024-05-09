@@ -102,7 +102,7 @@
         "name": "detr-resnet-101-huggingface-model",
         "moduleName": "detr-resnet-101-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "module_name": "adapters.detr_resnet_101.detr_resnet_101",
           "id_to_label_map": {

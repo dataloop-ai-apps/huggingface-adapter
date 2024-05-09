@@ -103,7 +103,7 @@
         "name": "dialogpt-large-huggingface-model",
         "moduleName": "dialogpt-large-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "weights_filename": "dialogpt.pt",
           "module_name": "adapters.dialogpt_large.dialogpt_large",

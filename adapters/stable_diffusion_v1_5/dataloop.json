@@ -102,7 +102,7 @@
         "name": "stable-diffusion-v1-5-huggingface-model",
         "moduleName": "stable-diffusion-v1-5-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "module_name": "adapters.stable_diffusion_v1_5.stable_diffusion_v1_5",
           "device": "cuda"
