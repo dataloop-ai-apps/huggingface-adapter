@@ -103,7 +103,7 @@
         "name": "pegasus-huggingface-model",
         "moduleName": "pegasus-huggingface-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "module_name": "adapters.pegasus_sumarize.pegasus_sumarize",
           "model_name": "google/pegasus-xsum"

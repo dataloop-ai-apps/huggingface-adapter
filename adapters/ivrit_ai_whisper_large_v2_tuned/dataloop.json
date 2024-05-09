@@ -102,7 +102,7 @@
                 "name": "ivrit-ai-whisper-large-v2-model",
                 "moduleName": "ivrit-ai-whisper-large-v2-module",
                 "scope": "project",
-                "status": "trained",
+                "status": "pre-trained",
                 "configuration": {
                     "weights_filename": "ivrit_ai_whisper.pt",
                     "model_path": "ivrit-ai/whisper-large-v2-tuned",

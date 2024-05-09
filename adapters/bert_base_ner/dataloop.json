@@ -103,7 +103,7 @@
         "name": "bert-base-ner-huggingface-model",
         "moduleName": "bert-base-ner-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "module_name": "adapters.bert_base_ner.bert_base_ner",
           "device": "cpu"

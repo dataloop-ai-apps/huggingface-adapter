@@ -2,7 +2,7 @@ import json
 import PIL
 import dtlpy as dl
 import logging
-from transformers import AutoModel, AutoProcessor
+from transformers import Kosmos2ForConditionalGeneration, Kosmos2Processor
 
 logger = logging.getLogger("[KOSMOS-2]")
 CAPTIONING_PROMPT = "Caption this image."
@@ -14,8 +14,8 @@ class HuggingAdapter:
         self.device = configuration.get("device")
         self.captioning = configuration.get("captioning", False)
 
-        self.model = AutoModel.from_pretrained("unum-cloud/uform-gen2-qwen-500m", trust_remote_code=True)
-        self.processor = AutoProcessor.from_pretrained("unum-cloud/uform-gen2-qwen-500m", trust_remote_code=True)
+        self.model = Kosmos2ForConditionalGeneration.from_pretrained("microsoft/kosmos-2-patch14-224")
+        self.processor = Kosmos2Processor.from_pretrained("microsoft/kosmos-2-patch14-224")
         self.model.to(self.device)
 
     def prepare_item_func(self, item: dl.Item):
@@ -72,7 +72,7 @@ class HuggingAdapter:
                     )
                 generated_text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
                 processed_text, entities = self.processor.post_process_generation(generated_text)
-                response = processed_text[len(prompt_txt) - 1:]
+                response = processed_text[len(prompt_txt):]
                 print("Response: {}".format(response))
                 item_annotations.add(
                     annotation_definition=dl.FreeText(text=response),

@@ -1,5 +1,5 @@
 {
-  "name": "microsoft-kosmos-2-huggingface-app",
+  "name": "microsoft-kosmos-2-huggingface-app-test",
   "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world.",
   "attributes": {
     "Provider": "Hugging Face",
@@ -103,7 +103,7 @@
         "name": "kosmos-2-patch14-224-huggingface-model",
         "moduleName": "kosmos-2-patch14-224-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "module_name": "adapters.microsoft_kosmos_2.kosmos_2_patch14_224",
           "device": "cpu",

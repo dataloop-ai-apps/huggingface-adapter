@@ -103,7 +103,7 @@
         "name": "blip-image-captioning-large-huggingface-model",
         "moduleName": "blip-image-captioning-large-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "module_name": "adapters.blip_image_captioning_large.blip_image_captioning_large",
           "device": "cpu",

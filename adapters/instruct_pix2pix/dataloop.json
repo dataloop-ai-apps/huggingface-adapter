@@ -102,7 +102,7 @@
         "name": "instruct-pix2pix-huggingface-model",
         "moduleName": "instruct-pix2pix-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "module_name": "adapters.instruct_pix2pix.instruct_pix2pix",
           "image_width": 512,

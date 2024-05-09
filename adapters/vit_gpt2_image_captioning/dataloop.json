@@ -103,7 +103,7 @@
         "name": "vit-gpt2-image-captioning-huggingface-model",
         "moduleName": "vit-gpt2-image-captioning-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "module_name": "adapters.vit_gpt2_image_captioning.vit_gpt2_image_captioning",
           "image_width": 512,

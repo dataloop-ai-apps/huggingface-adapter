@@ -103,7 +103,7 @@
                 "name": "open-llama-3b-huggingface-model",
                 "moduleName": "open-llama-3b-module",
                 "scope": "project",
-                "status": "trained",
+                "status": "pre-trained",
                 "configuration": {
                     "weights_filename": "openllama.pt",
                     "model_path": "openlm-research/open_llama_3b",

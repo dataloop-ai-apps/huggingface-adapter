@@ -102,7 +102,7 @@
         "name": "detr-resnet-50-panoptic-huggingface-model",
         "moduleName": "detr-resnet-50-panoptic-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "module_name": "adapters.detr_resnet_50_panoptic.detr_resnet_50_panoptic",
           "id_to_label_map": {

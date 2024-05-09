@@ -103,7 +103,7 @@
         "name": "uform-gen2-qwen-500m-huggingface-model",
         "moduleName": "uform-gen2-qwen-500m-module",
         "scope": "project",
-        "status": "trained",
+        "status": "pre-trained",
         "configuration": {
           "module_name": "adapters.uform_gen2_qwen_500m.uform_gen2_qwen_500m",
           "device": "cpu",
