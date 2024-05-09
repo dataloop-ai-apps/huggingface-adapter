@@ -9,12 +9,12 @@
     "Gen AI": "LLM"
   },
   "displayName": "microsoft-DialoGPT-large",
-  "version": "0.1.35",
+  "version": "0.1.36",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.35"
+    "gitTag": "0.1.36"
   },
   "components": {
     "computeConfigs": [
