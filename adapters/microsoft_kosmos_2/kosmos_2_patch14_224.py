@@ -5,14 +5,13 @@ import logging
 from transformers import Kosmos2ForConditionalGeneration, Kosmos2Processor
 
 logger = logging.getLogger("[KOSMOS-2]")
-CAPTIONING_PROMPT = "Caption this image."
 
 
 class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
         self.device = configuration.get("device")
-        self.captioning = configuration.get("captioning", False)
+        self.max_new_tokens = configuration.get("max_new_tokens", 128)
 
         self.model = Kosmos2ForConditionalGeneration.from_pretrained("microsoft/kosmos-2-patch14-224")
         self.processor = Kosmos2Processor.from_pretrained("microsoft/kosmos-2-patch14-224")
@@ -68,7 +67,7 @@ class HuggingAdapter:
                     image_embeds=None,
                     image_embeds_position_mask=inputs["image_embeds_position_mask"],
                     use_cache=True,
-                    max_new_tokens=128,
+                    max_new_tokens=self.max_new_tokens,
                     )
                 generated_text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
                 processed_text, entities = self.processor.post_process_generation(generated_text)
