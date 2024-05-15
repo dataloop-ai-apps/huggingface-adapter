@@ -111,6 +111,9 @@
                     "module_name": "adapters.meta_llama_3_8b_instruct.meta_llama_3_8b_instruct",
                     "device": "cuda:0",
                     "torch_dtype": "4bits",
+                    "max_new_tokens": 20,
+                    "temperature": 0.6,
+                    "top_p": 0.9,
                     "hf_access_token": "",
                     "system_prompt": "You are an intelligent and helpful assistant that seeks to give precise and detailed information. Never mention who you are unless you are asked."
                 },
