@@ -9,7 +9,6 @@ logger = logging.getLogger("[KOSMOS-2]")
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.model_name = configuration.get("model_name")
         self.device = configuration.get("device")
         self.max_new_tokens = configuration.get("max_new_tokens", 128)
 
@@ -58,7 +57,7 @@ class HuggingAdapter:
         for prompts in batch:
             item_annotations = dl.AnnotationCollection()
             for prompt_key, image_buffer, prompt_txt in prompts:
-                prompt = f"<grounding> {prompt_txt}"
+                prompt = f"<grounding> {prompt_txt}"  # In the future, allow for multiple tasks automatically instead of expecting prompt
                 inputs = self.processor(text=prompt, images=PIL.Image.open(image_buffer), return_tensors="pt")
                 generated_ids = self.model.generate(
                     pixel_values=inputs["pixel_values"],
@@ -70,7 +69,7 @@ class HuggingAdapter:
                     max_new_tokens=self.max_new_tokens,
                     )
                 generated_text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-                processed_text, entities = self.processor.post_process_generation(generated_text)
+                processed_text, entities = self.processor.post_process_generation(generated_text)  #Include entities in annotation?
                 response = processed_text[len(prompt_txt):]
                 print("Response: {}".format(response))
                 item_annotations.add(
