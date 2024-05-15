@@ -3,7 +3,7 @@ import os
 import torch
 import json
 import logging
-from transformers import pipeline
+from transformers import pipeline, BitsAndBytesConfig
 
 logger = logging.getLogger("[LLaMa3]")
 
@@ -13,22 +13,31 @@ class HuggingAdapter:
         access_token = os.getenv(configuration.get("hf_access_token", "HUGGINGFACEHUB_API_KEY"))
         model_path = configuration.get("model_path", "meta-llama/Meta-Llama-3-8B-Instruct")
         torch_dtype = configuration.get("torch_dtype", "fp16")
+        model_args = {"low_cpu_mem_usage": True}
         if torch_dtype == 'fp32':
             torch_dtype = torch.float32
+            model_args["torch_dtype"] = torch_dtype
         elif torch_dtype == 'fp16':
             torch_dtype = torch.float16
+            model_args["torch_dtype"] = torch_dtype
         elif torch_dtype == 'bf16':
             torch_dtype = torch.bfloat16
+            model_args["torch_dtype"] = torch_dtype
+        elif torch_dtype == "4bits":
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.float16,
+                )
+            model_args["quantization_config"] = bnb_config
         else:
             torch_dtype = torch.float32 if configuration.get("device", "cpu") else None
+            model_args["torch_dtype"] = torch_dtype
         self.pipeline = pipeline(
             "text-generation",
             model=model_path,
-            model_kwargs={
-                "low_cpu_mem_usage": True,
-                "torch_dtype": torch_dtype,
-                "cache_dir": configuration.get("cache_dir")
-                },
+            model_kwargs=model_args,
             device_map=configuration.get("device", "cpu"),
             token=access_token
             )
@@ -37,7 +46,6 @@ class HuggingAdapter:
             self.pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
             ]
         self.configuration = configuration
-        self.configuration["model_entity"].artifacts.upload(configuration.get("cache_dir"), "*")
 
     def prepare_item_func(self, item: dl.Item):
         buffer = json.load(item.download(save_locally=False))
