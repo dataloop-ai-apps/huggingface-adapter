@@ -9,3 +9,4 @@ diffusers
 safetensors
 numpy==1.23.5
 typing-extensions
+bitsandbytes
