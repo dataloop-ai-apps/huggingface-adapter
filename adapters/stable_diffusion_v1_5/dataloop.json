@@ -8,12 +8,12 @@
     "Gen AI": "LMM"
   },
   "displayName": "runwayml-stable-diffusion-v1-5",
-  "version": "0.1.38",
+  "version": "0.1.39",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.38"
+    "gitTag": "0.1.39"
   },
   "components": {
     "computeConfigs": [
