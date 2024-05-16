@@ -9,12 +9,12 @@
     "Gen AI": "LMM"
   },
   "displayName": "nlpconnect-vit-gpt2-image-captioning",
-  "version": "0.1.39",
+  "version": "0.1.40",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.39"
+    "gitTag": "0.1.40"
   },
   "components": {
     "computeConfigs": [
