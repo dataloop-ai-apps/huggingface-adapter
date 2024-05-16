@@ -1,13 +1,14 @@
 {
-    "name": "ivrit-ai-whisper-large-v2-app",
-    "description": "Whisper is a pre-trained model for automatic speech recognition (ASR) and speech translation.\nwhisper-large-v2-tuned is a version of whisper-large-v2, fine-tuned by ivrit.ai to improve Hebrew ASR using crowd-sourced labeling.",
+    "name": "meta-llama3-8b-instruct-huggingface-app",
+    "description": "Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8 and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.",
     "attributes": {
-        "Provider": "Hugging Face",
-        "License": "Apache 2.0",
+        "Provider": "Meta",
+        "License": "Other",
         "Category": "Model",
-        "Audio": "Auto Speech Recognition"
+        "NLP": "Conversational",
+        "Gen AI":"LLM"
     },
-    "displayName": "ivrit-ai-whisper-large-v2-app",
+    "displayName": "meta_llama_3_8b_instruct",
     "version": "0.1.38",
     "scope": "public",
     "codebase": {
@@ -18,13 +19,13 @@
     "components": {
         "computeConfigs": [
             {
-                "name": "ivrit-ai-whisper-large-v2-deploy",
+                "name": "meta-llama-3-8b-instruct-huggingface-deploy",
                 "versions": {
-                    "dtlpy": "1.89.6"
+                    "dtlpy": "1.90.37"
                 },
                 "secrets": [],
                 "runtime": {
-                    "podType": "regular-m",
+                    "podType": "gpu-t4-m",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {
@@ -33,16 +34,17 @@
                         "maxReplicas": 2,
                         "queueLength": 1000
                     },
+                    "executionTimeout": 864000,
                     "preemptible": false
                 }
             }
         ],
         "modules": [
             {
-                "name": "ivrit-ai-whisper-large-v2-module",
+                "name": "meta-llama-3-8b-instruct-module",
                 "entryPoint": "model_adapter.py",
                 "className": "ModelAdapter",
-                "computeConfig": "ivrit-ai-whisper-large-v2-deploy",
+                "computeConfig": "meta-llama-3-8b-instruct-huggingface-deploy",
                 "initInputs": [
                     {
                         "type": "Model",
@@ -99,19 +101,25 @@
         ],
         "models": [
             {
-                "name": "ivrit-ai-whisper-large-v2-model",
-                "moduleName": "ivrit-ai-whisper-large-v2-module",
+                "name": "meta-llama-3-8b-instruct-model",
+                "moduleName": "meta-llama-3-8b-instruct-module",
                 "scope": "project",
                 "status": "pre-trained",
                 "configuration": {
-                    "weights_filename": "ivrit_ai_whisper.pt",
-                    "model_path": "ivrit-ai/whisper-large-v2-tuned",
-                    "module_name": "adapters.ivrit_ai_whisper_large_v2_tuned.whisper_large_v2_tuned",
-                    "device": "cpu"
+                    "weights_filename": "openllama.pt",
+                    "model_path": "meta-llama/Meta-Llama-3-8B-Instruct",
+                    "module_name": "adapters.meta_llama_3_8b_instruct.meta_llama_3_8b_instruct",
+                    "device": "cuda:0",
+                    "torch_dtype": "4bits",
+                    "max_new_tokens": 20,
+                    "temperature": 0.6,
+                    "top_p": 0.9,
+                    "hf_access_token": "",
+                    "system_prompt": "You are an intelligent and helpful assistant that seeks to give precise and detailed information. Never mention who you are unless you are asked."
                 },
-                "tags": ["speech-to-text", "pretrained", "hugging-face"],
+                "tags": ["llm", "pretrained", "hugging-face"],
                 "metadata": {},
-                "description": "Whisper is a pre-trained model for automatic speech recognition (ASR) and speech translation.\nwhisper-large-v2-tuned is a version of whisper-large-v2, fine-tuned by ivrit.ai to improve Hebrew ASR using crowd-sourced labeling."
+                "description": "Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8 and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks."
             }
         ]
     }
