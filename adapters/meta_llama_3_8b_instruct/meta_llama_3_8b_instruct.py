@@ -12,7 +12,7 @@ class HuggingAdapter:
     def __init__(self, configuration):
         access_token = os.getenv(configuration.get("hf_access_token", "HUGGINGFACEHUB_API_KEY"))
         model_path = configuration.get("model_path", "meta-llama/Meta-Llama-3-8B-Instruct")
-        torch_dtype = configuration.get("torch_dtype", "fp16")
+        torch_dtype = configuration.get("torch_dtype", "4bits")
         model_args = {"low_cpu_mem_usage": True}
         if torch_dtype == 'fp32':
             torch_dtype = torch.float32
