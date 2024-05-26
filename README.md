@@ -154,7 +154,7 @@ model = package.models.create(model_name=<model-name>,
                               description=<model-description>
                               tags=['llm', 'pretrained', "hugging-face"],
                               dataset_id=None,
-                              status='trained',
+                              status='pre-trained',
                               scope='project',
                               configuration={
                                   'weights_filename': <filename-for-the-weights-file>,

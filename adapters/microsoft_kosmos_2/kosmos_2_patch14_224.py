@@ -14,7 +14,9 @@ class HuggingAdapter:
 
         self.model = Kosmos2ForConditionalGeneration.from_pretrained("microsoft/kosmos-2-patch14-224")
         self.processor = Kosmos2Processor.from_pretrained("microsoft/kosmos-2-patch14-224")
+        self.model_name = configuration.get("model_name","kosmos-2-patch14-224")
         self.model.to(self.device)
+        self.include_entities = configuration.get("include_entities", False)
 
     def prepare_item_func(self, item: dl.Item):
         buffer = json.load(item.download(save_locally=False))
@@ -57,7 +59,7 @@ class HuggingAdapter:
         for prompts in batch:
             item_annotations = dl.AnnotationCollection()
             for prompt_key, image_buffer, prompt_txt in prompts:
-                prompt = f"<grounding> {prompt_txt}"  # In the future, allow for multiple tasks automatically instead of expecting prompt
+                prompt = f"<grounding> {prompt_txt}"
                 inputs = self.processor(text=prompt, images=PIL.Image.open(image_buffer), return_tensors="pt")
                 generated_ids = self.model.generate(
                     pixel_values=inputs["pixel_values"],
@@ -69,8 +71,10 @@ class HuggingAdapter:
                     max_new_tokens=self.max_new_tokens,
                     )
                 generated_text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-                processed_text, entities = self.processor.post_process_generation(generated_text)  #Include entities in annotation?
+                processed_text, entities = self.processor.post_process_generation(generated_text)
                 response = processed_text[len(prompt_txt):]
+                if self.include_entities:
+                    response += f" {entities}"
                 print("Response: {}".format(response))
                 item_annotations.add(
                     annotation_definition=dl.FreeText(text=response),
