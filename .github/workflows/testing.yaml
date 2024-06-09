@@ -15,7 +15,6 @@ jobs:
      - name: Install dependencies
        run: |
          pip3 install dtlpy --upgrade
-         pip3 install -r requirements.txt
      - name: Run tests
        env:
          PROJECT_ID: "${{ secrets.PROJECT_ID }}"
