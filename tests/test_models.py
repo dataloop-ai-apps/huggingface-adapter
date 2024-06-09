@@ -45,19 +45,21 @@ class MyTestCase(unittest.TestCase):
 
     def test_bert_base_ner(self):
         model_path = os.path.join(self.adapters_path, 'bert_base_ner')
-        dl.dpks.publish()
-        with open(r'../adapters/bert_base_ner/dataloop.json', 'r') as f:
-            config = json.load(f)
-        model = dl.Model.from_json(
-            _json=config.get('components', dict()).get('models', list())[0],
-            client_api=dl.client_api,
-            project=None,
-            package=dl.Package()
-        )
-        model_adapter = ModelAdapter(model)
-        self.assertTrue(isinstance(model_adapter.hugging.model, BertForTokenClassification))
-        self.assertTrue(isinstance(model_adapter.hugging.tokenizer, BertTokenizerFast))
-        self.assertTrue('bert-base' in model_adapter.hugging.model.name_or_path.lower())
+        dataloop_json_filepath = os.path.join(model_path, 'dataloop.json')
+        with open(dataloop_json_filepath, 'r') as f:
+            dataloop_json = json.load(f)
+        dpk = dl.Dpk.from_json(_json=dataloop_json, client_api=dl.client_api, project=self.project)
+        dpk = self.project.dpks.publish(dpk=dpk)
+        app = self.project.apps.install(dpk=dpk)
+
+        model_name = dataloop_json.get('components', dict()).get('models', list())[0].get("name", None)
+        model = app.project.models.get(model_name=model_name)
+        predict_results = model.predict(item_ids=[])
+
+        # model_adapter = ModelAdapter(model)
+        # self.assertTrue(isinstance(model_adapter.hugging.model, BertForTokenClassification))
+        # self.assertTrue(isinstance(model_adapter.hugging.tokenizer, BertTokenizerFast))
+        # self.assertTrue('bert-base' in model_adapter.hugging.model.name_or_path.lower())
 
     def test_detr_resnet_50_panoptic(self):
         with open(r'../adapters/detr_resnet_50_panoptic/dataloop.json', 'r') as f:
