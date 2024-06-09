@@ -19,6 +19,8 @@ PROJECT_ID = os.environ['PROJECT_ID']
 class MyTestCase(unittest.TestCase):
     project: dl.Project = None
     package: dl.Package = None
+    root_path: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    adapters_path: str = os.path.join(root_path, 'adapters')
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -42,11 +44,13 @@ class MyTestCase(unittest.TestCase):
         dl.logout()
 
     def test_bert_base_ner(self):
+        model_path = os.path.join(self.adapters_path, 'bert_base_ner')
+        dl.dpks.publish()
         with open(r'../adapters/bert_base_ner/dataloop.json', 'r') as f:
             config = json.load(f)
         model = dl.Model.from_json(
             _json=config.get('components', dict()).get('models', list())[0],
-            client_api=dl.ApiClient(),
+            client_api=dl.client_api,
             project=None,
             package=dl.Package()
         )
@@ -60,7 +64,7 @@ class MyTestCase(unittest.TestCase):
             config = json.load(f)
         model = dl.Model.from_json(
             _json=config.get('components', dict()).get('models', list())[0],
-            client_api=dl.ApiClient(),
+            client_api=dl.client_api,
             project=None,
             package=dl.Package()
         )
@@ -74,7 +78,7 @@ class MyTestCase(unittest.TestCase):
             config = json.load(f)
         model = dl.Model.from_json(
             _json=config.get('components', dict()).get('models', list())[0],
-            client_api=dl.ApiClient(),
+            client_api=dl.client_api,
             project=None,
             package=dl.Package()
         )
@@ -88,7 +92,7 @@ class MyTestCase(unittest.TestCase):
             config = json.load(f)
         model = dl.Model.from_json(
             _json=config.get('components', dict()).get('models', list())[0],
-            client_api=dl.ApiClient(),
+            client_api=dl.client_api,
             project=None,
             package=dl.Package()
         )
@@ -118,7 +122,7 @@ class MyTestCase(unittest.TestCase):
             config = json.load(f)
         model = dl.Model.from_json(
             _json=config.get('components', dict()).get('models', list())[0],
-            client_api=dl.ApiClient(),
+            client_api=dl.client_api,
             project=None,
             package=dl.Package()
         )
@@ -144,7 +148,7 @@ class MyTestCase(unittest.TestCase):
             config = json.load(f)
         model = dl.Model.from_json(
             _json=config.get('components', dict()).get('models', list())[0],
-            client_api=dl.ApiClient(),
+            client_api=dl.client_api,
             project=None,
             package=dl.Package()
         )
