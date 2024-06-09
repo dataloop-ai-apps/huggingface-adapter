@@ -18,6 +18,7 @@ PROJECT_ID = os.environ['PROJECT_ID']
 
 class MyTestCase(unittest.TestCase):
     project: dl.Project = None
+    dataset: dl.Dataset = None
     package: dl.Package = None
     root_path: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     adapters_path: str = os.path.join(root_path, 'adapters')
@@ -28,6 +29,7 @@ class MyTestCase(unittest.TestCase):
         if dl.token_expired():
             dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
         cls.project = dl.projects.get(project_id=PROJECT_ID)
+        cls.dataset = cls.project.datasets.get(dataset_name='TODO')
 
     def setUp(self) -> None:
         random.seed(SEED)
