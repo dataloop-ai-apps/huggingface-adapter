@@ -6,6 +6,9 @@ import random
 import torch
 import numpy as np
 
+os.environ['BOT_EMAIL'] = "bot.d4c2dc5e-3e60-4e41-8479-528542531376@bot.dataloop.ai"
+os.environ['BOT_PWD'] = "1e*8#C76GX&0p8O8v"
+os.environ['PROJECT_ID'] = "e0b61a98-928b-4412-b30b-d0a96bb67790"
 
 SEED = 1337
 BOT_EMAIL = os.environ['BOT_EMAIL']
@@ -167,7 +170,11 @@ class MyTestCase(unittest.TestCase):
         model.metadata["system"]["deploy"] = {"services": [service.id]}
         execution = model.predict(item_ids=[item.id])
         execution = execution.wait()
-        return model.predict(item_ids=[item.id])
+
+        # Execution output format:
+        # [[{"item_id": item_id}, ...], [{"annotation_id": annotation_id}, ...]]
+        _, annotations = execution.output
+        return annotations
 
     # Test functions
     # def test_amazon_review_sentiment_analysis(self):
@@ -185,8 +192,8 @@ class MyTestCase(unittest.TestCase):
     def test_bert_base_ner(self):
         model_folder_name = 'bert_base_ner'
         item_type = 'text'
-        predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predict_results, list))  # TODO
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
 
 if __name__ == '__main__':
