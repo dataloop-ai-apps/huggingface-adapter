@@ -19,7 +19,8 @@ class MyTestCase(unittest.TestCase):
     dataset: dl.Dataset = None
     root_path: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     adapters_path: str = os.path.join(root_path, 'adapters')
-    tests_path: str = os.path.join(root_path, 'tests')
+    tests_path: str = os.path.join(root_path, 'tests', 'example_data')
+    prepare_item_function = dict()
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -31,6 +32,12 @@ class MyTestCase(unittest.TestCase):
             cls.dataset = cls.project.datasets.get(dataset_name=DATASET_NAME)
         except dl.exceptions.NotFound:
             cls.dataset = cls.project.datasets.create(dataset_name=DATASET_NAME)
+        cls.prepare_item_function = {
+            "text": cls._prepare_text_item,
+            "text_prompt": cls._prepare_text_prompt_item,
+            "image_prompt": cls._prepare_image_prompt_item,
+            "text_and_image_prompt": "",
+        }
 
     def setUp(self) -> None:
         random.seed(SEED)
@@ -45,14 +52,49 @@ class MyTestCase(unittest.TestCase):
             model.delete()
         dl.logout()
 
-    def _perform_model_predict(self, item_file_name: str, model_folder_name: str):
-        # Upload item
-        item_path = os.path.join(self.tests_path, item_file_name)
+    # Item preparation functions
+    def _prepare_text_item(self, item_type: str, model_folder_name: str):
+        local_path = os.path.join(self.tests_path, f"{item_type}.txt")
+        remote_name = f'{model_folder_name}.txt'
         item = self.dataset.items.upload(
-            local_path=item_path,
-            remote_name=f'{model_folder_name}.json',
+            local_path=local_path,
+            remote_name=remote_name,
             overwrite=True
         )
+        return item
+
+    def _prepare_text_prompt_item(self, item_type: str, model_folder_name: str):
+        local_path = os.path.join(self.tests_path, f"{item_type}.json")
+        remote_name = f'{model_folder_name}.json'
+        item = self.dataset.items.upload(
+            local_path=local_path,
+            remote_name=remote_name,
+            overwrite=True
+        )
+        return item
+
+    def _prepare_image_prompt_item(self, item_type: str, model_folder_name: str):
+        local_path_image = os.path.join(self.tests_path, f"{item_type}.jpg")
+        remote_name_image = f'{model_folder_name}.jpg'
+        image_item = self.dataset.items.upload(
+            local_path=local_path_image,
+            remote_name=remote_name_image,
+            overwrite=True
+        )
+
+        local_path = os.path.join(self.tests_path, f"{item_type}.json")
+        remote_name = f'{model_folder_name}.json'
+        item = self.dataset.items.upload(
+            local_path=local_path,
+            remote_name=remote_name,
+            overwrite=True
+        )
+        return item
+
+    # Perdict function
+    def _perform_model_predict(self, item_type: str, model_folder_name: str):
+        # Upload item
+        item = self.prepare_item_function[item_type](item_type=item_type, model_folder_name=model_folder_name)
 
         # Open dataloop json
         model_path = os.path.join(self.adapters_path, model_folder_name)
@@ -73,125 +115,24 @@ class MyTestCase(unittest.TestCase):
         model = app.project.models.get(model_name=model_name)
         return model.predict(item_ids=[item.id])
 
-    def test_bert_base_ner(self):
-        model_folder_name = 'bert_base_ner'
-        item_file_name = 'test_input.txt'
-
-        item_ids = [item]
-        predict_results = self._perform_model_predict(model_folder_name=model_folder_name, item_ids=item_ids)
-
+    # Test functions
+    def test_amazon_review_sentiment_analysis(self):
+        model_folder_name = 'amazon_review_sentiment_analysis'
+        item_type = 'text_prompt'
+        predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predict_results, list))  # TODO
 
-    # def test_detr_resnet_50_panoptic(self):
-    #     with open(r'../adapters/detr_resnet_50_panoptic/dataloop.json', 'r') as f:
-    #         config = json.load(f)
-    #     model = dl.Model.from_json(
-    #         _json=config.get('components', dict()).get('models', list())[0],
-    #         client_api=dl.client_api,
-    #         project=None,
-    #         package=dl.Package()
-    #     )
-    #     model_adapter = ModelAdapter(model)
-    #     self.assertTrue(isinstance(model_adapter.hugging.model, DetrForSegmentation))
-    #     self.assertTrue(isinstance(model_adapter.hugging.feature_extractor, DetrFeatureExtractor))
-    #     self.assertTrue('detr-resnet-50-panoptic' in model_adapter.hugging.model.name_or_path.lower())
-    #
-    # def test_detr_resnet_101(self):
-    #     with open(r'../adapters/detr_resnet_101/dataloop.json', 'r') as f:
-    #         config = json.load(f)
-    #     model = dl.Model.from_json(
-    #         _json=config.get('components', dict()).get('models', list())[0],
-    #         client_api=dl.client_api,
-    #         project=None,
-    #         package=dl.Package()
-    #     )
-    #     model_adapter = ModelAdapter(model)
-    #     self.assertTrue(isinstance(model_adapter.hugging.model, DetrForObjectDetection))
-    #     self.assertTrue(isinstance(model_adapter.hugging.feature_extractor, DetrFeatureExtractor))
-    #     self.assertTrue('detr-resnet-101' in model_adapter.hugging.model.name_or_path.lower())
-    #
-    # def test_open_llama_3b(self):
-    #     with open(r'../adapters/open_llama_3b/dataloop.json', 'r') as f:
-    #         config = json.load(f)
-    #     model = dl.Model.from_json(
-    #         _json=config.get('components', dict()).get('models', list())[0],
-    #         client_api=dl.client_api,
-    #         project=None,
-    #         package=dl.Package()
-    #     )
-    #     model_adapter = ModelAdapter(model)
-    #     model_adapter.hugging.model.config.seed = SEED
-    #     with open("./test_input.json", "r") as f:
-    #         inp = json.load(f)
-    #     ans = model_adapter.predict([inp])
-    #     self.assertTrue(isinstance(model_adapter.hugging.model, LlamaForCausalLM))
-    #     self.assertTrue(isinstance(model_adapter.hugging.tokenizer, LlamaTokenizer))
-    #     self.assertTrue('open_llama' in model_adapter.hugging.model.name_or_path.lower())
-    #     self.assertEqual(
-    #         ans[0][0].coordinates,
-    #         "I'm not sure if this is a test or not.\nI'm not sure if this is a test or not. I'm not sure if this is a "
-    #         "test or not. I'm not sure if this is a test or not. I'm not sure if this is a test or not. "
-    #         "I'm not sure if this is a test or not. I'm not sure if this is a test or not. I"
-    #         )
-    #     self.assertAlmostEqual(
-    #         ans[0][0]['metadata']['user']['model']['confidence'],
-    #         0.7106203436851501, 3
-    #         )
-    #
-    # def test_dialogpt(self):
-    #     # model = dialogpt_large.model_creation(self.package)
-    #
-    #     with open(r'../adapters/dialogpt_large/dataloop.json', 'r') as f:
-    #         config = json.load(f)
-    #     model = dl.Model.from_json(
-    #         _json=config.get('components', dict()).get('models', list())[0],
-    #         client_api=dl.client_api,
-    #         project=None,
-    #         package=dl.Package()
-    #     )
-    #     model_adapter = ModelAdapter(model_entity=model)
-    #     model_adapter.hugging.model.config.seed = SEED
-    #     with open("./test_input.json", "r") as f:
-    #         inp = json.load(f)
-    #     ans = model_adapter.predict([inp])
-    #     self.assertTrue(isinstance(model_adapter.hugging.model, GPT2LMHeadModel))
-    #     self.assertTrue(isinstance(model_adapter.hugging.tokenizer, GPT2TokenizerFast))
-    #     self.assertTrue('dialogpt' in model_adapter.hugging.model.name_or_path.lower())
-    #     self.assertEqual(
-    #         ans[0][0].coordinates,
-    #         "Nah, it's a test to see if you can handle it"
-    #         )
-    #     self.assertAlmostEqual(
-    #         ans[0][0]['metadata']['user']['model']['confidence'],
-    #         0.3476366400718689, 3
-    #         )
-    #
-    # def test_autocausallm(self):
-    #     with open(r'../adapters/auto_for_causal_lm/dataloop.json', 'r') as f:
-    #         config = json.load(f)
-    #     model = dl.Model.from_json(
-    #         _json=config.get('components', dict()).get('models', list())[0],
-    #         client_api=dl.client_api,
-    #         project=None,
-    #         package=dl.Package()
-    #     )
-    #     model_adapter = ModelAdapter(model_entity=model)
-    #     model_adapter.hugging.model.config.seed = SEED
-    #     with open("./test_input.json", "r") as f:
-    #         inp = json.load(f)
-    #     ans = model_adapter.predict([inp])
-    #     self.assertTrue(isinstance(model_adapter.hugging.model, GPT2LMHeadModel))
-    #     self.assertTrue(isinstance(model_adapter.hugging.tokenizer, GPT2TokenizerFast))
-    #     self.assertTrue('microsoft/dialogpt-large' in model_adapter.hugging.model.name_or_path.lower())
-    #     self.assertEqual(
-    #         ans[0][0].coordinates,
-    #         "Nah, it's a test to see if you can handle it"
-    #         )
-    #     self.assertAlmostEqual(
-    #         ans[0][0]['metadata']['user']['model']['confidence'],
-    #         0.3476366400718689,
-    #         3
-    #     )
+    def test_auto_for_causal_lm(self):
+        model_folder_name = 'auto_for_causal_lm'
+        item_type = 'text_prompt'
+        predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predict_results, list))  # TODO
+
+    def test_bert_base_ner(self):
+        model_folder_name = 'bert_base_ner'
+        item_type = 'text'
+        predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predict_results, list))  # TODO
 
 
 if __name__ == '__main__':
