@@ -177,20 +177,20 @@ class MyTestCase(unittest.TestCase):
     def test_amazon_review_sentiment_analysis(self):
         model_folder_name = 'amazon_review_sentiment_analysis'
         item_type = 'text_prompt'
-        predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predict_results, list))
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    # def test_auto_for_causal_lm(self):
-    #     model_folder_name = 'auto_for_causal_lm'
-    #     item_type = 'text_prompt'
-    #     predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-    #     self.assertTrue(isinstance(predict_results, list))  # TODO
+    def test_auto_for_causal_lm(self):
+        model_folder_name = 'auto_for_causal_lm'
+        item_type = 'text_prompt'
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    # def test_bert_base_ner(self):
-    #     model_folder_name = 'bert_base_ner'
-    #     item_type = 'text'
-    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    def test_bert_base_ner(self):
+        model_folder_name = 'bert_base_ner'
+        item_type = 'text'
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
 
 if __name__ == '__main__':
