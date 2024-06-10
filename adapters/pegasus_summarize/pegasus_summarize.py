@@ -39,6 +39,6 @@ class HuggingAdapter:
                                                  "confidence": 1.0
                         })
                     else:
-                        logger.warning(f"Model only accepts text prompts, ignoring the current prompt.")
+                        logger.warning(f"Pegasus only accepts text prompts, ignoring the current prompt.")
             annotations.append(item_annotations)
         return annotations
