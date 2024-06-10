@@ -74,16 +74,48 @@ class MyTestCase(unittest.TestCase):
         return item
 
     def _prepare_image_prompt_item(self, item_type: str, model_folder_name: str):
-        local_path_image = os.path.join(self.tests_path, f"{item_type}.jpg")
-        remote_name_image = f'{model_folder_name}.jpg'
-        image_item = self.dataset.items.upload(
+        # Upload image
+        local_path_image = os.path.join(self.tests_path, f"image.jpeg")
+        # remote_name_image = f'{model_folder_name}.jpeg'
+        image_item: dl.Item = self.dataset.items.upload(
             local_path=local_path_image,
-            remote_name=remote_name_image,
+            # remote_name=remote_name_image,
             overwrite=True
         )
 
+        # Prepare and upload json
         local_path = os.path.join(self.tests_path, f"{item_type}.json")
         remote_name = f'{model_folder_name}.json'
+        with open(local_path, 'r') as f:
+            json_data = json.load(f)
+        json_data["prompts"]["prompt1"][0]["value"] = image_item.stream
+        with open(local_path, 'w') as f:
+            json.dump(json_data, f)
+        item = self.dataset.items.upload(
+            local_path=local_path,
+            remote_name=remote_name,
+            overwrite=True
+        )
+        return item
+
+    def _prepare_text_and_image_prompt_item(self, item_type: str, model_folder_name: str):
+        # Upload image
+        local_path_image = os.path.join(self.tests_path, f"image.jpeg")
+        # remote_name_image = f'{model_folder_name}.jpeg'
+        image_item: dl.Item = self.dataset.items.upload(
+            local_path=local_path_image,
+            # remote_name=remote_name_image,
+            overwrite=True
+        )
+
+        # Prepare and upload json
+        local_path = os.path.join(self.tests_path, f"{item_type}.json")
+        remote_name = f'{model_folder_name}.json'
+        with open(local_path, 'r') as f:
+            json_data = json.load(f)
+        json_data["prompts"]["prompt1"][0]["value"] = image_item.stream
+        with open(local_path, 'w') as f:
+            json.dump(json_data, f)
         item = self.dataset.items.upload(
             local_path=local_path,
             remote_name=remote_name,
