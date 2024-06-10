@@ -210,55 +210,55 @@ class MyTestCase(unittest.TestCase):
         return annotations
 
     # Test functions
-    def test_amazon_review_sentiment_analysis(self):
+    def test_amazon_review_sentiment_analysis(self):  # PASS
         model_folder_name = 'amazon_review_sentiment_analysis'
         item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_auto_for_causal_lm(self):
+    def test_auto_for_causal_lm(self):  # PASS
         model_folder_name = 'auto_for_causal_lm'
         item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_bert_base_ner(self):
+    def test_bert_base_ner(self):  # PASS
         model_folder_name = 'bert_base_ner'
         item_type = ItemTypes.TEXT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_blip_image_captioning_large(self):
+    def test_blip_image_captioning_large(self):  # PASS
         model_folder_name = 'blip_image_captioning_large'
         item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_detr_resnet_50_panoptic(self):
+    def test_detr_resnet_50_panoptic(self):  # FAIL
         model_folder_name = 'detr_resnet_50_panoptic'
         item_type = ItemTypes.IMAGE
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_detr_resnet_101(self):
+    def test_detr_resnet_101(self):  # FAIL
         model_folder_name = 'detr_resnet_101'
         item_type = ItemTypes.IMAGE
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_dialogpt_large(self):
+    def test_dialogpt_large(self):  # PASS
         model_folder_name = 'dialogpt_large'
         item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_instruct_pix2pix(self):
+    def test_instruct_pix2pix(self):  # PASS
         model_folder_name = 'instruct_pix2pix'
         item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_ivrit_ai_whisper_large_v2_tuned(self):
+    def test_ivrit_ai_whisper_large_v2_tuned(self):  # PASS
         model_folder_name = 'ivrit_ai_whisper_large_v2_tuned'
         item_type = ItemTypes.AUDIO
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
@@ -270,7 +270,7 @@ class MyTestCase(unittest.TestCase):
     #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
     #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_open_llama_3b(self):
+    def test_open_llama_3b(self):  # FAIL
         model_folder_name = 'open_llama_3b'
         item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
