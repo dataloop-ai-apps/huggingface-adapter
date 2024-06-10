@@ -104,7 +104,7 @@ class MyTestCase(unittest.TestCase):
         image_item: dl.Item = self.dataset.items.upload(
             local_path=local_path_image,
             # remote_name=remote_name_image,
-            overwrite=True
+            # overwrite=True
         )
 
         # Prepare and upload json
@@ -130,7 +130,7 @@ class MyTestCase(unittest.TestCase):
         image_item: dl.Item = self.dataset.items.upload(
             local_path=local_path_image,
             # remote_name=remote_name_image,
-            overwrite=True
+            # overwrite=True
         )
 
         # Prepare and upload json
