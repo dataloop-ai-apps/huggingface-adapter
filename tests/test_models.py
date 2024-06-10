@@ -115,7 +115,7 @@ class MyTestCase(unittest.TestCase):
             json_data = json.load(f)
         json_data["prompts"]["prompt1"][0]["value"] = image_item.stream
         with open(local_path, 'w') as f:
-            json.dump(json_data, f)
+            json.dump(json_data, f, indent=4)
         item = self.dataset.items.upload(
             local_path=local_path,
             remote_name=remote_name,
@@ -141,7 +141,7 @@ class MyTestCase(unittest.TestCase):
             json_data = json.load(f)
         json_data["prompts"]["prompt1"][0]["value"] = image_item.stream
         with open(local_path, 'w') as f:
-            json.dump(json_data, f)
+            json.dump(json_data, f, indent=4)
         item = self.dataset.items.upload(
             local_path=local_path,
             remote_name=remote_name,
