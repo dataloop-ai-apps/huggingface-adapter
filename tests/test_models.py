@@ -25,6 +25,7 @@ class MyTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         dl.setenv('rc')
+        os.chdir(cls.root_path)
         if dl.token_expired():
             dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
         cls.project = dl.projects.get(project_id=PROJECT_ID)
@@ -162,6 +163,10 @@ class MyTestCase(unittest.TestCase):
 
         # Get model and predict
         model = app.project.models.get(model_name=model_name)
+        service = model.deploy()
+        model.metadata["system"]["deploy"] = {"services": [service.id]}
+        execution = model.predict(item_ids=[item.id])
+        execution = execution.wait()
         return model.predict(item_ids=[item.id])
 
     # Test functions
