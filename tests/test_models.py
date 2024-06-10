@@ -5,6 +5,7 @@ import json
 import random
 import torch
 import numpy as np
+import enum
 
 
 SEED = 1337
@@ -12,6 +13,13 @@ BOT_EMAIL = os.environ['BOT_EMAIL']
 BOT_PWD = os.environ['BOT_PWD']
 PROJECT_ID = os.environ['PROJECT_ID']
 DATASET_NAME = "HF-Models-Tests"
+
+
+class ItemTypes(enum.Enum):
+    TEXT = "text"
+    TEXT_PROMPT = "text_prompt"
+    IMAGE_PROMPT = "image_prompt"
+    TEXT_AND_IMAGE_PROMPT = "text_and_image_prompt"
 
 
 class MyTestCase(unittest.TestCase):
@@ -34,10 +42,10 @@ class MyTestCase(unittest.TestCase):
         except dl.exceptions.NotFound:
             cls.dataset = cls.project.datasets.create(dataset_name=DATASET_NAME)
         cls.prepare_item_function = {
-            "text": cls._prepare_text_item,
-            "text_prompt": cls._prepare_text_prompt_item,
-            "image_prompt": cls._prepare_image_prompt_item,
-            "text_and_image_prompt": cls._prepare_text_and_image_prompt_item,
+            ItemTypes.TEXT.value: cls._prepare_text_item,
+            ItemTypes.TEXT_PROMPT.value: cls._prepare_text_prompt_item,
+            ItemTypes.IMAGE_PROMPT.value: cls._prepare_image_prompt_item,
+            ItemTypes.TEXT_AND_IMAGE_PROMPT.value: cls._prepare_text_and_image_prompt_item,
         }
 
     def setUp(self) -> None:
@@ -67,8 +75,9 @@ class MyTestCase(unittest.TestCase):
         dl.logout()
 
     # Item preparation functions
-    def _prepare_text_item(self, item_type: str, model_folder_name: str):
-        local_path = os.path.join(self.tests_path, f"{item_type}.txt")
+    def _prepare_text_item(self, model_folder_name: str):
+        item_name = f'{ItemTypes.TEXT.value}.txt'
+        local_path = os.path.join(self.tests_path, item_name)
         remote_name = f'{model_folder_name}.txt'
         item = self.dataset.items.upload(
             local_path=local_path,
@@ -77,8 +86,9 @@ class MyTestCase(unittest.TestCase):
         )
         return item
 
-    def _prepare_text_prompt_item(self, item_type: str, model_folder_name: str):
-        local_path = os.path.join(self.tests_path, f"{item_type}.json")
+    def _prepare_text_prompt_item(self, model_folder_name: str):
+        item_name = f'{ItemTypes.TEXT_PROMPT.value}.json'
+        local_path = os.path.join(self.tests_path, item_name)
         remote_name = f'{model_folder_name}.json'
         item = self.dataset.items.upload(
             local_path=local_path,
@@ -87,7 +97,7 @@ class MyTestCase(unittest.TestCase):
         )
         return item
 
-    def _prepare_image_prompt_item(self, item_type: str, model_folder_name: str):
+    def _prepare_image_prompt_item(self, model_folder_name: str):
         # Upload image
         local_path_image = os.path.join(self.tests_path, f"image.jpeg")
         # remote_name_image = f'{model_folder_name}.jpeg'
@@ -98,7 +108,8 @@ class MyTestCase(unittest.TestCase):
         )
 
         # Prepare and upload json
-        local_path = os.path.join(self.tests_path, f"{item_type}.json")
+        item_name = f'{ItemTypes.IMAGE_PROMPT.value}.json'
+        local_path = os.path.join(self.tests_path, item_name)
         remote_name = f'{model_folder_name}.json'
         with open(local_path, 'r') as f:
             json_data = json.load(f)
@@ -112,7 +123,7 @@ class MyTestCase(unittest.TestCase):
         )
         return item
 
-    def _prepare_text_and_image_prompt_item(self, item_type: str, model_folder_name: str):
+    def _prepare_text_and_image_prompt_item(self, model_folder_name: str):
         # Upload image
         local_path_image = os.path.join(self.tests_path, f"image.jpeg")
         # remote_name_image = f'{model_folder_name}.jpeg'
@@ -123,7 +134,8 @@ class MyTestCase(unittest.TestCase):
         )
 
         # Prepare and upload json
-        local_path = os.path.join(self.tests_path, f"{item_type}.json")
+        item_name = f'{ItemTypes.TEXT_AND_IMAGE_PROMPT.value}.json'
+        local_path = os.path.join(self.tests_path, item_name)
         remote_name = f'{model_folder_name}.json'
         with open(local_path, 'r') as f:
             json_data = json.load(f)
@@ -138,13 +150,9 @@ class MyTestCase(unittest.TestCase):
         return item
 
     # Perdict function
-    def _perform_model_predict(self, item_type: str, model_folder_name: str):
+    def _perform_model_predict(self, item_type: ItemTypes, model_folder_name: str):
         # Upload item
-        item = self.prepare_item_function[item_type](
-            self=self,
-            item_type=item_type,
-            model_folder_name=model_folder_name
-        )
+        item = self.prepare_item_function[item_type.value](self=self, model_folder_name=model_folder_name)
 
         # Open dataloop json
         model_path = os.path.join(self.adapters_path, model_folder_name)
@@ -176,19 +184,25 @@ class MyTestCase(unittest.TestCase):
     # Test functions
     def test_amazon_review_sentiment_analysis(self):
         model_folder_name = 'amazon_review_sentiment_analysis'
-        item_type = 'text_prompt'
+        item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
     def test_auto_for_causal_lm(self):
         model_folder_name = 'auto_for_causal_lm'
-        item_type = 'text_prompt'
+        item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
     def test_bert_base_ner(self):
         model_folder_name = 'bert_base_ner'
-        item_type = 'text'
+        item_type = ItemTypes.TEXT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_blip_image_captioning_large(self):
+        model_folder_name = 'blip_image_captioning_large'
+        item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
