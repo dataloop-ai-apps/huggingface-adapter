@@ -6,9 +6,6 @@ import random
 import torch
 import numpy as np
 
-os.environ['BOT_EMAIL'] = "bot.d4c2dc5e-3e60-4e41-8479-528542531376@bot.dataloop.ai"
-os.environ['BOT_PWD'] = "1e*8#C76GX&0p8O8v"
-os.environ['PROJECT_ID'] = "e0b61a98-928b-4412-b30b-d0a96bb67790"
 
 SEED = 1337
 BOT_EMAIL = os.environ['BOT_EMAIL']
@@ -177,23 +174,23 @@ class MyTestCase(unittest.TestCase):
         return annotations
 
     # Test functions
-    # def test_amazon_review_sentiment_analysis(self):
-    #     model_folder_name = 'amazon_review_sentiment_analysis'
-    #     item_type = 'text_prompt'
-    #     predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-    #     self.assertTrue(isinstance(predict_results, list))  # TODO
-    #
+    def test_amazon_review_sentiment_analysis(self):
+        model_folder_name = 'amazon_review_sentiment_analysis'
+        item_type = 'text_prompt'
+        predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predict_results, list))
+
     # def test_auto_for_causal_lm(self):
     #     model_folder_name = 'auto_for_causal_lm'
     #     item_type = 'text_prompt'
     #     predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
     #     self.assertTrue(isinstance(predict_results, list))  # TODO
 
-    def test_bert_base_ner(self):
-        model_folder_name = 'bert_base_ner'
-        item_type = 'text'
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    # def test_bert_base_ner(self):
+    #     model_folder_name = 'bert_base_ner'
+    #     item_type = 'text'
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
 
 if __name__ == '__main__':
