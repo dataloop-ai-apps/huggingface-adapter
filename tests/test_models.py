@@ -36,7 +36,7 @@ class MyTestCase(unittest.TestCase):
             "text": cls._prepare_text_item,
             "text_prompt": cls._prepare_text_prompt_item,
             "image_prompt": cls._prepare_image_prompt_item,
-            "text_and_image_prompt": "",
+            "text_and_image_prompt": cls._prepare_text_and_image_prompt_item,
         }
 
     def setUp(self) -> None:
