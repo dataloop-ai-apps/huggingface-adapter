@@ -210,29 +210,29 @@ class MyTestCase(unittest.TestCase):
         return annotations
 
     # Test functions
-    # def test_amazon_review_sentiment_analysis(self):
-    #     model_folder_name = 'amazon_review_sentiment_analysis'
-    #     item_type = ItemTypes.TEXT_PROMPT
-    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-    #
-    # def test_auto_for_causal_lm(self):
-    #     model_folder_name = 'auto_for_causal_lm'
-    #     item_type = ItemTypes.TEXT_PROMPT
-    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-    #
-    # def test_bert_base_ner(self):
-    #     model_folder_name = 'bert_base_ner'
-    #     item_type = ItemTypes.TEXT
-    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-    #
-    # def test_blip_image_captioning_large(self):
-    #     model_folder_name = 'blip_image_captioning_large'
-    #     item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
-    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    def test_amazon_review_sentiment_analysis(self):
+        model_folder_name = 'amazon_review_sentiment_analysis'
+        item_type = ItemTypes.TEXT_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_auto_for_causal_lm(self):
+        model_folder_name = 'auto_for_causal_lm'
+        item_type = ItemTypes.TEXT_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_bert_base_ner(self):
+        model_folder_name = 'bert_base_ner'
+        item_type = ItemTypes.TEXT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_blip_image_captioning_large(self):
+        model_folder_name = 'blip_image_captioning_large'
+        item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
     def test_detr_resnet_50_panoptic(self):
         model_folder_name = 'detr_resnet_50_panoptic'
@@ -264,11 +264,11 @@ class MyTestCase(unittest.TestCase):
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_meta_llama_3_8b_instruct(self):  # TODO: Add Key Support
-        model_folder_name = 'meta_llama_3_8b_instruct'
-        item_type = ItemTypes.TEXT_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    # def test_meta_llama_3_8b_instruct(self):  # TODO: Add Key Support
+    #     model_folder_name = 'meta_llama_3_8b_instruct'
+    #     item_type = ItemTypes.TEXT_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
     def test_open_llama_3b(self):
         model_folder_name = 'open_llama_3b'
@@ -279,6 +279,30 @@ class MyTestCase(unittest.TestCase):
     def test_pegasus_summarize(self):
         model_folder_name = 'pegasus_summarize'
         item_type = ItemTypes.TEXT_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_stable_diffusion_v1_5(self):
+        model_folder_name = 'stable_diffusion_v1_5'
+        item_type = ItemTypes.TEXT_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_uform_gen2_qwen_500m(self):
+        model_folder_name = 'uform_gen2_qwen_500m'
+        item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_vilt_b32_finetuned_vqa(self):
+        model_folder_name = 'vilt_b32_finetuned_vqa'
+        item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_vit_gpt2_image_captioning(self):
+        model_folder_name = 'vit_gpt2_image_captioning'
+        item_type = ItemTypes.IMAGE_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
