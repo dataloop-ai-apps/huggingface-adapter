@@ -17,6 +17,8 @@ DATASET_NAME = "HF-Models-Tests"
 
 class ItemTypes(enum.Enum):
     TEXT = "text"
+    IMAGE = "image"
+    AUDIO = "audio"
     TEXT_PROMPT = "text_prompt"
     IMAGE_PROMPT = "image_prompt"
     TEXT_AND_IMAGE_PROMPT = "text_and_image_prompt"
@@ -43,6 +45,8 @@ class MyTestCase(unittest.TestCase):
             cls.dataset = cls.project.datasets.create(dataset_name=DATASET_NAME)
         cls.prepare_item_function = {
             ItemTypes.TEXT.value: cls._prepare_text_item,
+            ItemTypes.IMAGE.value: cls._prepare_image_item,
+            ItemTypes.AUDIO.value: cls._prepare_audio_item,
             ItemTypes.TEXT_PROMPT.value: cls._prepare_text_prompt_item,
             ItemTypes.IMAGE_PROMPT.value: cls._prepare_image_prompt_item,
             ItemTypes.TEXT_AND_IMAGE_PROMPT.value: cls._prepare_text_and_image_prompt_item,
@@ -86,6 +90,28 @@ class MyTestCase(unittest.TestCase):
         )
         return item
 
+    def _prepare_image_item(self, model_folder_name: str):
+        item_name = f'{ItemTypes.IMAGE.value}.jpeg'
+        local_path = os.path.join(self.tests_path, item_name)
+        remote_name = f'{model_folder_name}.jpeg'
+        item = self.dataset.items.upload(
+            local_path=local_path,
+            remote_name=remote_name,
+            overwrite=True
+        )
+        return item
+
+    def _prepare_audio_item(self, model_folder_name: str):
+        item_name = f'{ItemTypes.AUDIO.value}.flac'
+        local_path = os.path.join(self.tests_path, item_name)
+        remote_name = f'{model_folder_name}.flac'
+        item = self.dataset.items.upload(
+            local_path=local_path,
+            remote_name=remote_name,
+            overwrite=True
+        )
+        return item
+
     def _prepare_text_prompt_item(self, model_folder_name: str):
         item_name = f'{ItemTypes.TEXT_PROMPT.value}.json'
         local_path = os.path.join(self.tests_path, item_name)
@@ -99,7 +125,8 @@ class MyTestCase(unittest.TestCase):
 
     def _prepare_image_prompt_item(self, model_folder_name: str):
         # Upload image
-        local_path_image = os.path.join(self.tests_path, f"image.jpeg")
+        item_name_image = f'{ItemTypes.IMAGE.value}.jpeg'
+        local_path_image = os.path.join(self.tests_path, item_name_image)
         # remote_name_image = f'{model_folder_name}.jpeg'
         image_item: dl.Item = self.dataset.items.upload(
             local_path=local_path_image,
@@ -125,7 +152,8 @@ class MyTestCase(unittest.TestCase):
 
     def _prepare_text_and_image_prompt_item(self, model_folder_name: str):
         # Upload image
-        local_path_image = os.path.join(self.tests_path, f"image.jpeg")
+        item_name_image = f'{ItemTypes.IMAGE.value}.jpeg'
+        local_path_image = os.path.join(self.tests_path, item_name_image)
         # remote_name_image = f'{model_folder_name}.jpeg'
         image_item: dl.Item = self.dataset.items.upload(
             local_path=local_path_image,
@@ -182,27 +210,75 @@ class MyTestCase(unittest.TestCase):
         return annotations
 
     # Test functions
-    def test_amazon_review_sentiment_analysis(self):
-        model_folder_name = 'amazon_review_sentiment_analysis'
+    # def test_amazon_review_sentiment_analysis(self):
+    #     model_folder_name = 'amazon_review_sentiment_analysis'
+    #     item_type = ItemTypes.TEXT_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_auto_for_causal_lm(self):
+    #     model_folder_name = 'auto_for_causal_lm'
+    #     item_type = ItemTypes.TEXT_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_bert_base_ner(self):
+    #     model_folder_name = 'bert_base_ner'
+    #     item_type = ItemTypes.TEXT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_blip_image_captioning_large(self):
+    #     model_folder_name = 'blip_image_captioning_large'
+    #     item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_detr_resnet_50_panoptic(self):
+        model_folder_name = 'detr_resnet_50_panoptic'
+        item_type = ItemTypes.IMAGE
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_detr_resnet_101(self):
+        model_folder_name = 'detr_resnet_101'
+        item_type = ItemTypes.IMAGE
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_dialogpt_large(self):
+        model_folder_name = 'dialogpt_large'
         item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_auto_for_causal_lm(self):
-        model_folder_name = 'auto_for_causal_lm'
-        item_type = ItemTypes.TEXT_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_bert_base_ner(self):
-        model_folder_name = 'bert_base_ner'
-        item_type = ItemTypes.TEXT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_blip_image_captioning_large(self):
-        model_folder_name = 'blip_image_captioning_large'
+    def test_instruct_pix2pix(self):
+        model_folder_name = 'instruct_pix2pix'
         item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_ivrit_ai_whisper_large_v2_tuned(self):
+        model_folder_name = 'ivrit_ai_whisper_large_v2_tuned'
+        item_type = ItemTypes.AUDIO
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_meta_llama_3_8b_instruct(self):  # TODO: Add Key Support
+        model_folder_name = 'meta_llama_3_8b_instruct'
+        item_type = ItemTypes.TEXT_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_open_llama_3b(self):
+        model_folder_name = 'open_llama_3b'
+        item_type = ItemTypes.TEXT_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_pegasus_summarize(self):
+        model_folder_name = 'pegasus_summarize'
+        item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 

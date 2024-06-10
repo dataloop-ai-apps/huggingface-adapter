@@ -105,7 +105,7 @@
         "scope": "project",
         "status": "pre-trained",
         "configuration": {
-          "module_name": "adapters.pegasus_sumarize.pegasus_sumarize",
+          "module_name": "adapters.pegasus_summarize.pegasus_summarize",
           "model_name": "google/pegasus-xsum"
         },
         "tags": ["llm", "pretrained", "hugging-face"],
