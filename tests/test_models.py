@@ -270,37 +270,37 @@ class MyTestCase(unittest.TestCase):
     #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
     #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_open_llama_3b(self):  # FAIL
+    def test_open_llama_3b(self):  # PASS
         model_folder_name = 'open_llama_3b'
         item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_pegasus_summarize(self):
+    def test_pegasus_summarize(self):  # PASS
         model_folder_name = 'pegasus_summarize'
         item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_stable_diffusion_v1_5(self):
+    def test_stable_diffusion_v1_5(self):  # PASS
         model_folder_name = 'stable_diffusion_v1_5'
         item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_uform_gen2_qwen_500m(self):
+    def test_uform_gen2_qwen_500m(self):  # PASS
         model_folder_name = 'uform_gen2_qwen_500m'
         item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_vilt_b32_finetuned_vqa(self):
+    def test_vilt_b32_finetuned_vqa(self):  # PASS
         model_folder_name = 'vilt_b32_finetuned_vqa'
         item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_vit_gpt2_image_captioning(self):
+    def test_vit_gpt2_image_captioning(self):  # PASS
         model_folder_name = 'vit_gpt2_image_captioning'
         item_type = ItemTypes.IMAGE_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)

@@ -1,14 +1,14 @@
 {
-  "shebang": "dataloop",
-  "metadata": {
-    "dltype": "prompt"
-  },
-  "prompts": {
-    "prompt1": [
-      {
-        "mimetype": "image/jpeg",
-        "value": "dl.Item.stream"
-      }
-    ]
-  }
+    "shebang": "dataloop",
+    "metadata": {
+        "dltype": "prompt"
+    },
+    "prompts": {
+        "prompt1": [
+            {
+                "mimetype": "image/jpeg",
+                "value": "dl.Item.stream"
+            }
+        ]
+    }
 }
