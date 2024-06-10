@@ -19,9 +19,6 @@
     "computeConfigs": [
       {
         "name": "detr-resnet-50-panoptic-huggingface-deploy",
-        "versions": {
-          "dtlpy": "1.89.14"
-        },
         "secrets": [],
         "runtime": {
           "podType": "gpu-t4",

@@ -20,9 +20,6 @@
         "computeConfigs": [
             {
                 "name": "meta-llama-3-8b-instruct-huggingface-deploy",
-                "versions": {
-                    "dtlpy": "1.90.37"
-                },
                 "secrets": [],
                 "runtime": {
                     "podType": "gpu-t4-m",

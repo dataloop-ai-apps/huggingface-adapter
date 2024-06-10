@@ -20,9 +20,6 @@
     "computeConfigs": [
       {
         "name": "pegasus-huggingface-deploy",
-        "versions": {
-          "dtlpy": "1.89.6"
-        },
         "secrets": [],
         "runtime": {
           "podType": "regular-m",

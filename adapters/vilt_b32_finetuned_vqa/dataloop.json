@@ -20,9 +20,6 @@
     "computeConfigs": [
       {
         "name": "vilt-b32-finetuned-vqa-huggingface-deploy",
-        "versions": {
-          "dtlpy": "1.89.14"
-        },
         "secrets": [],
         "runtime": {
           "podType": "highmem-l",
