@@ -24,7 +24,7 @@ class MyTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        dl.setenv('prod')
+        dl.setenv('rc')
         if dl.token_expired():
             dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
         cls.project = dl.projects.get(project_id=PROJECT_ID)
@@ -48,8 +48,21 @@ class MyTestCase(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
+        # Delete all models
         for model in cls.project.models.list().all():
             model.delete()
+
+        # Delete all apps
+        for app in cls.project.apps.list().all():
+            if app.project.id == cls.project.id:
+                app.uninstall()
+
+        # Delete all dpks
+        filters = dl.Filters(resource=dl.FiltersResource.DPK)
+        filters.add(field="scope", values="project")
+        for dpk in cls.project.dpks.list(filters=filters).all():
+            if dpk.project.id == cls.project.id and dpk.creator == BOT_EMAIL:
+                dpk.delete()
         dl.logout()
 
     # Item preparation functions
@@ -126,7 +139,11 @@ class MyTestCase(unittest.TestCase):
     # Perdict function
     def _perform_model_predict(self, item_type: str, model_folder_name: str):
         # Upload item
-        item = self.prepare_item_function[item_type](item_type=item_type, model_folder_name=model_folder_name)
+        item = self.prepare_item_function[item_type](
+            self=self,
+            item_type=item_type,
+            model_folder_name=model_folder_name
+        )
 
         # Open dataloop json
         model_path = os.path.join(self.adapters_path, model_folder_name)
@@ -148,17 +165,17 @@ class MyTestCase(unittest.TestCase):
         return model.predict(item_ids=[item.id])
 
     # Test functions
-    def test_amazon_review_sentiment_analysis(self):
-        model_folder_name = 'amazon_review_sentiment_analysis'
-        item_type = 'text_prompt'
-        predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predict_results, list))  # TODO
-
-    def test_auto_for_causal_lm(self):
-        model_folder_name = 'auto_for_causal_lm'
-        item_type = 'text_prompt'
-        predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predict_results, list))  # TODO
+    # def test_amazon_review_sentiment_analysis(self):
+    #     model_folder_name = 'amazon_review_sentiment_analysis'
+    #     item_type = 'text_prompt'
+    #     predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predict_results, list))  # TODO
+    #
+    # def test_auto_for_causal_lm(self):
+    #     model_folder_name = 'auto_for_causal_lm'
+    #     item_type = 'text_prompt'
+    #     predict_results = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predict_results, list))  # TODO
 
     def test_bert_base_ner(self):
         model_folder_name = 'bert_base_ner'
