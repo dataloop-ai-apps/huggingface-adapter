@@ -180,7 +180,7 @@ class MyTestCase(unittest.TestCase):
 
     # API Key preparation functions
     def _prepare_llama_3_8b_instruct_token(self, model: dl.Model, service: dl.Service, model_folder_name: str):
-        secret_name = f'{model_folder_name}-key'
+        secret_name = f'{model_folder_name}_key'.replace("-", "_")
         secret_value = API_KEY
 
         # TODO: Make sure the bot is a member in the project organization with the right permissions
