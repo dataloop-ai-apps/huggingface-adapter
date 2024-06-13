@@ -10,4 +10,8 @@
    ![agreement_review.png](assets%2Fagreement_review.png)
 3. After you fill the agreement, check that your request has been submitted successfully and wait for an approval. \
    ![agreement_submitted.png](assets%2Fagreement_submitted.png)
-4. 
+4. Wait for a mail with a header [Access granted] from huggingface.co. \
+   ![access_granted.png](assets%2Faccess_granted.png)
+5. Go to [Access Tokens](https://huggingface.co/settings/tokens) page and click on the `New token` button. \
+   ![access_tokens.png](assets%2Faccess_tokens.png)
+6. 
