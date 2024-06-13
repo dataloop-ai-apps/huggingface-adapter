@@ -12,6 +12,7 @@ SEED = 1337
 BOT_EMAIL = os.environ['BOT_EMAIL']
 BOT_PWD = os.environ['BOT_PWD']
 PROJECT_ID = os.environ['PROJECT_ID']
+API_KEY = os.environ['API_KEY']
 DATASET_NAME = "HF-Models-Tests"
 
 
@@ -36,8 +37,8 @@ class MyTestCase(unittest.TestCase):
     def setUpClass(cls) -> None:
         dl.setenv('rc')
         os.chdir(cls.root_path)
-        if dl.token_expired():
-            dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
+        # if dl.token_expired():
+        dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
         cls.project = dl.projects.get(project_id=PROJECT_ID)
         try:
             cls.dataset = cls.project.datasets.get(dataset_name=DATASET_NAME)
@@ -177,8 +178,36 @@ class MyTestCase(unittest.TestCase):
         )
         return item
 
+    # API Key preparation functions
+    def _prepare_llama_3_8b_instruct_token(self, model: dl.Model, service: dl.Service, model_folder_name: str):
+        secret_name = f'{model_folder_name}-key'
+        secret_value = API_KEY
+
+        # TODO: Make sure the bot is a member in the project organization with the right permissions
+        # Check if secret exists
+        project_org = dl.organizations.get(organization_id=self.project.org["id"])
+        org_integrations = project_org.integrations.list()
+
+        # Delete existing secret
+        for integration in org_integrations:
+            if integration["name"] == secret_name:
+                secret_id = integration["id"]
+                project_org.integrations.delete(integrations_id=secret_id, sure=True, really=True)
+                break
+
+        # Create new secret
+        secret = project_org.integrations.create(
+            integrations_type=dl.IntegrationType.KEY_VALUE,
+            name=secret_name,
+            options={"key": secret_name, "value": secret_value}
+        )
+        service.secrets = [secret.id]
+        service.update()
+        model.configuration["hf_access_token"] = secret_name
+        model.update()
+
     # Perdict function
-    def _perform_model_predict(self, item_type: ItemTypes, model_folder_name: str):
+    def _perform_model_predict(self, item_type: ItemTypes, model_folder_name: str, api_key_function=None):
         # Upload item
         item = self.prepare_item_function[item_type.value](self=self, model_folder_name=model_folder_name)
 
@@ -200,6 +229,11 @@ class MyTestCase(unittest.TestCase):
         # Get model and predict
         model = app.project.models.get(model_name=model_name)
         service = model.deploy()
+
+        # Prepare API Key
+        if api_key_function is not None:
+            api_key_function(model=model, service=service, model_folder_name=model_folder_name)
+
         model.metadata["system"]["deploy"] = {"services": [service.id]}
         execution = model.predict(item_ids=[item.id])
         execution = execution.wait()
@@ -210,101 +244,106 @@ class MyTestCase(unittest.TestCase):
         return annotations
 
     # Test functions
-    def test_amazon_review_sentiment_analysis(self):  # PASS
-        model_folder_name = 'amazon_review_sentiment_analysis'
-        item_type = ItemTypes.TEXT_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_auto_for_causal_lm(self):  # PASS
-        model_folder_name = 'auto_for_causal_lm'
-        item_type = ItemTypes.TEXT_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_bert_base_ner(self):  # PASS
-        model_folder_name = 'bert_base_ner'
-        item_type = ItemTypes.TEXT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_blip_image_captioning_large(self):  # PASS
-        model_folder_name = 'blip_image_captioning_large'
-        item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_detr_resnet_50_panoptic(self):  # FAIL
-        model_folder_name = 'detr_resnet_50_panoptic'
-        item_type = ItemTypes.IMAGE
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_detr_resnet_101(self):  # FAIL
-        model_folder_name = 'detr_resnet_101'
-        item_type = ItemTypes.IMAGE
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_dialogpt_large(self):  # PASS
-        model_folder_name = 'dialogpt_large'
-        item_type = ItemTypes.TEXT_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_instruct_pix2pix(self):  # PASS
-        model_folder_name = 'instruct_pix2pix'
-        item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_ivrit_ai_whisper_large_v2_tuned(self):  # PASS
-        model_folder_name = 'ivrit_ai_whisper_large_v2_tuned'
-        item_type = ItemTypes.AUDIO
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    # def test_meta_llama_3_8b_instruct(self):  # TODO: Add Key Support
-    #     model_folder_name = 'meta_llama_3_8b_instruct'
+    # def test_amazon_review_sentiment_analysis(self):  # PASS
+    #     model_folder_name = 'amazon_review_sentiment_analysis'
     #     item_type = ItemTypes.TEXT_PROMPT
     #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
     #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_auto_for_causal_lm(self):  # PASS
+    #     model_folder_name = 'auto_for_causal_lm'
+    #     item_type = ItemTypes.TEXT_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_bert_base_ner(self):  # PASS
+    #     model_folder_name = 'bert_base_ner'
+    #     item_type = ItemTypes.TEXT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_blip_image_captioning_large(self):  # PASS
+    #     model_folder_name = 'blip_image_captioning_large'
+    #     item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_open_llama_3b(self):  # PASS
-        model_folder_name = 'open_llama_3b'
+    # def test_detr_resnet_50_panoptic(self):  # No Prediction
+    #     model_folder_name = 'detr_resnet_50_panoptic'
+    #     item_type = ItemTypes.IMAGE
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_detr_resnet_101(self):  # No Prediction
+    #     model_folder_name = 'detr_resnet_101'
+    #     item_type = ItemTypes.IMAGE
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    # def test_dialogpt_large(self):  # PASS
+    #     model_folder_name = 'dialogpt_large'
+    #     item_type = ItemTypes.TEXT_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_instruct_pix2pix(self):  # PASS
+    #     model_folder_name = 'instruct_pix2pix'
+    #     item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_ivrit_ai_whisper_large_v2_tuned(self):  # PASS
+    #     model_folder_name = 'ivrit_ai_whisper_large_v2_tuned'
+    #     item_type = ItemTypes.AUDIO
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_meta_llama_3_8b_instruct(self):  # TODO: Add Key Support
+        model_folder_name = 'meta_llama_3_8b_instruct'
         item_type = ItemTypes.TEXT_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        api_key_function = self._prepare_llama_3_8b_instruct_token
+        predicted_annotations = self._perform_model_predict(
+            item_type=item_type,
+            model_folder_name=model_folder_name,
+            api_key_function=api_key_function
+        )
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_pegasus_summarize(self):  # PASS
-        model_folder_name = 'pegasus_summarize'
-        item_type = ItemTypes.TEXT_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_stable_diffusion_v1_5(self):  # PASS
-        model_folder_name = 'stable_diffusion_v1_5'
-        item_type = ItemTypes.TEXT_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_uform_gen2_qwen_500m(self):  # PASS
-        model_folder_name = 'uform_gen2_qwen_500m'
-        item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_vilt_b32_finetuned_vqa(self):  # PASS
-        model_folder_name = 'vilt_b32_finetuned_vqa'
-        item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_vit_gpt2_image_captioning(self):  # PASS
-        model_folder_name = 'vit_gpt2_image_captioning'
-        item_type = ItemTypes.IMAGE_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    # def test_open_llama_3b(self):  # PASS
+    #     model_folder_name = 'open_llama_3b'
+    #     item_type = ItemTypes.TEXT_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_pegasus_summarize(self):  # PASS
+    #     model_folder_name = 'pegasus_summarize'
+    #     item_type = ItemTypes.TEXT_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_stable_diffusion_v1_5(self):  # PASS
+    #     model_folder_name = 'stable_diffusion_v1_5'
+    #     item_type = ItemTypes.TEXT_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_uform_gen2_qwen_500m(self):  # PASS
+    #     model_folder_name = 'uform_gen2_qwen_500m'
+    #     item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_vilt_b32_finetuned_vqa(self):  # PASS
+    #     model_folder_name = 'vilt_b32_finetuned_vqa'
+    #     item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+    #
+    # def test_vit_gpt2_image_captioning(self):  # PASS
+    #     model_folder_name = 'vit_gpt2_image_captioning'
+    #     item_type = ItemTypes.IMAGE_PROMPT
+    #     predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+    #     self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
 
 if __name__ == '__main__':
