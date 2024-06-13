@@ -203,6 +203,9 @@ class MyTestCase(unittest.TestCase):
         )
         service.secrets = [secret.id]
         service.update()
+
+        # Update model configuration
+        model = model.project.models.get(model_id=model.id)
         model.configuration["hf_access_token"] = secret_name
         model.update()
 
