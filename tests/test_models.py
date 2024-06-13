@@ -290,6 +290,12 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
     def test_instruct_pix2pix(self):
+        # Delete previous generated items
+        generated_items_folder = "/instruct_pix2pix_results"
+        filters = dl.Filters()
+        filters.add(field='dir', values=generated_items_folder)
+        self.dataset.items.delete(filters=filters)
+
         model_folder_name = 'instruct_pix2pix'
         item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
@@ -325,6 +331,12 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
     def test_stable_diffusion_v1_5(self):
+        # Delete previous generated items
+        generated_items_folder = "/stable_diffusion_v1_5_results"
+        filters = dl.Filters()
+        filters.add(field='dir', values=generated_items_folder)
+        self.dataset.items.delete(filters=filters)
+
         model_folder_name = 'stable_diffusion_v1_5'
         item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
