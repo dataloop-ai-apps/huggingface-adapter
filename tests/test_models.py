@@ -37,8 +37,8 @@ class MyTestCase(unittest.TestCase):
     def setUpClass(cls) -> None:
         dl.setenv('rc')
         os.chdir(cls.root_path)
-        # if dl.token_expired():
-        dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
+        if dl.token_expired():
+            dl.login_m2m(email=BOT_EMAIL, password=BOT_PWD)
         cls.project = dl.projects.get(project_id=PROJECT_ID)
         try:
             cls.dataset = cls.project.datasets.get(dataset_name=DATASET_NAME)
