@@ -14,4 +14,7 @@
    ![access_granted.png](assets%2Faccess_granted.png)
 5. Go to [Access Tokens](https://huggingface.co/settings/tokens) page and click on the `New token` button. \
    ![access_tokens.png](assets%2Faccess_tokens.png)
-6. 
+6. On the pop window choose the `Name` for the token, set its `Type` to `Write` and click on `Generate a token`. \
+   ![new_token.png](assets%2Fnew_token.png)
+7. `Copy` the generated token and add it as a `Secret` to the model. \
+   ![token.png](assets%2Ftoken.png)
