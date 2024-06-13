@@ -16,7 +16,7 @@
    ![agreement_submitted.png](assets%2Fagreement_submitted.png)
 
 
-4. Wait for a mail with a header [Access granted] from huggingface.co. \
+4. Wait for a mail with a header [Access granted] from huggingface. \
    ![access_granted.png](assets%2Faccess_granted.png)
 
 
