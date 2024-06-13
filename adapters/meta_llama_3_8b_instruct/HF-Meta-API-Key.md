@@ -1,3 +1,13 @@
 # How to get API key for HF Meta LLAMA 3.8b Instruct
 
 ## Detailed guide:
+
+1. [Sign Up](https://huggingface.co/join) to Hugging Face or [Login](https://huggingface.co/login) with your existing 
+   account. \
+   ![login.png](assets%2Flogin.png)
+2. Go to [meta-llama/Meta-Llama-3-8B-Instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct) page and 
+   fill META LLAMA 3 COMMUNITY LICENSE AGREEMENT. \
+   ![agreement_review.png](assets%2Fagreement_review.png)
+3. After you fill the agreement, check that your request has been submitted successfully and wait for an approval. \
+   ![agreement_submitted.png](assets%2Fagreement_submitted.png)
+4. 
