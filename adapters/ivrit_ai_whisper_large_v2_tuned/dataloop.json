@@ -19,9 +19,6 @@
         "computeConfigs": [
             {
                 "name": "ivrit-ai-whisper-large-v2-deploy",
-                "versions": {
-                    "dtlpy": "1.89.6"
-                },
                 "secrets": [],
                 "runtime": {
                     "podType": "regular-m",

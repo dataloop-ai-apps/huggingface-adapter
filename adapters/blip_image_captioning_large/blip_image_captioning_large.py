@@ -41,7 +41,7 @@ class HuggingAdapter:
                     prompt_text = prompt_part["value"]
                     prompt_text_found = True
                 else:
-                    logger.warning(f"UForm only accepts text and image prompts, "
+                    logger.warning(f"BLIP only accepts text and image prompts, "
                                    f"ignoring the current prompt.")
 
                 # Break loop after all inputs received

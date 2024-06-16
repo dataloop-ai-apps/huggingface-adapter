@@ -53,7 +53,7 @@ class HuggingAdapter:
                 timestamp = chunk['timestamp']
                 start = timestamp[0]
                 end = timestamp[1]
-                builder.add(annotation_definition=dl.Subtitle(label="Transcript",text=text),
+                builder.add(annotation_definition=dl.Subtitle(label="Transcript", text=text),
                             start_time=start,
                             end_time=end,
                             model_info={

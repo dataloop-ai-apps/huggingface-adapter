@@ -19,9 +19,6 @@
     "computeConfigs": [
       {
         "name": "instruct-pix2pix-huggingface-deploy",
-        "versions": {
-          "dtlpy": "1.89.14"
-        },
         "secrets": [],
         "runtime": {
           "podType": "gpu-t4",
