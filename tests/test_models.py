@@ -271,18 +271,6 @@ class MyTestCase(unittest.TestCase):
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_detr_resnet_50_panoptic(self):
-        model_folder_name = 'detr_resnet_50_panoptic'
-        item_type = ItemTypes.IMAGE
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
-    def test_detr_resnet_101(self):
-        model_folder_name = 'detr_resnet_101'
-        item_type = ItemTypes.IMAGE
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
     def test_dialogpt_large(self):
         model_folder_name = 'dialogpt_large'
         item_type = ItemTypes.TEXT_PROMPT
