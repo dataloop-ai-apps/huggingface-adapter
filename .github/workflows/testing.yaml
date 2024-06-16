@@ -20,5 +20,7 @@ jobs:
          PROJECT_ID: "${{ secrets.PROJECT_ID }}"
          BOT_EMAIL: "${{ secrets.BOT_EMAIL }}"
          BOT_PWD: "${{ secrets.BOT_PWD }}"
+         API_KEY: "${{ secrets.API_KEY }}"
        run: |
-         python3 -m unittest tests.test_models
+         cd tests
+         python3 -m unittest test_models
