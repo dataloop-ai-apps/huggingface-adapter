@@ -3,12 +3,14 @@
   "description": "Vision-and-Language Transformer (ViLT) model fine-tuned on VQAv2.",
   "attributes": {
     "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
     "NLP": "Conversational",
-    "Gen AI": "LMM"
+    "Gen AI": "LMM",
+    "Media Type": ["Text", "Image", "Multi Modal"]
   },
-  "displayName": "dandelin-vilt-b32-finetuned-vqa",
+  "displayName": "ViLT VQA",
   "version": "0.1.42",
   "scope": "public",
   "codebase": {

@@ -3,10 +3,12 @@
   "description": "AutoForCausalLM for chatting - HF",
   "attributes": {
     "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
     "NLP": "Conversational",
-    "Gen AI": "LLM"
+    "Gen AI": "LLM",
+    "Media Type": ["Text"]
   },
   "displayName": "AutoForCausalLM",
   "version": "0.1.42",

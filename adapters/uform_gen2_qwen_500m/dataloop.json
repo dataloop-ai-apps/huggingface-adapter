@@ -2,13 +2,15 @@
   "name": "uform-gen2-qwen-500m-huggingface-app",
   "description": "UForm-Gen is a small generative vision-language model primarily designed for Image Captioning and Visual Question Answering.",
   "attributes": {
-    "Provider": "Hugging Face",
+    "Provider": "Unum",
+    "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
     "NLP": "Conversational",
-    "Gen AI": "LMM"
+    "Gen AI": "LMM",
+    "Media Type": ["Text", "Image", "Multi Modal"]
   },
-  "displayName": "uform-gen2-qwen-500m",
+  "displayName": "Uform-Gen2",
   "version": "0.1.42",
   "scope": "public",
   "codebase": {

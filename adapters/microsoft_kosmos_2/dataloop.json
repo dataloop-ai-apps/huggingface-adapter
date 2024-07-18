@@ -3,12 +3,14 @@
     "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world.",
     "attributes": {
         "Provider": "Microsoft",
+        "Deployed By": "Dataloop",
         "License": "MIT",
         "Category": "Model",
         "NLP": "Conversational",
-        "Gen AI":"LMM"
+        "Gen AI":"LMM",
+        "Media Type": ["Text", "Image", "Multi Modal"]
     },
-    "displayName": "microsoft-kosmos-2-huggingface-app",
+    "displayName": "Microsoft Kosmos-2",
     "version": "0.1.42",
     "scope": "public",
     "codebase": {

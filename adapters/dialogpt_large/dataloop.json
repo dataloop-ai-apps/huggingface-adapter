@@ -2,13 +2,15 @@
   "name": "dialogpt-large-huggingface-app",
   "description": "DialoGPT is a SOTA large-scale pretrained dialogue response generation model for multiturn conversations.",
   "attributes": {
-    "Provider": "Hugging Face",
+    "Provider": "Microsoft",
+    "Deployed By": "Dataloop",
     "License": "MIT",
     "Category": "Model",
     "NLP": "Conversational",
-    "Gen AI": "LLM"
+    "Gen AI": "LLM",
+    "Media Type": ["Text"]
   },
-  "displayName": "microsoft-DialoGPT-large",
+  "displayName": "Microsoft DialoGPT-Large",
   "version": "0.1.42",
   "scope": "public",
   "codebase": {

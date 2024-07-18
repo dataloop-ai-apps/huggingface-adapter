@@ -3,11 +3,13 @@
   "description": "InstructPix2Pix is a Stable Diffusion model trained to edit images from human-provided instructions.",
   "attributes": {
     "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
     "License": "MIT",
     "Category": "Model",
-    "Gen AI": "LMM"
+    "Gen AI": "LMM",
+    "Media Type": ["Text", "Image", "Multi Modal"]
   },
-  "displayName": "timbrooks-instruct-pix2pix",
+  "displayName": "Instruct-Pix2Pix",
   "version": "0.1.42",
   "scope": "public",
   "codebase": {

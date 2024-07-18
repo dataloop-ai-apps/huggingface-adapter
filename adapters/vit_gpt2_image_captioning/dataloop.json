@@ -3,12 +3,14 @@
   "description": "Vision Transformer (ViT) GPT2 an image captioning model.",
   "attributes": {
     "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
     "NLP": "Conversational",
-    "Gen AI": "LMM"
+    "Gen AI": "LMM",
+    "Media Type": ["Text", "Image", "Multi Modal"]
   },
-  "displayName": "nlpconnect-vit-gpt2-image-captioning",
+  "displayName": "ViT-GPT2 Image Captioning",
   "version": "0.1.42",
   "scope": "public",
   "codebase": {
