@@ -9,7 +9,7 @@
         "Audio": "Auto Speech Recognition",
         "Media Type": ["Text", "Audio", "Multi Modal"]
     },
-    "displayName": "ivrit-ai-whisper-large-v2-app",
+    "displayName": "IvritAI Whisper Large",
     "version": "0.1.42",
     "scope": "public",
     "codebase": {

@@ -2,7 +2,7 @@
     "name": "meta-llama3-8b-instruct-huggingface-app",
     "description": "Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8 and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.",
     "attributes": {
-        "Provider": "Hugging Face",
+        "Provider": "Meta",
         "Deployed By": "Dataloop",
         "License": "Other",
         "Category": "Model",
@@ -10,7 +10,7 @@
         "Gen AI":"LLM",
         "Media Type": "Text"
     },
-    "displayName": "meta_llama_3_8b_instruct",
+    "displayName": "Meta LLaMa3-8b-Instruct",
     "version": "0.1.42",
     "scope": "public",
     "codebase": {

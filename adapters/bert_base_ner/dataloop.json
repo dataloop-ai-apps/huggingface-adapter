@@ -9,7 +9,7 @@
     "Media Type": "Text",
     "NLP": "Token Classification"
   },
-  "displayName": "dslim-bert-base-NER",
+  "displayName": "BERT Base NER",
   "version": "0.1.42",
   "scope": "public",
   "codebase": {

@@ -10,7 +10,7 @@
         "Gen AI":"LLM",
         "Media Type": "Text"
     },
-    "displayName": "openlm-research-open_llama_3b",
+    "displayName": "OpenLLaMa-3B",
     "version": "0.1.42",
     "scope": "public",
     "codebase": {

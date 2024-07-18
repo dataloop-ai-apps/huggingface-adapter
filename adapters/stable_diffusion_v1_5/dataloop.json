@@ -2,14 +2,14 @@
   "name": "stable-diffusion-v1-5-huggingface-app",
   "description": "Stable Diffusion is a latent text-to-image diffusion model capable of generating photo-realistic images given any text input.",
   "attributes": {
-    "Provider": "Hugging Face",
+    "Provider": "Runway",
     "Deployed By": "Dataloop",
     "License": "CreativeML Open RAIL-M",
     "Category": "Model",
     "Gen AI": "LMM",
     "Media Type": ["Text", "Image", "Multi Modal"]
   },
-  "displayName": "runwayml-stable-diffusion-v1-5",
+  "displayName": "RunwayML StableDiffusion v1.5",
   "version": "0.1.42",
   "scope": "public",
   "codebase": {

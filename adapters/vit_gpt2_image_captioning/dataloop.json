@@ -10,7 +10,7 @@
     "Gen AI": "LMM",
     "Media Type": ["Text", "Image", "Multi Modal"]
   },
-  "displayName": "nlpconnect-vit-gpt2-image-captioning",
+  "displayName": "ViT-GPT2 Image Captioning",
   "version": "0.1.42",
   "scope": "public",
   "codebase": {
