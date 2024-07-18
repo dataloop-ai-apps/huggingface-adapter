@@ -3,10 +3,12 @@
   "description": "UForm-Gen is a small generative vision-language model primarily designed for Image Captioning and Visual Question Answering.",
   "attributes": {
     "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
     "NLP": "Conversational",
-    "Gen AI": "LMM"
+    "Gen AI": "LMM",
+    "Media Type": ["Text", "Image", "Multi Modal"]
   },
   "displayName": "uform-gen2-qwen-500m",
   "version": "0.1.42",

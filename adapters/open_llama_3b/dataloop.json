@@ -3,10 +3,12 @@
     "description": "The model is mainly based on LLaMA with some modifications, incorporating memory-efficient attention from Xformers, stable embedding from Bloom, and shared input-output embedding from PaLM.",
     "attributes": {
         "Provider": "Hugging Face",
+        "Deployed By": "Dataloop",
         "License": "Apache 2.0",
         "Category": "Model",
         "NLP": "Conversational",
-        "Gen AI":"LLM"
+        "Gen AI":"LLM",
+        "Media Type": "Text"
     },
     "displayName": "openlm-research-open_llama_3b",
     "version": "0.1.42",

@@ -3,6 +3,7 @@
   "description": "This model is a fine-tuned version of nlptown/bert-base-multilingual-uncased-sentiment on an Amazon US Customer Reviews Dataset.",
   "attributes": {
     "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
     "Media Type": "Text",

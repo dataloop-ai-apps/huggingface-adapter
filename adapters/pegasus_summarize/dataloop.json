@@ -3,10 +3,12 @@
   "description": "Pegasus Huggingface Model to summarize long text",
   "attributes": {
     "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
     "NLP": "Other",
-    "Gen AI": "LLM"
+    "Gen AI": "LLM",
+    "Media Type": "Text"
   },
   "displayName": "Pegasus Huggingface Model",
   "version": "0.1.42",

@@ -3,10 +3,12 @@
   "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation",
   "attributes": {
     "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
     "License": "BSD-3-Clause",
     "Category": "Model",
     "NLP": "Conversational",
-    "Gen AI": "LMM"
+    "Gen AI": "LMM",
+    "Media Type": ["Text", "Image", "Multi Modal"]
   },
   "displayName": "blip-image-captioning-large",
   "version": "0.1.42",
