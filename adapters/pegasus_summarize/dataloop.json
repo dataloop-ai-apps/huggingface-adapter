@@ -8,7 +8,7 @@
     "Category": "Model",
     "NLP": "Other",
     "Gen AI": "LLM",
-    "Media Type": "Text"
+    "Media Type": ["Text"]
   },
   "displayName": "Pegasus Huggingface Model",
   "version": "0.1.42",

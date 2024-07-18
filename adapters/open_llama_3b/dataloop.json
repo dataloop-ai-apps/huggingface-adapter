@@ -8,7 +8,7 @@
         "Category": "Model",
         "NLP": "Conversational",
         "Gen AI":"LLM",
-        "Media Type": "Text"
+        "Media Type": ["Text"]
     },
     "displayName": "OpenLLaMa-3B",
     "version": "0.1.42",

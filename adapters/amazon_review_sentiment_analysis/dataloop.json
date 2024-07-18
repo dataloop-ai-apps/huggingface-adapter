@@ -6,7 +6,8 @@
     "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
-    "Media Type": "Text",
+    "Media Type": ["Text"],
+    "Gen AI": "LLM",
     "NLP": "Sentiment Analysis"
   },
   "displayName": "Amazon Review Sentiment Analysis",

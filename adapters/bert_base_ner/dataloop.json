@@ -6,7 +6,7 @@
     "Deployed By": "Dataloop",
     "License": "MIT",
     "Category": "Model",
-    "Media Type": "Text",
+    "Media Type": ["Text"],
     "NLP": "Token Classification"
   },
   "displayName": "BERT Base NER",
