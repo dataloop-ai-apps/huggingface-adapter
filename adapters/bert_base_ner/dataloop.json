@@ -3,18 +3,19 @@
   "description": "bert-base-NER is a fine-tuned BERT model that is ready to use for Named Entity Recognition and achieves state-of-the-art performance for the NER task.",
   "attributes": {
     "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
     "License": "MIT",
     "Category": "Model",
-    "Media Type": "Text",
+    "Media Type": ["Text"],
     "NLP": "Token Classification"
   },
-  "displayName": "dslim-bert-base-NER",
-  "version": "0.1.42",
+  "displayName": "BERT Base NER",
+  "version": "0.1.44",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.42"
+    "gitTag": "0.1.44"
   },
   "components": {
     "computeConfigs": [

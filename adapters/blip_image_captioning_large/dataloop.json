@@ -2,19 +2,21 @@
   "name": "blip-image-captioning-large-huggingface-app",
   "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation",
   "attributes": {
-    "Provider": "Hugging Face",
+    "Provider": "Salesforce",
+    "Deployed By": "Dataloop",
     "License": "BSD-3-Clause",
     "Category": "Model",
     "NLP": "Conversational",
-    "Gen AI": "LMM"
+    "Gen AI": "LMM",
+    "Media Type": ["Text", "Image", "Multi Modal"]
   },
-  "displayName": "blip-image-captioning-large",
-  "version": "0.1.42",
+  "displayName": "BLIP Image Captioning Large",
+  "version": "0.1.44",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.42"
+    "gitTag": "0.1.44"
   },
   "components": {
     "computeConfigs": [
