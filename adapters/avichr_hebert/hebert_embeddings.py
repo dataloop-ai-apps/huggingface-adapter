@@ -55,7 +55,7 @@ class Embedder(dl.BaseServiceRunner):
             _json = json.load(item.download(save_locally=False))
             # check if hyde
             is_hyde = _json['metadata'].get('isHyde', False)
-            prompt_key = list(_json['prompts'].keys())[0]
+            prompt_key = list(_json['prompts'].keys())[-1]
             if is_hyde:
                 prompt_anns = [a for a in item.annotations.list() if a.metadata['system']['promptId'] == prompt_key]
                 hyde_anns = [a for a in prompt_anns if 'hyde' in a.metadata['system']['model']['name'].lower()]
