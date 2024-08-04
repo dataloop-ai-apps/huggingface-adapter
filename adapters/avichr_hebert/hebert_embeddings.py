@@ -54,7 +54,9 @@ class Embedder(dl.BaseServiceRunner):
         if item.metadata.get('system', dict()).get('shebang', dict()).get('dltype') == 'prompt':
             _json = json.load(item.download(save_locally=False))
             # check if hyde
-            is_hyde = _json['metadata'].get('isHyde', False)
+            is_hyde = _json['metadata'].get('isHyde', None)
+            if is_hyde is None:
+                is_hyde = item.metadata.get('prompt', dict()).get('is_hyde', False)
             prompt_key = list(_json['prompts'].keys())[-1]
             if is_hyde:
                 prompt_anns = [a for a in item.annotations.list() if a.metadata['system']['promptId'] == prompt_key]
