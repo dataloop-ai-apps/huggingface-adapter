@@ -97,6 +97,7 @@ class Embedder(dl.BaseServiceRunner):
 
     def extract_dataset_threaded(self, dataset: dl.Dataset, query=None, progress=None):
         pages = dataset.items.list(filters=query)
+        self.feature_set = self.create_feature_set(project=dataset.project)
         with ThreadPoolExecutor() as executor:
             futures = [executor.submit(self.extract_item, obj) for obj in pages.all()]
             done_count = 0
@@ -116,6 +117,6 @@ class Embedder(dl.BaseServiceRunner):
 if __name__ == "__main__":
     dl.setenv('prod')
     project = dl.projects.get('Merkava Demo')
-    dataset = project.datasets.get(dataset_name='TAKAM')
+    dataset = project.datasets.get(dataset_name='TAKAM Archive')
     self = Embedder()
     # self.extract_dataset_threaded(dataset=dataset)
