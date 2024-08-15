@@ -1,0 +1,25 @@
+# ordered list of dpks to publish and install
+dpks:
+    - stable-diffusion-v1-5-huggingface-app:
+        install_app: True
+
+# ordered list of datasets to create from local assets
+local_datasets:
+    - text_prompt_image_answer
+
+# ordered list of models to get from apps
+models:
+    - stable-diffusion-v1-5-huggingface-model:
+        deploy_model: False
+        source_app: stable-diffusion-v1-5-huggingface-app
+
+# list of pipeline variables to update with reference
+variables:
+    dataset:
+        text_prompt_image_answer:
+            resource_type: datasets
+            entity_field: id
+    model:
+        stable-diffusion-v1-5-huggingface-model:
+            resource_type: models
+            entity_field: id
