@@ -1,0 +1,14 @@
+{
+  "shebang": "dataloop",
+  "metadata": {
+    "dltype": "prompt"
+  },
+  "prompts": {
+    "prompt1": [
+      {
+        "mimetype": "application/text",
+        "value": "Draw a cat"
+      }
+    ]
+  }
+}

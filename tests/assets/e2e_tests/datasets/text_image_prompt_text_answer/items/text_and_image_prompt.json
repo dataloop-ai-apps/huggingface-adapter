@@ -1,0 +1,18 @@
+{
+    "shebang": "dataloop",
+    "metadata": {
+        "dltype": "prompt"
+    },
+    "prompts": {
+        "prompt1": [
+            {
+                "mimetype": "image/jpeg",
+                "value": "dl.Item.stream"
+            },
+            {
+                "mimetype": "application/text",
+                "value": "What object is shown in this image?"
+            }
+        ]
+    }
+}

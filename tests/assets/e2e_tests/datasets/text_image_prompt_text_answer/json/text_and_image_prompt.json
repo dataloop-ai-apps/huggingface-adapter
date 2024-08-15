@@ -1,0 +1,34 @@
+{
+  "id": "66be0e37b0e65e4337f55852",
+  "datasetId": "66bb828cef35204d5a284538",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/66be0e37b0e65e4337f55852",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/66bb828cef35204d5a284538",
+  "createdAt": "2024-08-15T14:18:31.543Z",
+  "dir": "/",
+  "filename": "/text_and_image_prompt.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "text_and_image_prompt.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 405,
+      "taskStatusLog": []
+    }
+  },
+  "name": "text_and_image_prompt.json",
+  "creator": "ofir.g@dataloop.ai",
+  "updatedAt": "2024-08-15T14:18:31.751Z",
+  "updatedBy": "ofir.g@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/66be0e37b0e65e4337f55852/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/66be0e37b0e65e4337f55852/thumbnail",
+  "annotations": [],
+  "annotationsCount": 0,
+  "annotated": false
+}
