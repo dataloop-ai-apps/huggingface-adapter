@@ -1,0 +1,25 @@
+# ordered list of dpks to publish and install
+dpks:
+    - ivrit-ai-whisper-large-v2-app:
+        install_app: True
+
+# ordered list of datasets to create from local assets
+local_datasets:
+    - dataset_audio
+
+# ordered list of models to get from apps
+models:
+    - ivrit-ai-whisper-large-v2-model:
+        deploy_model: False
+        source_app: ivrit-ai-whisper-large-v2-app
+
+# list of pipeline variables to update with reference
+variables:
+    dataset:
+        dataset_audio:
+            resource_type: datasets
+            entity_field: id
+    model:
+        ivrit-ai-whisper-large-v2-model:
+            resource_type: models
+            entity_field: id
