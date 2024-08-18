@@ -9,12 +9,12 @@ logger = logging.getLogger("[KOSMOS-2]")
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.device = configuration.get("device")
+        self.device = configuration.get("device", "cpu")
         self.max_new_tokens = configuration.get("max_new_tokens", 128)
 
         self.model = Kosmos2ForConditionalGeneration.from_pretrained("microsoft/kosmos-2-patch14-224")
         self.processor = Kosmos2Processor.from_pretrained("microsoft/kosmos-2-patch14-224")
-        self.model_name = configuration.get("model_name","kosmos-2-patch14-224")
+        self.model_name = configuration.get("model_name", "kosmos-2-patch14-224")
         self.model.to(self.device)
         self.include_entities = configuration.get("include_entities", False)
 
@@ -40,6 +40,7 @@ class HuggingAdapter:
                     prompt_text_found = True
                 else:
                     print("Wrong type found in prompt")
+
                 # Break loop after all inputs received
                 if prompt_image_found and prompt_text_found:
                     break
@@ -69,7 +70,7 @@ class HuggingAdapter:
                     image_embeds_position_mask=inputs["image_embeds_position_mask"],
                     use_cache=True,
                     max_new_tokens=self.max_new_tokens,
-                    )
+                )
                 generated_text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
                 processed_text, entities = self.processor.post_process_generation(generated_text)
                 response = processed_text[len(prompt_txt):]
@@ -82,7 +83,7 @@ class HuggingAdapter:
                     model_info={
                         'name': self.model_name,
                         'confidence': 1.0
-                        }
-                    )
+                    }
+                )
             annotations.append(item_annotations)
         return annotations

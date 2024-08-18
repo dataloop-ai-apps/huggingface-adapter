@@ -305,6 +305,12 @@ class MyTestCase(unittest.TestCase):
         )
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
+    def microsoft_kosmos_2(self):
+        model_folder_name = 'microsoft_kosmos_2'
+        item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
     def test_open_llama_3b(self):
         model_folder_name = 'open_llama_3b'
         item_type = ItemTypes.TEXT_PROMPT
