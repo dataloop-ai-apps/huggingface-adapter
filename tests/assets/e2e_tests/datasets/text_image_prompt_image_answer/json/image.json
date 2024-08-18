@@ -21,6 +21,9 @@
       "taskStatusLog": [],
       "thumbnailId": "66be0c854e89e9a684fa753b",
       "width": 1024
+    },
+    "tags": {
+      "predict": true
     }
   },
   "name": "image.jpeg",

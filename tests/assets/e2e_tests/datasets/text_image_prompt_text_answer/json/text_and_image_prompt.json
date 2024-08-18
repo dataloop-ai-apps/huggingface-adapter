@@ -20,6 +20,9 @@
       },
       "size": 405,
       "taskStatusLog": []
+    },
+    "tags": {
+      "predict": true
     }
   },
   "name": "text_and_image_prompt.json",
