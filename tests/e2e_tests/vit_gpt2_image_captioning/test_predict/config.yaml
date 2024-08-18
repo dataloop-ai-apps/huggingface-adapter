@@ -1,0 +1,25 @@
+# ordered list of dpks to publish and install
+dpks:
+    - vit-gpt2-image-captioning-huggingface-app:
+        install_app: True
+
+# ordered list of datasets to create from local assets
+local_datasets:
+    - image_prompt_text_answer
+
+# ordered list of models to get from apps
+models:
+    - vit-gpt2-image-captioning-huggingface-model:
+        deploy_model: False
+        source_app: vit-gpt2-image-captioning-huggingface-app
+
+# list of pipeline variables to update with reference
+variables:
+    dataset:
+        image_prompt_text_answer:
+            resource_type: datasets
+            entity_field: id
+    model:
+        vit-gpt2-image-captioning-huggingface-model:
+            resource_type: models
+            entity_field: id
