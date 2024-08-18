@@ -30,7 +30,7 @@ class HuggingAdapter:
             return_timestamps=True,
             torch_dtype=torch_dtype,
             device=self.device
-            )
+        )
         self.sampling_rate = configuration.get("sampling_rate", 16000)
         self.num_beams = configuration.get("num_beams", 5)
 
@@ -53,13 +53,15 @@ class HuggingAdapter:
                 timestamp = chunk['timestamp']
                 start = timestamp[0]
                 end = timestamp[1]
-                builder.add(annotation_definition=dl.Subtitle(label="Transcript", text=text),
-                            start_time=start,
-                            end_time=end,
-                            model_info={
-                                "name": "ivrit-ai/whisper-large-v2-tuned",
-                                "confidence": 1.0
-                                })
+                builder.add(
+                    annotation_definition=dl.Subtitle(label="Transcript", text=text),
+                    start_time=start,
+                    end_time=end,
+                    model_info={
+                        "name": "ivrit-ai/whisper-large-v2-tuned",
+                        "confidence": 1.0
+                    }
+                )
             annotations.append(builder)
             os.remove(filename)
             logger.debug(f"Transcript: {transcript}")

@@ -29,11 +29,17 @@ class HuggingAdapter:
             ner_results = self.nlp(txt)
             collection = dl.AnnotationCollection()
             for res in ner_results:
-                collection.add(dl.Text(text_type='block',
-                                       label=res['entity'],
-                                       start=res['start'],
-                                       end=res['end']),
-                               model_info={'name': model_entity.name,
-                                           'confidence': res['score']})
+                collection.add(
+                    annotation_definition=dl.Text(
+                        text_type='block',
+                        label=res['entity'],
+                        start=res['start'],
+                        end=res['end']
+                    ),
+                    model_info={
+                        'name': model_entity.name,
+                        'confidence': res['score']
+                    }
+                )
             batch_annotations.append(collection)
         return batch_annotations

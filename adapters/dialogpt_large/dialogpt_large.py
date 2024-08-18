@@ -51,10 +51,14 @@ class HuggingAdapter:
                         response = self.tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0],
                                                          skip_special_tokens=True)
                         logger.info("Response: {}".format(response))
-                        item_annotations.add(annotation_definition=dl.FreeText(text=response),
-                                             prompt_id=prompt_key,
-                                             model_info={'name': "DialoGPT-Large",
-                                                         'confidence': self.compute_confidence(new_user_input_ids)})
+                        item_annotations.add(
+                            annotation_definition=dl.FreeText(text=response),
+                            prompt_id=prompt_key,
+                            model_info={
+                                'name': "DialoGPT-Large",
+                                'confidence': self.compute_confidence(new_user_input_ids)
+                            }
+                        )
                     else:
                         logger.warning("Entry ignored. DialoGPT can only answer to text prompts.")
             annotations.append(item_annotations)

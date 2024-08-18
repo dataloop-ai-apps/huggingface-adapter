@@ -29,7 +29,7 @@ class HuggingAdapter:
                 bnb_4bit_use_double_quant=True,
                 bnb_4bit_quant_type="nf4",
                 bnb_4bit_compute_dtype=torch.float16,
-                )
+            )
             model_args["quantization_config"] = bnb_config
         else:
             torch_dtype = torch.float32 if configuration.get("device", "cpu") else None
@@ -40,11 +40,11 @@ class HuggingAdapter:
             model_kwargs=model_args,
             device_map=configuration.get("device", "cpu"),
             token=access_token
-            )
+        )
         self.terminators = [
             self.pipeline.tokenizer.eos_token_id,
             self.pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
-            ]
+        ]
         self.configuration = configuration
 
     def prepare_item_func(self, item: dl.Item):
@@ -66,12 +66,12 @@ class HuggingAdapter:
                         messages = [
                             {"role": "system", "content": self.configuration.get("system_prompt", "")},
                             {"role": "user", "content": question["value"]}
-                            ]
+                        ]
                         template_prompt = self.pipeline.tokenizer.apply_chat_template(
                             messages,
                             tokenize=False,
                             add_generation_prompt=True
-                            )
+                        )
                         logger.info(f"User: {question['value']}")
                         pipeline_output = self.pipeline(
                             template_prompt,
@@ -80,16 +80,17 @@ class HuggingAdapter:
                             do_sample=True,
                             temperature=self.configuration.get("temperature", 0.6),
                             top_p=self.configuration.get("top_p", 0.9)
-                            )
+                        )
                         response = pipeline_output[0]["generated_text"][len(template_prompt):]
                         logger.info("Response: {}".format(response))
                         item_annotations.add(
-                            annotation_definition=dl.FreeText(text=response), prompt_id=prompt_key,
+                            annotation_definition=dl.FreeText(text=response),
+                            prompt_id=prompt_key,
                             model_info={
                                 "name": "LLaMa3-8b-Instruct",
                                 "confidence": 1.0
-                                }
-                            )
+                            }
+                        )
                     else:
                         logger.warning(f"LLaMa3 only accepts text prompts, ignoring the current prompt.")
             annotations.append(item_annotations)

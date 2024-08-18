@@ -36,11 +36,14 @@ class HuggingAdapter:
                         predicted_class_id = logits.argmax().item()
                         response = self.model.config.id2label[predicted_class_id]
                         logger.info("Response: {}".format(response))
-                        item_annotations.add(annotation_definition=dl.FreeText(text=response), prompt_id=prompt_key,
-                                             model_info={
-                                                 "name": "Amazon Review Sentiment Analysis",
-                                                 "confidence": round(logits.softmax(dim=1)[0, predicted_class_id].item(), 3)
-                        })
+                        item_annotations.add(
+                            annotation_definition=dl.FreeText(text=response),
+                            prompt_id=prompt_key,
+                            model_info={
+                                "name": "Amazon Review Sentiment Analysis",
+                                "confidence": round(logits.softmax(dim=1)[0, predicted_class_id].item(), 3)
+                            }
+                        )
                     else:
                         logger.warning(f"Model only accepts text prompts, ignoring the current prompt.")
             annotations.append(item_annotations)

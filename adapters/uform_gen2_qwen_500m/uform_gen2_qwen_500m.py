@@ -73,7 +73,7 @@ class HuggingAdapter:
                         max_new_tokens=256,
                         eos_token_id=151645,
                         pad_token_id=self.processor.tokenizer.pad_token_id
-                        )
+                    )
                 prompt_len = encoding["input_ids"].shape[1]
                 response = self.processor.batch_decode(output[:, prompt_len:-1])[0]
                 print("Response: {}".format(response))
@@ -83,7 +83,7 @@ class HuggingAdapter:
                     model_info={
                         'name': self.model_name,
                         'confidence': 1.0
-                        }
-                    )
+                    }
+                )
             annotations.append(item_annotations)
         return annotations

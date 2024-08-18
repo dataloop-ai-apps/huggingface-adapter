@@ -33,11 +33,14 @@ class HuggingAdapter:
                         tensor = self.tokenizer(question['value'], truncation=True, padding="longest", return_tensors="pt").to(self.device)
                         summary = self.model.generate(**tensor)
                         summary_text = self.tokenizer.batch_decode(summary, skip_special_tokens=True)[0]
-                        item_annotations.add(annotation_definition=dl.FreeText(text=summary_text), prompt_id=prompt_key,
-                                             model_info={
-                                                 "name": "Pegasus",
-                                                 "confidence": 1.0
-                        })
+                        item_annotations.add(
+                            annotation_definition=dl.FreeText(text=summary_text),
+                            prompt_id=prompt_key,
+                            model_info={
+                                "name": "Pegasus",
+                                "confidence": 1.0
+                            }
+                        )
                     else:
                         logger.warning(f"Pegasus only accepts text prompts, ignoring the current prompt.")
             annotations.append(item_annotations)

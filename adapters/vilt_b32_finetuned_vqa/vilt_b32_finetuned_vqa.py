@@ -70,7 +70,7 @@ class HuggingAdapter:
                     model_info={
                         'name': self.model_name,
                         'confidence': 1.0
-                        }
-                    )
+                    }
+                )
             annotations.append(item_annotations)
         return annotations
