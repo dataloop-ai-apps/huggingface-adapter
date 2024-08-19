@@ -22,9 +22,6 @@
         "computeConfigs": [
             {
                 "name": "microsoft-kosmos-2-huggingface-deploy",
-                "versions": {
-                    "dtlpy": "1.90.37"
-                },
                 "secrets": [],
                 "runtime": {
                     "podType": "gpu-t4",
