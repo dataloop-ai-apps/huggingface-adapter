@@ -68,13 +68,15 @@ class HuggingAdapter:
 
                 image_result.save(image_result_path)
                 dataset = dl.datasets.get(dataset_id=dataset_id)
-                result_item = dataset.items.upload(local_path=image_result_path,
-                                                   remote_path="stable_diffusion_v1_5_results")
+                result_item: dl.Item = dataset.items.upload(
+                    local_path=image_result_path,
+                    remote_path="stable_diffusion_v1_5_results"
+                )
                 os.remove(image_result_path)
 
                 stream_url = result_item.stream
                 item_annotations.add(
-                    annotation_definition=dl.RefImage(ref=stream_url, mimetype="image/png"),
+                    annotation_definition=dl.RefImage(ref=stream_url, mimetype=result_item.mimetype),
                     prompt_id=prompt_key,
                     model_info={
                         'name': self.model_name,
