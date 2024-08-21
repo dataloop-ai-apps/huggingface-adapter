@@ -10,7 +10,7 @@
     "Gen AI": "LLM",
     "Media Type": ["Text"]
   },
-  "displayName": "Microsoft DialoGPT-Large",
+  "displayName": "DialoGPT Large",
   "version": "0.1.45",
   "scope": "public",
   "codebase": {

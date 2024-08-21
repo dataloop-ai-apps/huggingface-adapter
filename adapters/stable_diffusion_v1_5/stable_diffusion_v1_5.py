@@ -7,7 +7,7 @@ import logging
 from diffusers import StableDiffusionPipeline
 
 # STREAM_URL = r"https://gate.dataloop.ai/api/v1/items/{}/stream"
-logger = logging.getLogger("[StableDiffusionV1.5]")
+logger = logging.getLogger("[Stable Diffusion v1.5]")
 
 
 def create_folder(folder):

@@ -9,7 +9,7 @@ local_datasets:
 
 # ordered list of models to get from apps
 models:
-    - amazon-review-sentiment-analysis-model:
+    - amazon-review-sentiment-analysis-huggingface-model:
         deploy_model: False
         source_app: amazon-review-sentiment-analysis
 
@@ -20,6 +20,6 @@ variables:
             resource_type: datasets
             entity_field: id
     model:
-        amazon-review-sentiment-analysis-model:
+        amazon-review-sentiment-analysis-huggingface-model:
             resource_type: models
             entity_field: id

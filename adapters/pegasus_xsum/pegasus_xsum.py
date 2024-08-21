@@ -4,7 +4,7 @@ from transformers import PegasusForConditionalGeneration, PegasusTokenizer
 import torch
 import json
 
-logger = logging.getLogger("[pegasus-summarize]")
+logger = logging.getLogger("[Pegasus Xsum]")
 
 
 class HuggingAdapter:
@@ -37,7 +37,7 @@ class HuggingAdapter:
                             annotation_definition=dl.FreeText(text=summary_text),
                             prompt_id=prompt_key,
                             model_info={
-                                "name": "Pegasus",
+                                "name": "Pegasus Xsum",
                                 "confidence": 1.0
                             }
                         )

@@ -9,7 +9,7 @@ local_datasets:
 
 # ordered list of models to get from apps
 models:
-    - meta-llama-3-8b-instruct-model:
+    - meta-llama-3-8b-instruct-huggingface-model:
         deploy_model: False
         source_app: meta-llama3-8b-instruct-huggingface-app
 
@@ -20,6 +20,6 @@ variables:
             resource_type: datasets
             entity_field: id
     model:
-        meta-llama-3-8b-instruct-model:
+        meta-llama-3-8b-instruct-huggingface-model:
             resource_type: models
             entity_field: id

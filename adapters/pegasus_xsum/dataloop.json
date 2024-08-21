@@ -1,6 +1,6 @@
 {
   "name": "pegasus-huggingface-app",
-  "description": "Pegasus Huggingface Model to summarize long text",
+  "description": "Pegasus Xsum Huggingface Model to summarize long text",
   "attributes": {
     "Provider": "Google",
     "Deployed By": "Dataloop",
@@ -10,7 +10,7 @@
     "Gen AI": "LLM",
     "Media Type": ["Text"]
   },
-  "displayName": "Pegasus Huggingface Model",
+  "displayName": "Pegasus Xsum",
   "version": "0.1.45",
   "scope": "public",
   "codebase": {
@@ -99,12 +99,12 @@
     ],
     "models": [
       {
-        "name": "pegasus-huggingface-model",
+        "name": "pegasus-xsum-huggingface-model",
         "moduleName": "pegasus-huggingface-module",
         "scope": "project",
         "status": "pre-trained",
         "configuration": {
-          "module_name": "adapters.pegasus_summarize.pegasus_summarize",
+          "module_name": "adapters.pegasus_xsum.pegasus_xsum",
           "model_name": "google/pegasus-xsum"
         },
         "tags": ["llm", "pretrained", "hugging-face"],

@@ -288,9 +288,9 @@ class MyTestCase(unittest.TestCase):
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_ivrit_ai_whisper_large_v2_tuned(self):
-        model_folder_name = 'ivrit_ai_whisper_large_v2_tuned'
-        item_type = ItemTypes.AUDIO
+    def kosmos_2_patch14_224(self):
+        model_folder_name = 'kosmos_2_patch14_224'
+        item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
@@ -305,20 +305,14 @@ class MyTestCase(unittest.TestCase):
         )
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def microsoft_kosmos_2(self):
-        model_folder_name = 'microsoft_kosmos_2'
-        item_type = ItemTypes.TEXT_AND_IMAGE_PROMPT
-        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
-        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
-
     def test_open_llama_3b(self):
         model_folder_name = 'open_llama_3b'
         item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 
-    def test_pegasus_summarize(self):
-        model_folder_name = 'pegasus_summarize'
+    def test_pegasus_xsum(self):
+        model_folder_name = 'test_pegasus_xsum'
         item_type = ItemTypes.TEXT_PROMPT
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
@@ -350,6 +344,12 @@ class MyTestCase(unittest.TestCase):
     def test_vit_gpt2_image_captioning(self):
         model_folder_name = 'vit_gpt2_image_captioning'
         item_type = ItemTypes.IMAGE_PROMPT
+        predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
+        self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
+
+    def test_whisper_large_v2_tuned(self):
+        model_folder_name = 'test_whisper_large_v2_tuned'
+        item_type = ItemTypes.AUDIO
         predicted_annotations = self._perform_model_predict(item_type=item_type, model_folder_name=model_folder_name)
         self.assertTrue(isinstance(predicted_annotations, list) and len(predicted_annotations) > 0)
 

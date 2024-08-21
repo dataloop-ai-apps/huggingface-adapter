@@ -9,7 +9,7 @@
     "Gen AI": "LMM",
     "Media Type": ["Text", "Image", "Multi Modal"]
   },
-  "displayName": "RunwayML StableDiffusion v1.5",
+  "displayName": "Stable Diffusion v1.5",
   "version": "0.1.45",
   "scope": "public",
   "codebase": {

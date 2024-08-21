@@ -1,16 +1,16 @@
 {
-    "name": "microsoft-kosmos-2-huggingface-app",
-    "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world.",
+    "name": "ivrit-ai-whisper-large-v2-app",
+    "description": "Whisper is a pre-trained model for automatic speech recognition (ASR) and speech translation.\nwhisper-large-v2-tuned is a version of whisper-large-v2, fine-tuned by ivrit.ai to improve Hebrew ASR using crowd-sourced labeling.",
     "attributes": {
-        "Provider": "Microsoft",
+        "Provider": "Hugging Face",
         "Deployed By": "Dataloop",
-        "License": "MIT",
+        "License": "Apache 2.0",
         "Category": "Model",
-        "NLP": "Conversational",
-        "Gen AI":"LMM",
-        "Media Type": ["Text", "Image", "Multi Modal"]
+        "Audio": "Auto Speech Recognition",
+        "Gen AI": "LMM",
+        "Media Type": ["Text", "Audio", "Multi Modal"]
     },
-    "displayName": "Microsoft Kosmos-2",
+    "displayName": "Whisper Large v2 Tuned",
     "version": "0.1.45",
     "scope": "public",
     "codebase": {
@@ -21,10 +21,10 @@
     "components": {
         "computeConfigs": [
             {
-                "name": "microsoft-kosmos-2-huggingface-deploy",
+                "name": "ivrit-ai-whisper-large-v2-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "gpu-t4",
+                    "podType": "regular-m",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {
@@ -39,10 +39,10 @@
         ],
         "modules": [
             {
-                "name": "microsoft-kosmos-2-module",
+                "name": "ivrit-ai-whisper-large-v2-module",
                 "entryPoint": "model_adapter.py",
                 "className": "ModelAdapter",
-                "computeConfig": "microsoft-kosmos-2-huggingface-deploy",
+                "computeConfig": "ivrit-ai-whisper-large-v2-deploy",
                 "initInputs": [
                     {
                         "type": "Model",
@@ -99,20 +99,19 @@
         ],
         "models": [
             {
-                "name": "microsoft-kosmos-2-huggingface-model",
-                "moduleName": "microsoft-kosmos-2-module",
+                "name": "whisper-large-v2-huggingface-model",
+                "moduleName": "ivrit-ai-whisper-large-v2-module",
                 "scope": "project",
                 "status": "pre-trained",
                 "configuration": {
-                    "model_name": "kosmos-2-patch14-224",
-                    "max_new_tokens": 128,
-                    "include_entities": false,
-                    "module_name": "adapters.microsoft_kosmos_2.kosmos_2_patch14_224",
-                    "device": "cuda:0"
+                    "weights_filename": "ivrit_ai_whisper.pt",
+                    "model_path": "ivrit-ai/whisper-large-v2-tuned",
+                    "module_name": "adapters.whisper_large_v2_tuned.whisper_large_v2_tuned",
+                    "device": "cpu"
                 },
-                "tags": ["llm", "pretrained", "hugging-face"],
+                "tags": ["speech-to-text", "pretrained", "hugging-face"],
                 "metadata": {},
-                "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world."
+                "description": "Whisper is a pre-trained model for automatic speech recognition (ASR) and speech translation.\nwhisper-large-v2-tuned is a version of whisper-large-v2, fine-tuned by ivrit.ai to improve Hebrew ASR using crowd-sourced labeling."
             }
         ]
     }

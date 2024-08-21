@@ -9,7 +9,7 @@ local_datasets:
 
 # ordered list of models to get from apps
 models:
-    - ivrit-ai-whisper-large-v2-model:
+    - whisper-large-v2-huggingface-model:
         deploy_model: False
         source_app: ivrit-ai-whisper-large-v2-app
 
@@ -20,6 +20,6 @@ variables:
             resource_type: datasets
             entity_field: id
     model:
-        ivrit-ai-whisper-large-v2-model:
+        whisper-large-v2-huggingface-model:
             resource_type: models
             entity_field: id

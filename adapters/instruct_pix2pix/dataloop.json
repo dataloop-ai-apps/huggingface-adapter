@@ -9,7 +9,7 @@
     "Gen AI": "LMM",
     "Media Type": ["Text", "Image", "Multi Modal"]
   },
-  "displayName": "Instruct-Pix2Pix",
+  "displayName": "Instruct Pix2Pix",
   "version": "0.1.45",
   "scope": "public",
   "codebase": {

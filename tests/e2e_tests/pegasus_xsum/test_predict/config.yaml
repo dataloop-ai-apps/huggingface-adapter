@@ -1,25 +1,25 @@
 # ordered list of dpks to publish and install
 dpks:
-    - microsoft-kosmos-2-huggingface-app:
+    - pegasus-huggingface-app:
         install_app: True
 
 # ordered list of datasets to create from local assets
 local_datasets:
-    - text_image_prompt_text_answer
+    - text_prompt_text_answer
 
 # ordered list of models to get from apps
 models:
-    - microsoft-kosmos-2-huggingface-model:
+    - pegasus-xsum-huggingface-model:
         deploy_model: False
-        source_app: microsoft-kosmos-2-huggingface-app
+        source_app: pegasus-huggingface-app
 
 # list of pipeline variables to update with reference
 variables:
     dataset:
-        text_image_prompt_text_answer:
+        text_prompt_text_answer:
             resource_type: datasets
             entity_field: id
     model:
-        microsoft-kosmos-2-huggingface-model:
+        pegasus-xsum-huggingface-model:
             resource_type: models
             entity_field: id

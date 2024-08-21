@@ -4,7 +4,7 @@ import json
 import logging
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-logger = logging.getLogger("[amazon-review-sentiment-analysis]")
+logger = logging.getLogger("[Amazon Review Sentiment Analysis]")
 
 
 class HuggingAdapter:

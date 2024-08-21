@@ -5,7 +5,7 @@ import json
 import logging
 from transformers import pipeline, BitsAndBytesConfig
 
-logger = logging.getLogger("[LLaMa3]")
+logger = logging.getLogger("[Meta LLama 3 8b Instruct]")
 
 
 class HuggingAdapter:

@@ -99,7 +99,7 @@
     ],
     "models": [
       {
-        "name": "amazon-review-sentiment-analysis-model",
+        "name": "amazon-review-sentiment-analysis-huggingface-model",
         "moduleName": "amazon-review-sentiment-analysis-module",
         "scope": "project",
         "status": "pre-trained",

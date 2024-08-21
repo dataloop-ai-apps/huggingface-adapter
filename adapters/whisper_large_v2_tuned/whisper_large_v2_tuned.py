@@ -4,7 +4,7 @@ import logging
 import os
 from transformers import WhisperProcessor, WhisperForConditionalGeneration, pipeline
 
-logger = logging.getLogger("[ivrit-ai/whisper-large-v2-tuned]")
+logger = logging.getLogger("[Whisper Large v2 Tuned]")
 
 
 class HuggingAdapter:

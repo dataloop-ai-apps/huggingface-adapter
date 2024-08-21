@@ -1,11 +1,10 @@
 import json
-import torch
 import PIL
 import dtlpy as dl
 import logging
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
-logger = logging.getLogger("[BLIP]")
+logger = logging.getLogger("[BLIP Image Captioning Large]")
 CAPTIONING_PROMPT = "Caption this image."
 
 

@@ -6,7 +6,7 @@ from PIL import Image
 import logging
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 
-logger = logging.getLogger("[ViTGPT2ImageCaptioning]")
+logger = logging.getLogger("[ViT GPT2 Image Captioning]")
 
 
 def create_folder(folder):

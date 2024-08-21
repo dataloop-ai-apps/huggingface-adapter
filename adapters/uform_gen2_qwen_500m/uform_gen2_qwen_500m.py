@@ -5,7 +5,7 @@ import dtlpy as dl
 import logging
 from transformers import AutoModel, AutoProcessor
 
-logger = logging.getLogger("[UForm]")
+logger = logging.getLogger("[UForm Gen2 Qwen 500m]")
 CAPTIONING_PROMPT = "Caption this image."
 
 

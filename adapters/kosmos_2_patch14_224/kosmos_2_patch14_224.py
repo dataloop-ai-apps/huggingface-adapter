@@ -4,7 +4,7 @@ import dtlpy as dl
 import logging
 from transformers import Kosmos2ForConditionalGeneration, Kosmos2Processor
 
-logger = logging.getLogger("[KOSMOS-2]")
+logger = logging.getLogger("[Kosmos-2 Patch 14 224]")
 
 
 class HuggingAdapter:
