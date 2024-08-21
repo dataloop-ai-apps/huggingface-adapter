@@ -79,8 +79,8 @@ class HuggingAdapter:
                     annotation_definition=dl.RefImage(ref=stream_url, mimetype=result_item.mimetype),
                     prompt_id=prompt_key,
                     model_info={
-                        'name': self.model_name,
-                        'confidence': 1.0
+                        "name": logger.name.strip('[]'),
+                        "confidence": 1.0
                     }
                 )
             annotations.append(item_annotations)

@@ -37,8 +37,8 @@ class HuggingAdapter:
                         end=res['end']
                     ),
                     model_info={
-                        'name': model_entity.name,
-                        'confidence': res['score']
+                        "name": logger.name.strip('[]'),
+                        "confidence": res['score']
                     }
                 )
             batch_annotations.append(collection)

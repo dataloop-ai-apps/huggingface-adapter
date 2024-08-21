@@ -37,7 +37,7 @@ class HuggingAdapter:
                             annotation_definition=dl.FreeText(text=summary_text),
                             prompt_id=prompt_key,
                             model_info={
-                                "name": "Pegasus Xsum",
+                                "name": logger.name.strip('[]'),
                                 "confidence": 1.0
                             }
                         )

@@ -58,7 +58,7 @@ class HuggingAdapter:
                     start_time=start,
                     end_time=end,
                     model_info={
-                        "name": "ivrit-ai/whisper-large-v2-tuned",
+                        "name": logger.name.strip('[]'),
                         "confidence": 1.0
                     }
                 )

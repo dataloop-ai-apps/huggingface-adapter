@@ -55,8 +55,8 @@ class HuggingAdapter:
                             annotation_definition=dl.FreeText(text=response),
                             prompt_id=prompt_key,
                             model_info={
-                                'name': "DialoGPT-Large",
-                                'confidence': self.compute_confidence(new_user_input_ids)
+                                "name": logger.name.strip('[]'),
+                                "confidence": self.compute_confidence(new_user_input_ids)
                             }
                         )
                     else:

@@ -40,7 +40,7 @@ class HuggingAdapter:
                             annotation_definition=dl.FreeText(text=response),
                             prompt_id=prompt_key,
                             model_info={
-                                "name": "Amazon Review Sentiment Analysis",
+                                "name": logger.name.strip('[]'),
                                 "confidence": round(logits.softmax(dim=1)[0, predicted_class_id].item(), 3)
                             }
                         )

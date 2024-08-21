@@ -59,7 +59,7 @@ class HuggingAdapter:
                             annotation_definition=dl.FreeText(text=response),
                             prompt_id=prompt_key,
                             model_info={
-                                "name": self.model_name,
+                                "name": logger.name.strip('[]'),
                                 "confidence": self.compute_confidence(new_user_input_ids),
                             }
                         )

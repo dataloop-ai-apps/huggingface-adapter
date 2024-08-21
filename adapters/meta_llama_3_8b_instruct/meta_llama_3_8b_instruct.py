@@ -87,7 +87,7 @@ class HuggingAdapter:
                             annotation_definition=dl.FreeText(text=response),
                             prompt_id=prompt_key,
                             model_info={
-                                "name": "LLaMa3-8b-Instruct",
+                                "name": logger.name.strip('[]'),
                                 "confidence": 1.0
                             }
                         )
