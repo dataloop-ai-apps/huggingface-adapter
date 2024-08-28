@@ -1,164 +1,129 @@
 {
-    "displayName": "HeBERT Embedder",
-    "name": "hebert-embedder",
-    "scope": "project",
-    "version": "0.2.19",
-    "attributes": {
-        "Provider": "Hugging Face",
-        "Deployed By": "Dataloop",
-        "License": "MIT",
-        "Category": "Model",
-        "Media Type": [
-            "Text"
+  "displayName": "HeBERT Embedder",
+  "name": "hebert-embedder",
+  "scope": "project",
+  "version": "0.1.45",
+  "attributes": {
+    "Provider": "HuggingFace",
+    "Deployed By": "Dataloop",
+    "License": "MIT",
+    "Category": "Model",
+    "Media Type": [
+      "Text"
+    ],
+    "NLP": "Embeddings"
+  },
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+    "gitTag": "0.1.45"
+  },
+  "components": {
+    "toolbars": [
+      {
+        "displayName": "HeBERT Embedder",
+        "invoke": {
+          "type": "function",
+          "namespace": "avichr-hebert-deploy.avichr-hebert-module.embed_dataset"
+        },
+        "location": "datasetBrowserApps",
+        "icon": "icon-dl-models-management"
+      }
+    ],
+    "computeConfigs": [
+      {
+        "name": "avichr-hebert-deploy",
+        "versions": {
+          "dtlpy": "1.94.3"
+        },
+        "runtime": {
+          "podType": "regular-xs",
+          "concurrency": 1,
+          "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.pytorch2",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2
+          }
+        }
+      }
+    ],
+    "modules": [
+      {
+        "name": "avichr-hebert-module",
+        "entryPoint": "adapters/avichr_hebert/hebert_embeddings.py",
+        "className": "Embedder",
+        "computeConfig": "avichr-hebert-deploy",
+        "description": " embeddings module",
+        "versions": {
+          "dtlpy": "1.94.3"
+        },
+        "initInputs": [
+          {
+            "type": "Model",
+            "name": "model_entity"
+          }
         ],
-        "NLP": "Embeddings"
-    },
-    "codebase": {
-        "type": "git",
-        "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.45"
-    },
-    "components": {
-        "pipelineNodes": [
-            {
-                "invoke": {
-                    "type": "function",
-                    "namespace": "embedder-service.embedder-module.embed"
-                },
-                "name": "Embed",
-                "categories": [
-                    "Embedders"
-                ],
-                "displayName": "Embed",
-                "description": "Embed",
-                "scope": "node",
-                "configuration": {
-                    "fields": [
-                        {
-                            "name": "name",
-                            "title": "Node Name",
-                            "props": {
-                                "title": true,
-                                "type": "string",
-                                "default": "Embed",
-                                "required": true,
-                                "placeholder": "Insert node name"
-                            },
-                            "rules": [
-                                {
-                                    "type": "required",
-                                    "effect": "error"
-                                }
-                            ],
-                            "widget": "dl-input"
-                        }
-                    ]
-                }
-            },
-            {
-                "invoke": {
-                    "type": "function",
-                    "namespace": "embedder-service.embedder-module.embed_item"
-                },
-                "name": "Embed Item",
-                "categories": [
-                    "Embedders"
-                ],
-                "displayName": "Embed Item",
-                "description": "Embed prompt item",
-                "scope": "node",
-                "configuration": {
-                    "fields": [
-                        {
-                            "name": "name",
-                            "title": "Node Name",
-                            "props": {
-                                "title": true,
-                                "type": "string",
-                                "default": "Embed Item",
-                                "required": true,
-                                "placeholder": "Insert node name"
-                            },
-                            "rules": [
-                                {
-                                    "type": "required",
-                                    "effect": "error"
-                                }
-                            ],
-                            "widget": "dl-input"
-                        }
-                    ]
-                }
-            }
-        ],
-        "modules": [
-            {
-                "name": "embedder-module",
-                "entryPoint": "hebert_embeddings.py",
-                "className": "Embedder",
-                "initInputs": [],
-                "functions": [
-                    {
-                        "name": "embed",
-                        "input": [
-                            {
-                                "type": "String",
-                                "name": "text"
-                            }
-                        ],
-                        "output": [
-                            {
-                                "type": "String",
-                                "name": "text"
-                            },
-                            {
-                                "type": "String",
-                                "name": "vector"
-                            }
-                        ],
-                        "displayIcon": "icon-dl-hugging-face",
-                        "displayName": "Embed"
-                    },
-                    {
-                        "name": "embed_item",
-                        "input": [
-                            {
-                                "type": "Item",
-                                "name": "item"
-                            }
-                        ],
-                        "output": [
-                            {
-                                "type": "Item",
-                                "name": "item"
-                            },
-                            {
-                                "type": "String",
-                                "name": "vector"
-                            }
-                        ],
-                        "displayIcon": "icon-dl-hugging-face",
-                        "displayName": "Embed"
-                    }
-                ]
-            }
-        ],
-        "services": [
-            {
-                "name": "embedder-service",
-                "moduleName": "embedder-module",
-                "runtime": {
-                    "podType": "regular-s",
-                    "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.pytorch2",
-                    "concurrency": 10,
-                    "autoscaler": {
-                        "minReplicas": 1,
-                        "maxReplicas": 2,
-                        "queueLength": 10
-                    }
-                },
-                "operation": "none"
-            }
+        "functions": [
+          {
+            "name": "embed_items",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The input items for embeddings."
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input items for embeddings."
+              },
+              {
+                "type": "Json",
+                "name": "json",
+                "description": "Embeddings of items."
+              }
+            ],
+            "displayName": "Embed Items",
+            "displayIcon": "",
+            "description": "The inference function of the model."
+          },
+          {
+            "name": "embed_dataset",
+            "input": [
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "The input dataset of the items required for prediction."
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "The DQL in json format to get all the items required for prediction."
+              }
+            ],
+            "output": [],
+            "displayName": "Embed Dataset",
+            "displayIcon": "",
+            "description": "Inference function of the model on a dataset."
+          }
         ]
-    }
+      }
+    ],
+    "models": [
+      {
+        "name": "avichr-hebert",
+        "moduleName": "avichr-hebert-module",
+        "scope": "project",
+        "status": "pre-trained",
+        "inputType": "text",
+        "configuration": {
+          "embeddings_size": 768
+        },
+        "description": "avichr-hebert model"
+      }
+    ]
+  }
 }

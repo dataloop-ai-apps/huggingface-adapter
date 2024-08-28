@@ -1,38 +1,17 @@
 import dtlpy as dl
-import json
-import os
 import logging
-import concurrent.futures
-from concurrent.futures import ThreadPoolExecutor
-
 from transformers import AutoTokenizer, AutoModel
 import torch
 
 logger = logging.getLogger('[HEBERT-EMBEDDER]')
 
 
-class Embedder(dl.BaseServiceRunner):
-    def __init__(self):
-        self.tokenizer = AutoTokenizer.from_pretrained("avichr/heBERT")
-        self.model = AutoModel.from_pretrained("avichr/heBERT")
-        self.name = 'avichr_heBERT'
-        self.feature_set = None
+class Embedder(dl.BaseModelAdapter):
+    def load(self, local_path, **kwargs):
+        self.tokenizer = AutoTokenizer.from_pretrained(self.configuration.get("model_name", "avichr/heBERT"))
+        self.model = AutoModel.from_pretrained(self.configuration.get("model_name", "avichr/heBERT"))
 
-    def create_feature_set(self, project: dl.Project):
-        try:
-            feature_set = project.feature_sets.get(feature_set_name=self.name)
-            logger.info(f'Feature Set found! name: {feature_set.name}, id: {feature_set.id}')
-        except dl.exceptions.NotFound:
-            logger.info('Feature Set not found. creating...')
-            feature_set = project.feature_sets.create(name=self.name,
-                                                      entity_type=dl.FeatureEntityType.ITEM,
-                                                      project_id=project.id,
-                                                      set_type='embeddings',
-                                                      size=768)
-            logger.info(f'Feature Set created! name: {feature_set.name}, id: {feature_set.id}')
-        return feature_set
-
-    def __call__(self, texts):
+    def _embed(self, texts):
         output = list()
 
         for text in texts:
@@ -46,77 +25,32 @@ class Embedder(dl.BaseServiceRunner):
             output.append(outputs.last_hidden_state[:, 0, :].numpy()[0].tolist())
         return output
 
-    def embed(self, text):
-        output = self(texts=[text])[0]
-        return text, output
-
-    def embed_item(self, item: dl.Item):
-        if item.metadata.get('system', dict()).get('shebang', dict()).get('dltype') == 'prompt':
-            _json = json.load(item.download(save_locally=False))
-            # check if hyde
-            is_hyde = _json['metadata'].get('isHyde', None)
-            if is_hyde is None:
-                is_hyde = item.metadata.get('prompt', dict()).get('is_hyde', False)
-            prompt_key = list(_json['prompts'].keys())[-1]
-            if is_hyde:
-                prompt_anns = [a for a in item.annotations.list() if a.metadata['system']['promptId'] == prompt_key]
-                hyde_anns = [a for a in prompt_anns if 'hyde' in a.metadata['system']['model']['name'].lower()]
-                if len(hyde_anns) == 0:
-                    logger.warning('Not hyde found, defaulting to regular')
-                    text = [a["value"] for a in _json['prompts'][prompt_key] if 'text' in a['mimetype']][0]
-                else:
-                    text = hyde_anns[0].coordinates
+    def embed(self, batch, **kwargs):
+        embeddings = []
+        for item in batch:
+            if isinstance(item, str):
+                self.adapter_defaults.upload_features = True
+                text = item
             else:
-                text = [a["value"] for a in _json['prompts'][prompt_key] if 'text' in a['mimetype']][0]
-        else:
-            raise ValueError('Currently only prompt item is supported ')
-        _, embeddings_str = self.embed(text)
-        return item, embeddings_str
-
-    def extract_item(self, item: dl.Item):
-        path = None
-        try:
-            path = item.download(overwrite=True)
-            with open(path, 'r', encoding='utf-8') as f:
-                text = f.read()
-            output = self(texts=[text])[0]
-            if output is not None:
-                self.feature_set.features.create(value=output, entity=item)
-        except Exception as e:
-            logger.exception(e)
-        finally:
-            if path is not None and os.path.exists(path):
-                os.remove(path)
-        return item
-
-    def extract_dataset(self, dataset: dl.Dataset, query=None, progress=None):
-        pages = dataset.items.list()
-        for item in pages.all():
-            self.extract_item(item=item)
-        return dataset
-
-    def extract_dataset_threaded(self, dataset: dl.Dataset, query=None, progress=None):
-        pages = dataset.items.list(filters=query)
-        self.feature_set = self.create_feature_set(project=dataset.project)
-        with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(self.extract_item, obj) for obj in pages.all()]
-            done_count = 0
-            previous_update = 0
-            while futures:
-                done, futures = concurrent.futures.wait(futures, return_when=concurrent.futures.FIRST_COMPLETED)
-                done_count += len(done)
-                current_progress = done_count * 100 // pages.items_count
-                if (current_progress // 10) % 10 > previous_update:
-                    previous_update = (current_progress // 10) % 10
-                    if progress is not None:
-                        progress.update(progress=previous_update * 10)
+                self.adapter_defaults.upload_features = False
+                try:
+                    prompt_item = dl.PromptItem.from_item(item)
+                    is_hyde = item.metadata.get('prompt', dict()).get('is_hyde', False)
+                    if is_hyde is True:
+                        messages = prompt_item.to_messages(model_name=self.configuration.get('hyde_model_name'))[-1]
+                        if messages['role'] == 'assistant':
+                            text = messages['content'][0]['text']
+                        else:
+                            raise ValueError(f'Only assistant messages are supported for hyde model')
                     else:
-                        logger.info(f'Extracted {done_count} out of {pages.items_count} items')
+                        messages = prompt_item.to_messages(include_assistant=False)[-1]
+                        text = messages['content'][0]['text']
 
+                except ValueError as e:
+                    raise ValueError(f'Only mimetype text or prompt items are supported {e}')
 
-if __name__ == "__main__":
-    dl.setenv('prod')
-    project = dl.projects.get('Merkava Demo')
-    dataset = project.datasets.get(dataset_name='TAKAM Archive')
-    self = Embedder()
-    # self.extract_dataset_threaded(dataset=dataset)
+            embedding = self._embed(texts=[text])[0]
+            logger.info(f'Extracted embeddings for text {item}: {embedding}')
+            embeddings.append(embedding)
+
+        return embeddings
