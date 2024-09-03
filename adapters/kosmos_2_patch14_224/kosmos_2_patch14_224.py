@@ -2,6 +2,8 @@ import json
 import PIL
 import dtlpy as dl
 import logging
+
+import torch
 from transformers import Kosmos2ForConditionalGeneration, Kosmos2Processor
 
 logger = logging.getLogger("[Kosmos-2 Patch 14 224]")
@@ -63,11 +65,11 @@ class HuggingAdapter:
                 prompt = f"<grounding> {prompt_txt}"
                 inputs = self.processor(text=prompt, images=PIL.Image.open(image_buffer), return_tensors="pt")
                 generated_ids = self.model.generate(
-                    pixel_values=inputs["pixel_values"],
-                    input_ids=inputs["input_ids"],
-                    attention_mask=inputs["attention_mask"],
+                    pixel_values=inputs["pixel_values"].to(self.device),
+                    input_ids=inputs["input_ids"].to(self.device),
+                    attention_mask=inputs["attention_mask"].to(self.device),
                     image_embeds=None,
-                    image_embeds_position_mask=inputs["image_embeds_position_mask"],
+                    image_embeds_position_mask=inputs["image_embeds_position_mask"].to(self.device),
                     use_cache=True,
                     max_new_tokens=self.max_new_tokens,
                 )
