@@ -1,114 +1,116 @@
 {
-  "name": "bert-base-ner-huggingface-app",
-  "description": "bert-base-NER is a fine-tuned BERT model that is ready to use for Named Entity Recognition and achieves state-of-the-art performance for the NER task.",
-  "attributes": {
-    "Provider": "Hugging Face",
-    "Deployed By": "Dataloop",
-    "License": "MIT",
-    "Category": "Model",
-    "Media Type": ["Text"],
-    "NLP": "Token Classification"
-  },
-  "displayName": "BERT Base NER",
-  "version": "0.1.45",
-  "scope": "public",
-  "codebase": {
-    "type": "git",
-    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.45"
-  },
-  "components": {
-    "computeConfigs": [
-      {
-        "name": "bert-base-ner-huggingface-deploy",
-        "secrets": [],
-        "runtime": {
-          "podType": "highmem-l",
-          "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
-          "concurrency": 1,
-          "autoscaler": {
-            "type": "rabbitmq",
-            "minReplicas": 0,
-            "maxReplicas": 2,
-            "queueLength": 1000
-          },
-          "preemptible": false
-        }
-      }
-    ],
-    "modules": [
-      {
-        "name": "bert-base-ner-module",
-        "entryPoint": "model_adapter.py",
-        "className": "ModelAdapter",
-        "computeConfig": "bert-base-ner-huggingface-deploy",
-        "initInputs": [
-          {
-            "type": "Model",
-            "name": "model_entity"
-          }
+    "name": "bert-base-ner-huggingface-app",
+    "description": "bert-base-NER is a fine-tuned BERT model that is ready to use for Named Entity Recognition and achieves state-of-the-art performance for the NER task.",
+    "attributes": {
+        "Provider": "Hugging Face",
+        "Deployed By": "Dataloop",
+        "License": "MIT",
+        "Category": "Model",
+        "Media Type": [
+            "Text"
         ],
-        "functions": [
-          {
-            "name": "predict_items",
-            "input": [
-              {
-                "type": "Item[]",
-                "name": "items",
-                "description": "The input images for prediction."
-              }
-            ],
-            "output": [
-              {
-                "type": "Item[]",
-                "name": "items",
-                "description": "The same input images for prediction."
-              },
-              {
-                "type": "Annotation[]",
-                "name": "annotations",
-                "description": "The predicted annotations."
-              }
-            ],
-            "displayName": "Predict Items",
-            "displayIcon": "",
-            "description": "The inference function of the model."
-          },
-          {
-            "name": "predict_dataset",
-            "input": [
-              {
-                "type": "Dataset",
-                "name": "dataset",
-                "description": "The input dataset of the items required for prediction."
-              },
-              {
-                "type": "Json",
-                "name": "filters",
-                "description": "The DQL in json format to get all the items required for prediction."
-              }
-            ],
-            "output": [],
-            "displayName": "Predict Dataset",
-            "displayIcon": "",
-            "description": "Inference function of the model on a dataset."
-          }
+        "NLP": "Token Classification"
+    },
+    "displayName": "BERT Base NER",
+    "version": "0.1.45",
+    "scope": "public",
+    "codebase": {
+        "type": "git",
+        "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+        "gitTag": "0.1.45"
+    },
+    "components": {
+        "computeConfigs": [
+            {
+                "name": "bert-base-ner-huggingface-deploy",
+                "secrets": [],
+                "runtime": {
+                    "podType": "highmem-l",
+                    "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+                    "concurrency": 1,
+                    "autoscaler": {
+                        "type": "rabbitmq",
+                        "minReplicas": 0,
+                        "maxReplicas": 2,
+                        "queueLength": 1000
+                    },
+                    "preemptible": false
+                }
+            }
+        ],
+        "modules": [
+            {
+                "name": "bert-base-ner-module",
+                "entryPoint": "model_adapter.py",
+                "className": "ModelAdapter",
+                "computeConfig": "bert-base-ner-huggingface-deploy",
+                "initInputs": [
+                    {
+                        "type": "Model",
+                        "name": "model_entity"
+                    }
+                ],
+                "functions": [
+                    {
+                        "name": "predict_items",
+                        "input": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The input images for prediction."
+                            }
+                        ],
+                        "output": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The same input images for prediction."
+                            },
+                            {
+                                "type": "Annotation[]",
+                                "name": "annotations",
+                                "description": "The predicted annotations."
+                            }
+                        ],
+                        "displayName": "Predict Items",
+                        "displayIcon": "",
+                        "description": "The inference function of the model."
+                    },
+                    {
+                        "name": "predict_dataset",
+                        "input": [
+                            {
+                                "type": "Dataset",
+                                "name": "dataset",
+                                "description": "The input dataset of the items required for prediction."
+                            },
+                            {
+                                "type": "Json",
+                                "name": "filters",
+                                "description": "The DQL in json format to get all the items required for prediction."
+                            }
+                        ],
+                        "output": [],
+                        "displayName": "Predict Dataset",
+                        "displayIcon": "",
+                        "description": "Inference function of the model on a dataset."
+                    }
+                ]
+            }
+        ],
+        "models": [
+            {
+                "name": "bert-base-ner-huggingface-model",
+                "moduleName": "bert-base-ner-module",
+                "scope": "project",
+                "status": "pre-trained",
+                "configuration": {
+                    "module_name": "adapters.bert_base_ner.bert_base_ner",
+                    "device": "cpu"
+                },
+                "metadata": {},
+                "description": "bert-base-NER is a fine-tuned BERT model that is ready to use for Named Entity Recognition and achieves state-of-the-art performance for the NER task."
+            }
         ]
-      }
-    ],
-    "models": [
-      {
-        "name": "bert-base-ner-huggingface-model",
-        "moduleName": "bert-base-ner-module",
-        "scope": "project",
-        "status": "pre-trained",
-        "configuration": {
-          "module_name": "adapters.bert_base_ner.bert_base_ner",
-          "device": "cpu"
-        },
-        "metadata": {},
-        "description": "bert-base-NER is a fine-tuned BERT model that is ready to use for Named Entity Recognition and achieves state-of-the-art performance for the NER task."
-      }
-    ]
-  }
+    }
 }

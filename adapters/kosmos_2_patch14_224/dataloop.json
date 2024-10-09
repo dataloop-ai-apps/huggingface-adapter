@@ -7,8 +7,12 @@
         "License": "MIT",
         "Category": "Model",
         "NLP": "Conversational",
-        "Gen AI":"LMM",
-        "Media Type": ["Text", "Image", "Multi Modal"]
+        "Gen AI": "LMM",
+        "Media Type": [
+            "Text",
+            "Image",
+            "Multi Modal"
+        ]
     },
     "displayName": "Kosmos-2 Patch14 224",
     "version": "0.1.45",
@@ -110,7 +114,11 @@
                     "module_name": "adapters.kosmos_2_patch14_224.kosmos_2_patch14_224",
                     "device": "cuda:0"
                 },
-                "tags": ["llm", "pretrained", "hugging-face"],
+                "tags": [
+                    "llm",
+                    "pretrained",
+                    "hugging-face"
+                ],
                 "metadata": {},
                 "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world."
             }
