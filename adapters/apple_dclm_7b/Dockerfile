@@ -1,8 +1,6 @@
 FROM dataloopai/dtlpy-agent:gpu.cuda.11.8.py3.10.pytorch2
 
 USER 1000
-COPY requirements.txt /tmp/
-WORKDIR /tmp
 
 ###### The below is a workaround for the issue described in the following link:
 ###### https://github.com/yaml/pyyaml/issues/601#issuecomment-1813963845
