@@ -137,7 +137,7 @@
           "io": "output"
         }
       ],
-      "name": "Predict",
+      "name": "Generate",
       "type": "ml",
       "namespace": {
         "functionName": "predict",
@@ -153,10 +153,11 @@
           "y": 9945.04989170792,
           "z": 0
         },
-        "repeatable": true,
         "variableModel": "model",
         "variableDataset": "model",
-        "componentGroupName": "models"
+        "componentGroupName": "models",
+        "repeatable": true,
+        "mlType": "genAi"
       }
     },
     {
