@@ -55,12 +55,14 @@ class HuggingAdapter:
                                                          skip_special_tokens=True)
                         logger.info("Response: {}".format(response))
 
-                        item_annotations.add(annotation_definition=dl.FreeText(text=response),
-                                             prompt_id=prompt_key,
-                                             model_info={
-                                                 "name": self.model_name,
-                                                 "confidence": self.compute_confidence(new_user_input_ids),
-                                                 })
+                        item_annotations.add(
+                            annotation_definition=dl.FreeText(text=response),
+                            prompt_id=prompt_key,
+                            model_info={
+                                "name": logger.name.strip('[]'),
+                                "confidence": self.compute_confidence(new_user_input_ids),
+                            }
+                        )
                     else:
                         logger.warning(f"Model {self.model_name} is an AutoCausalLM and only accepts text prompts. "
                                        f"Ignoring prompt")

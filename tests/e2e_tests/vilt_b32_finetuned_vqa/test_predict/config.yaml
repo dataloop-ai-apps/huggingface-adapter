@@ -1,0 +1,25 @@
+# ordered list of dpks to publish and install
+dpks:
+    - vilt-b32-finetuned-vqa-huggingface-app:
+        install_app: True
+
+# ordered list of datasets to create from local assets
+local_datasets:
+    - text_image_prompt_text_answer
+
+# ordered list of models to get from apps
+models:
+    - vilt-b32-finetuned-vqa-huggingface-model:
+        deploy_model: False
+        source_app: vilt-b32-finetuned-vqa-huggingface-app
+
+# list of pipeline variables to update with reference
+variables:
+    dataset:
+        text_image_prompt_text_answer:
+            resource_type: datasets
+            entity_field: id
+    model:
+        vilt-b32-finetuned-vqa-huggingface-model:
+            resource_type: models
+            entity_field: id
