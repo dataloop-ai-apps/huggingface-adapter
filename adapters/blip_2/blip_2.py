@@ -1,103 +1,78 @@
-import base64
-from io import BytesIO
-from typing import List
+import json
+import torch
 import PIL
 import dtlpy as dl
 import logging
-from transformers import Blip2Processor, Blip2ForConditionalGeneration
-import torch
+from transformers import AutoProcessor, Blip2ForConditionalGeneration
 
-logger = logging.getLogger("[BLIP-2]")
+logger = logging.getLogger("[BLIP]")
+CAPTIONING_PROMPT = "Caption this image."
 
-class HuggingAdapter(dl.BaseModelAdapter):
-    def load(self, local_path, **kwargs):
-        self.model_name = self.configuration.get("model_name", "blip-2")
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.conditioning = self.configuration.get("conditioning", False)
-        self.processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
+
+class HuggingAdapter:
+    def __init__(self, configuration):
+        self.model_name = configuration.get("model_name")
+        self.device = configuration.get("device")
+        self.conditioning = configuration.get("conditioning", False)
+        self.processor = AutoProcessor.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.model.to(self.device)
 
     def prepare_item_func(self, item: dl.Item):
-        prompt_item = dl.PromptItem.from_item(item)
-        return prompt_item
+        buffer = json.load(item.download(save_locally=False))
+        prompts = buffer["prompts"]
+        ready_prompts = []
+        for prompt_key, prompt_content in prompts.items():
+            questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
 
-    def predict(self, batch: List[dl.PromptItem], **kwargs):
-        for prompt_item in batch:
-            prompt_txt, image_buffer = HuggingAdapter.reformat_messages(
-                prompt_item.to_messages(model_name=self.model_name)
-            )
-            encoding = self.processor(
-                PIL.Image.open(image_buffer).convert('RGB'), prompt_txt, return_tensors="pt"
-            ).to(self.device)
-            
-            output = self.model.generate(**encoding, max_new_tokens=50)
-            response = self.processor.decode(
-                output[0], skip_special_tokens=True
-            ).strip()
-            print("Response: {}".format(response))
-            prompt_item.add(
-                message={
-                    "role": "assistant",
-                    "content": [{"mimetype": dl.PromptType.TEXT, "value": response}],
-                },
-                model_info={
-                    "name": self.model_name,
-                    "confidence": 1.0,
-                    "model_id": self.model_entity.id,
-                },
-            )
-        return []
-    
-    def get_last_prompt_message(messages):
-        for message in reversed(messages):
-            if message.get("role") == "user":
-                return message
-        raise ValueError("No message with role 'user' found")
-        
-    def reformat_messages(messages):
-        # In case of multiple messages, 
-        # we assume the last user message contains the image of interest
+            image_buffer = None
+            prompt_text = None
+            prompt_image_found = False
+            prompt_text_found = not self.conditioning
+            for prompt_part in questions:
+                if "image" in prompt_part["mimetype"] and not prompt_image_found:
+                    image_url = prompt_part["value"]
+                    item_id = image_url.split("/stream")[0].split("/items/")[-1]
+                    item = dl.items.get(item_id=item_id)
+                    image_buffer = item.download(save_locally=False)
+                    prompt_image_found = True
+                elif "text" in prompt_part["mimetype"] and not prompt_text_found:
+                    prompt_text = prompt_part["value"]
+                    prompt_text_found = True
+                else:
+                    logger.warning(f"BLIP only accepts text and image prompts, "
+                                   f"ignoring the current prompt.")
 
-        last_user_message = HuggingAdapter.get_last_prompt_message(messages)
-        
-        prompt_txt = None
-        image_buffer = None
-        
-        # The last user message may contain multiple contents, 
-        # such as a text component and an image component
-        # or multiple text components (e.g., multiple questions)
-        for content in last_user_message["content"]:
-            
-            content_type = content.get("type", None)
-            if content_type is None:
-                raise ValueError("Message content type not found")
-            
-            if content_type == "text":
-                # Concatenate multiple text contents with space
-                new_text = content.get("text", "").strip()
-                if new_text:
-                    if prompt_txt is None:
-                        prompt_txt = new_text
-                    else:
-                        prompt_txt = f"{prompt_txt} {new_text}".strip()
+                # Break loop after all inputs received
+                if prompt_image_found and prompt_text_found:
+                    break
 
-            elif content_type == "image_url":
-                image_url = content.get("image_url", {}).get("url")
-                if image_url is not None:
-                    if image_buffer is not None: # i.e., we previously found an image
-                        raise ValueError("Multiple images not supported")
-                    else:
-                        base64_str = content["image_url"]["url"].split("base64,")[1]
-                        image_buffer = BytesIO(base64.b64decode(base64_str))
+            if prompt_image_found and prompt_text_found:
+                ready_prompts.append((prompt_key, image_buffer, prompt_text))
             else:
-                raise ValueError(f"Unsupported content type: {content_type}")
-        
-        if prompt_txt is None:
-            prompt_txt = "What is in this image?"
-        prompt_txt = "Question: {} Answer:".format(prompt_txt)
+                raise ValueError(f"{prompt_key} is missing either an image or a text prompt.")
 
-        if image_buffer is None:
-            raise ValueError("No image found in messages.")
+        return ready_prompts
 
-        return prompt_txt, image_buffer
+    def train(self, data_path, output_path, **kwargs):
+        logger.info("Training not implemented yet")
+
+    def predict(self, batch: list[dl.Item], **kwargs):
+        annotations = []
+        for prompts in batch:
+            item_annotations = dl.AnnotationCollection()
+            for prompt_key, image_buffer, prompt_txt in prompts:
+                encoding = self.processor(PIL.Image.open(image_buffer), prompt_txt, return_tensors='pt').to(self.device)
+                output = self.model.generate(**encoding)
+                response = self.processor.decode(output[0], skip_special_tokens=True)
+                print("Response: {}".format(response))
+                item_annotations.add(
+                    annotation_definition=dl.FreeText(text=response),
+                    prompt_id=prompt_key,
+                    model_info={
+                        'name': self.model_name,
+                        'confidence': 1.0
+                        }
+                    )
+            annotations.append(item_annotations)
+        return annotations

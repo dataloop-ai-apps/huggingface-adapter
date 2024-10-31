@@ -2,7 +2,7 @@
     "name": "blip-2-huggingface-app",
     "description": "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models",
     "attributes": {
-      "Provider": "Hugging Face",
+      "Provider": "Salesforce",
       "Deployed By": "Dataloop",
       "License": "BSD-3-Clause",
       "Category": "Model",
@@ -12,34 +12,32 @@
     },
     "displayName": "BLIP 2",
     "version": "0.1.45",
-    "scope": "public",
-    "codebase": {
-      "type": "git",
-      "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-      "gitTag": "0.1.45"
-    },
+    "scope": "project",
+
     "components": {
       "computeConfigs": [
         {
           "name": "blip-2-huggingface-deploy",
           "secrets": [],
           "runtime": {
-            "podType": "regular-l",
-            "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.45",
+            "podType": "regular-m",
+            "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
             "concurrency": 1,
             "autoscaler": {
+              "type": "rabbitmq",
               "minReplicas": 0,
               "maxReplicas": 2,
               "queueLength": 1000
-            }
+            },
+            "preemptible": false
           }
         }
       ],
       "modules": [
         {
           "name": "blip-2-module",
-          "entryPoint": "adapters/blip_2/blip_2.py",
-          "className": "HuggingAdapter",
+          "entryPoint": "model_adapter.py",
+          "className": "ModelAdapter",
           "computeConfig": "blip-2-huggingface-deploy",
           "initInputs": [
             {
@@ -102,8 +100,8 @@
           "scope": "project",
           "status": "pre-trained",
           "configuration": {
-            "model_name": "blip-2",
             "module_name": "adapters.blip_2.blip_2",
+            "device": "cpu",
             "conditioning": false
           },
           "metadata": {},
