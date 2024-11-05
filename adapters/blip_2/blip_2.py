@@ -1,4 +1,5 @@
 import json
+from typing import List
 import torch
 import PIL
 import dtlpy as dl
@@ -57,7 +58,7 @@ class HuggingAdapter:
     def train(self, data_path, output_path, **kwargs):
         logger.info("Training not implemented yet")
 
-    def predict(self, batch: list[dl.Item], **kwargs):
+    def predict(self, batch: List[dl.Item], **kwargs):
         annotations = []
         for prompts in batch:
             item_annotations = dl.AnnotationCollection()
