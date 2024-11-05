@@ -1,6 +1,5 @@
 import json
 from typing import List
-import torch
 import PIL
 import dtlpy as dl
 import logging
@@ -41,8 +40,8 @@ class HuggingAdapter:
                     prompt_text = prompt_part["value"]
                     prompt_text_found = True
                 else:
-                    logger.warning(f"BLIP only accepts text and image prompts, "
-                                   f"ignoring the current prompt.")
+                    logger.warning("BLIP only accepts text and image prompts, "
+                                   "ignoring the current prompt.")
 
                 # Break loop after all inputs received
                 if prompt_image_found and prompt_text_found:
