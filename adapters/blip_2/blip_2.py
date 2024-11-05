@@ -63,9 +63,10 @@ class HuggingAdapter:
         for prompts in batch:
             item_annotations = dl.AnnotationCollection()
             for prompt_key, image_buffer, prompt_txt in prompts:
-                encoding = self.processor(PIL.Image.open(image_buffer), prompt_txt, return_tensors='pt').to(self.device)
+                prompt = "Question: {} Answer:".format(prompt_txt)
+                encoding = self.processor(PIL.Image.open(image_buffer), prompt, return_tensors='pt').to(self.device)
                 output = self.model.generate(**encoding)
-                response = self.processor.decode(output[0], skip_special_tokens=True)
+                response = self.processor.decode(output[0], skip_special_tokens=True).strip()
                 print("Response: {}".format(response))
                 item_annotations.add(
                     annotation_definition=dl.FreeText(text=response),
