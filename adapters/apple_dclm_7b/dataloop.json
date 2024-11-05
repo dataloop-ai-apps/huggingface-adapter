@@ -105,7 +105,7 @@
                 "status": "pre-trained",
                 "configuration": {
                     "weights_filename": "dclm_7b.pt",
-                    "module_name": "adapters.dclm_7b.dclm_7b",
+                    "module_name": "adapters.apple_dclm_7b.apple_dclm_7b",
                     "max_new_tokens": 50,
                     "top_p": 0.5,
                     "temperature": 0.7,
@@ -123,7 +123,7 @@
                 "status": "pre-trained",
                 "configuration": {
                     "weights_filename": "dclm_7b_8k.pt",
-                    "module_name": "adapters.dclm_7b.dclm_7b",
+                    "module_name": "adapters.apple_dclm_7b.apple_dclm_7b",
                     "max_new_tokens": 50,
                     "top_p": 0.5,
                     "temperature": 0.7,
