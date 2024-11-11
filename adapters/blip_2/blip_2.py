@@ -11,8 +11,8 @@ CAPTIONING_PROMPT = "Caption this image."
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.model_name = configuration.get("model_name")
-        self.device = configuration.get("device")
+        self.model_name = configuration.get("model_name", "blip-2")
+        self.device = configuration.get("device", "cpu")
         self.conditioning = configuration.get("conditioning", False)
         self.processor = AutoProcessor.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b")
@@ -53,10 +53,7 @@ class HuggingAdapter:
                 raise ValueError(f"{prompt_key} is missing either an image or a text prompt.")
 
         return ready_prompts
-
-    def train(self, data_path, output_path, **kwargs):
-        logger.info("Training not implemented yet")
-
+    
     def predict(self, batch: List[dl.Item], **kwargs):
         annotations = []
         for prompts in batch:
