@@ -27,8 +27,11 @@ class HuggingAdapter:
     def compute_confidence(self, input_ids):
         logits = self.model(input_ids).logits[:, -1, :]
         probs = torch.softmax(logits.to(torch.float32), dim=-1)
-        top_k_probs, top_k_indices = torch.topk(probs, k=self.top_k)
-        confidence_score = top_k_probs.sum().item()
+        sorted_probs, _ = torch.sort(probs, descending=True)
+        cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
+        mask = cumulative_probs <= self.top_p
+        selected_probs = sorted_probs[mask]
+        confidence_score = selected_probs.sum().item()
         return confidence_score
 
     def train(self, data_path, output_path, **kwargs):
