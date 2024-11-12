@@ -43,7 +43,7 @@ class HuggingAdapter:
                 model_info={
                     "name": self.model_name,
                     "confidence": 1.0,
-                    "model_id": self.model_entity.id,
+                    "model_id": 1,
                 },
             )
         return []
