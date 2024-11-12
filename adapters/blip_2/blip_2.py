@@ -1,6 +1,5 @@
 import base64
 from io import BytesIO
-import json
 from typing import List
 import PIL
 import dtlpy as dl
