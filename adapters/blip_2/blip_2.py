@@ -6,9 +6,7 @@ import dtlpy as dl
 import logging
 from transformers import AutoProcessor, Blip2ForConditionalGeneration
 
-logger = logging.getLogger("[BLIP]")
-CAPTIONING_PROMPT = "Caption this image."
-
+logger = logging.getLogger("[BLIP-2]")
 
 class HuggingAdapter:
     def __init__(self, configuration):
