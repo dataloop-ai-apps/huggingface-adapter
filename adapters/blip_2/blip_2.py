@@ -17,7 +17,7 @@ class HuggingAdapter:
         self.model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.model.to(self.device)
 
-    def prepare_item_func(item: dl.Item):
+    def prepare_item_func(self, item: dl.Item):
         prompt_item = dl.PromptItem.from_item(item)
         return prompt_item
 
