@@ -26,10 +26,14 @@ class HuggingAdapter:
             prompt_txt, image_buffer = self.reformat_messages(
                 prompt_item.to_messages(model_name=self.model_name)
             )
-            prompt = "Question: {} Answer:".format(prompt_txt)
-            encoding = self.processor(
-                PIL.Image.open(image_buffer), prompt, return_tensors="pt"
-            ).to(self.device)
+            if prompt_txt:
+                encoding = self.processor(
+                    PIL.Image.open(image_buffer), prompt_txt, return_tensors="pt"
+                ).to(self.device)
+            else:
+                encoding = self.processor(
+                    PIL.Image.open(image_buffer), return_tensors="pt"
+                ).to(self.device)
             output = self.model.generate(**encoding)
             response = self.processor.decode(
                 output[0], skip_special_tokens=True
@@ -56,11 +60,36 @@ class HuggingAdapter:
             raise ValueError("No message with role 'user' found")
 
         last_user_message = get_last_user_message(messages)
+
+        prompt_txt = None
+        image_buffer = None
+
         for content in last_user_message["content"]:
-            if content["type"] == "text":
-                prompt_txt = content["text"]
-            elif content["type"] == "image_url":
-                base64_str = content["image_url"]["url"].split("base64,")[1]
-                image_buffer = BytesIO(base64.b64decode(base64_str))
+
+            content_type = content.get("type")
+
+            if content_type == "text":
+                # Concatenate multiple text contents with space
+                new_text = content.get("text", "").strip()
+                if new_text:
+                    prompt_txt = f"{prompt_txt} {new_text}".strip()
+
+            elif content_type == "image_url":
+                image_url = content.get("image_url", {}).get("url")
+                if image_url:
+                    if image_buffer:
+                        logger.error("Multiple images not supported, using only the first one")
+                    else:
+                        base64_str = content["image_url"]["url"].split("base64,")[1]
+                        image_buffer = BytesIO(base64.b64decode(base64_str))
+
+        if prompt_txt:
+            prompt_txt = "Question: {} Answer:".format(prompt_txt)
+        else:
+            # If no text found, generates from the BOS token:
+            # https://github.com/NielsRogge/Transformers-Tutorials/blob/master/BLIP-2/Chat_with_BLIP_2.ipynb
+            logging.warning("No text found in messages, generating from the BOS (beginning-of-sequence) token.")
+        if not image_buffer:
+            raise ValueError("No image found in messages.")
 
         return prompt_txt, image_buffer
