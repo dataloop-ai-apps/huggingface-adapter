@@ -1,0 +1,216 @@
+{
+  "projectId": null,
+  "orgId": null,
+  "connections": [
+    {
+      "src": {
+        "nodeId": "fc6c28fb-7736-45bd-b6b2-02b54aedc68b",
+        "portId": "4757803f-9a00-48c0-a5f8-28c78281a904"
+      },
+      "tgt": {
+        "nodeId": "002db81a-5f34-418d-b780-9928aee7468f",
+        "portId": "9a717ca3-bd33-4f3d-92fa-737fd03b8828"
+      },
+      "condition": "{}"
+    },
+    {
+      "src": {
+        "nodeId": "002db81a-5f34-418d-b780-9928aee7468f",
+        "portId": "00312e63-7345-4939-a9f7-ff2be2f62abf"
+      },
+      "tgt": {
+        "nodeId": "836573b1-5fc2-4a49-b605-087a4fae7370",
+        "portId": "3155b3a1-98c7-4b7a-bc67-39632ca420c3"
+      },
+      "condition": "{}"
+    }
+  ],
+  "startNodes": [
+    {
+      "nodeId": "fc6c28fb-7736-45bd-b6b2-02b54aedc68b",
+      "type": "root",
+      "id": "167e796f-5040-43e7-92f1-774153428b52"
+    }
+  ],
+  "variables": [
+    {
+      "name": "model",
+      "type": "Model",
+      "description": null
+    },
+    {
+      "name": "dataset",
+      "type": "Dataset",
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "String",
+      "description": null,
+      "value": "car"
+    }
+  ],
+  "description": "",
+  "name": "YOLOv8-Pred",
+  "templateKind": "org",
+  "nodes": [
+    {
+      "id": "002db81a-5f34-418d-b780-9928aee7468f",
+      "inputs": [
+        {
+          "portId": "9a717ca3-bd33-4f3d-92fa-737fd03b8828",
+          "nodeId": "9a717ca3-bd33-4f3d-92fa-737fd03b8828",
+          "type": "Item",
+          "name": "item",
+          "displayName": "item",
+          "io": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "portId": "00312e63-7345-4939-a9f7-ff2be2f62abf",
+          "nodeId": "00312e63-7345-4939-a9f7-ff2be2f62abf",
+          "type": "Item",
+          "name": "item",
+          "displayName": "item",
+          "io": "output"
+        },
+        {
+          "portId": "6c5593ae-571e-4729-9e06-b272309bdf4f",
+          "nodeId": "6c5593ae-571e-4729-9e06-b272309bdf4f",
+          "type": "Annotation[]",
+          "name": "annotations",
+          "displayName": "annotations",
+          "io": "output"
+        }
+      ],
+      "name": "YOLOv8 Predict",
+      "type": "ml",
+      "namespace": {
+        "functionName": "predict",
+        "projectName": null,
+        "serviceName": "predict-6673de14baf2ad3e2afa9b3a",
+        "moduleName": "yolov8-module",
+        "packageName": "model-mgmt-app"
+      },
+      "projectId": null,
+      "metadata": {
+        "position": {
+          "x": 10000.0,
+          "y": 10000.0,
+          "z": 0
+        },
+        "serviceConfig": {
+        },
+        "repeatable": true,
+        "variableModel": "model"
+      }
+    },
+    {
+      "id": "fc6c28fb-7736-45bd-b6b2-02b54aedc68b",
+      "inputs": [
+        {
+          "portId": "878d7c53-8d27-48c7-a592-70cbac5a3a10",
+          "nodeId": "878d7c53-8d27-48c7-a592-70cbac5a3a10",
+          "type": "Dataset",
+          "name": "dataset",
+          "displayName": "dataset",
+          "variableName": "dataset",
+          "io": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "portId": "4757803f-9a00-48c0-a5f8-28c78281a904",
+          "nodeId": "4757803f-9a00-48c0-a5f8-28c78281a904",
+          "type": "Item",
+          "name": "item",
+          "displayName": "item",
+          "io": "output"
+        }
+      ],
+      "name": "preprocess",
+      "type": "code",
+      "namespace": {
+        "functionName": "run",
+        "projectName": null,
+        "serviceName": "",
+        "moduleName": null,
+        "packageName": ""
+      },
+      "projectId": null,
+      "config": {
+        "package": {
+          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def run(dataset: dl.Dataset):\n        # Define filters\n        filters = dl.Filters()\n        filters.add(field=\"metadata.tags.predict\", values=True)\n\n        # Get predict item\n        predict_item = list(dataset.items.list(filters=filters).all())[0]\n        predict_item.annotations.delete(filters=dl.Filters(resource=dl.FiltersResource.ANNOTATION))\n\n        return predict_item\n",
+          "name": "run",
+          "type": "code",
+          "codebase": {
+            "type": "item"
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": 9500.0,
+          "y": 10000.0,
+          "z": 0
+        },
+        "repeatable": true
+      }
+    },
+    {
+      "id": "836573b1-5fc2-4a49-b605-087a4fae7370",
+      "inputs": [
+        {
+          "portId": "3155b3a1-98c7-4b7a-bc67-39632ca420c3",
+          "nodeId": "3155b3a1-98c7-4b7a-bc67-39632ca420c3",
+          "type": "Item",
+          "name": "item",
+          "displayName": "item",
+          "io": "input"
+        },
+        {
+          "portId": "c12a3c92-9bd3-4e32-8c9b-56da18c8c8a7",
+          "nodeId": "c12a3c92-9bd3-4e32-8c9b-56da18c8c8a7",
+          "type": "String",
+          "name": "label",
+          "displayName": "label",
+          "variableName": "label",
+          "io": "input"
+        }
+      ],
+      "outputs": [
+      ],
+      "name": "postprocess",
+      "type": "code",
+      "namespace": {
+        "functionName": "run",
+        "projectName": null,
+        "serviceName": "",
+        "moduleName": null,
+        "packageName": ""
+      },
+      "projectId": null,
+      "config": {
+        "package": {
+          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def run(item: dl.Item, label: str):\n        annotations = item.annotations.list()\n        for annotation in annotations:\n            if annotation.label != label:\n                raise ValueError(f\"Expected the model to predict: {label}, but got: {annotation.label} instead\")\n",
+          "name": "run",
+          "type": "code",
+          "codebase": {
+            "type": "item"
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": 10500.0,
+          "y": 10000.0,
+          "z": 0
+        },
+        "repeatable": true
+      }
+    }
+  ],
+  "preview": "668fc188db90ed5a18091f40",
+  "_id": "668fc934db90ed5698092958"
+}

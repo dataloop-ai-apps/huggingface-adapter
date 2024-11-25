@@ -4,16 +4,16 @@ from typing import List
 import PIL
 import dtlpy as dl
 import logging
-from transformers import AutoProcessor, Blip2ForConditionalGeneration
+from transformers import Blip2Processor, Blip2ForConditionalGeneration
 
 logger = logging.getLogger("[BLIP-2]")
 
-class HuggingAdapter:
-    def __init__(self, configuration):
-        self.model_name = configuration.get("model_name", "blip-2")
-        self.device = configuration.get("device", "cpu")
-        self.conditioning = configuration.get("conditioning", False)
-        self.processor = AutoProcessor.from_pretrained("Salesforce/blip2-opt-2.7b")
+class HuggingAdapter(dl.BaseModelAdapter):
+    def load(self, local_path, **kwargs):
+        self.model_name = self.configuration.get("model_name", "blip-2")
+        self.device = self.configuration.get("device", "cpu")
+        self.conditioning = self.configuration.get("conditioning", False)
+        self.processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.model.to(self.device)
 
@@ -52,7 +52,8 @@ class HuggingAdapter:
             )
         return []
 
-    def reformat_messages(self, messages):
+    @staticmethod
+    def reformat_messages(messages):
         def get_last_user_message(messages):
             for message in reversed(messages):
                 if message.get("role") == "user":
