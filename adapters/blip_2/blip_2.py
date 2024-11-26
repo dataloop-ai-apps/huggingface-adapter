@@ -23,7 +23,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
     def predict(self, batch: List[dl.PromptItem], **kwargs):
         for prompt_item in batch:
-            prompt_txt, image_buffer = self.reformat_messages(
+            prompt_txt, image_buffer = HuggingAdapter.reformat_messages(
                 prompt_item.to_messages(model_name=self.model_name)
             )
             if prompt_txt:
@@ -51,23 +51,31 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 },
             )
         return []
+    
+    def get_last_user_message(messages):
+        for message in reversed(messages):
+            if message.get("role") == "user":
+                return message
+        raise ValueError("No message with role 'user' found")
+        
+    def reformat_messages(messages):
+        # In case of multiple messages, 
+        # we assume the last user message contains the image of interest
 
-    def reformat_messages(self, messages):
-        def get_last_user_message(messages):
-            for message in reversed(messages):
-                if message.get("role") == "user":
-                    return message
-            raise ValueError("No message with role 'user' found")
-
-        last_user_message = get_last_user_message(messages)
-
+        last_user_message = HuggingAdapter.get_last_user_message(messages)
+        
         prompt_txt = None
         image_buffer = None
-
+        
+        # The last user message may contain multiple contents, 
+        # such as a text component and an image component
+        # or multiple text components (e.g., multiple questions)
         for content in last_user_message["content"]:
-
-            content_type = content.get("type")
-
+            
+            content_type = content.get("type", None)
+            if content_type is None:
+                raise ValueError("Message content type not found")
+            
             if content_type == "text":
                 # Concatenate multiple text contents with space
                 new_text = content.get("text", "").strip()
@@ -76,13 +84,16 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
             elif content_type == "image_url":
                 image_url = content.get("image_url", {}).get("url")
-                if image_url:
-                    if image_buffer:
+                if image_url is not None:
+                    if image_buffer is not None: # i.e., we previously found an image
                         logger.error("Multiple images not supported, using only the first one")
+                        raise ValueError("Multiple images not supported")
                     else:
                         base64_str = content["image_url"]["url"].split("base64,")[1]
                         image_buffer = BytesIO(base64.b64decode(base64_str))
-
+            else:
+                raise ValueError(f"Unsupported content type: {content_type}")
+        
         if prompt_txt:
             prompt_txt = "Question: {} Answer:".format(prompt_txt)
         else:
