@@ -40,7 +40,7 @@
       "modules": [
         {
           "name": "blip-2-module",
-          "entryPoint": "model_adapter.py",
+          "entryPoint": "adapters/blip_2/blip_2.py",
           "className": "ModelAdapter",
           "computeConfig": "blip-2-huggingface-deploy",
           "initInputs": [
