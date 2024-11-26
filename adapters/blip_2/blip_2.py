@@ -8,11 +8,11 @@ from transformers import AutoProcessor, Blip2ForConditionalGeneration
 
 logger = logging.getLogger("[BLIP-2]")
 
-class HuggingAdapter:
-    def __init__(self, configuration):
-        self.model_name = configuration.get("model_name", "blip-2")
-        self.device = configuration.get("device", "cpu")
-        self.conditioning = configuration.get("conditioning", False)
+class HuggingAdapter(dl.BaseModelAdapter):
+    def load(self, local_path, **kwargs):
+        self.model_name = self.configuration.get("model_name", "blip-2")
+        self.device = self.configuration.get("device", "cpu")
+        self.conditioning = self.configuration.get("conditioning", False)
         self.processor = AutoProcessor.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.model.to(self.device)
@@ -21,7 +21,7 @@ class HuggingAdapter:
         prompt_item = dl.PromptItem.from_item(item)
         return prompt_item
 
-    def predict(self, batch: List[dl.Item], **kwargs):
+    def predict(self, batch: List[dl.PromptItem], **kwargs):
         for prompt_item in batch:
             prompt_txt, image_buffer = self.reformat_messages(
                 prompt_item.to_messages(model_name=self.model_name)
