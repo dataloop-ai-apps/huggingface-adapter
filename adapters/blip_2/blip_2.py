@@ -26,14 +26,10 @@ class HuggingAdapter(dl.BaseModelAdapter):
             prompt_txt, image_buffer = HuggingAdapter.reformat_messages(
                 prompt_item.to_messages(model_name=self.model_name)
             )
-            if prompt_txt:
-                encoding = self.processor(
-                    PIL.Image.open(image_buffer).convert('RGB'), prompt_txt, return_tensors="pt"
-                ).to(self.device)
-            else:
-                encoding = self.processor(
-                    PIL.Image.open(image_buffer).convert('RGB'), return_tensors="pt"
-                ).to(self.device)
+            encoding = self.processor(
+                PIL.Image.open(image_buffer).convert('RGB'), prompt_txt, return_tensors="pt"
+            ).to(self.device)
+            
             output = self.model.generate(**encoding, max_new_tokens=50)
             response = self.processor.decode(
                 output[0], skip_special_tokens=True
@@ -47,7 +43,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 model_info={
                     "name": self.model_name,
                     "confidence": 1.0,
-                    "model_id": self.model_entity.id,
+                    "model_id": '1',
                 },
             )
         return []
@@ -97,12 +93,10 @@ class HuggingAdapter(dl.BaseModelAdapter):
             else:
                 raise ValueError(f"Unsupported content type: {content_type}")
         
-        if prompt_txt is not None:
-            prompt_txt = "Question: {} Answer:".format(prompt_txt)
-        else:
-            # If no text found, generates from the BOS token:
-            # https://github.com/NielsRogge/Transformers-Tutorials/blob/master/BLIP-2/Chat_with_BLIP_2.ipynb
-            logging.warning("No text found in messages, generating from the BOS (beginning-of-sequence) token.")
+        if prompt_txt is None:
+            prompt_txt = "What is in this image?"
+        prompt_txt = "Question: {} Answer:".format(prompt_txt)
+
         if not image_buffer:
             raise ValueError("No image found in messages.")
 
