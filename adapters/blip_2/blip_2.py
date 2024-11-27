@@ -28,13 +28,13 @@ class HuggingAdapter(dl.BaseModelAdapter):
             )
             if prompt_txt:
                 encoding = self.processor(
-                    PIL.Image.open(image_buffer), prompt_txt, return_tensors="pt"
+                    PIL.Image.open(image_buffer).convert('RGB'), prompt_txt, return_tensors="pt"
                 ).to(self.device)
             else:
                 encoding = self.processor(
-                    PIL.Image.open(image_buffer), return_tensors="pt"
+                    PIL.Image.open(image_buffer).convert('RGB'), return_tensors="pt"
                 ).to(self.device)
-            output = self.model.generate(**encoding)
+            output = self.model.generate(**encoding, max_new_tokens=50)
             response = self.processor.decode(
                 output[0], skip_special_tokens=True
             ).strip()
@@ -80,7 +80,10 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 # Concatenate multiple text contents with space
                 new_text = content.get("text", "").strip()
                 if new_text:
-                    prompt_txt = f"{prompt_txt} {new_text}".strip()
+                    if prompt_txt is None:
+                        prompt_txt = new_text
+                    else:
+                        prompt_txt = f"{prompt_txt} {new_text}".strip()
 
             elif content_type == "image_url":
                 image_url = content.get("image_url", {}).get("url")
@@ -94,7 +97,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             else:
                 raise ValueError(f"Unsupported content type: {content_type}")
         
-        if prompt_txt:
+        if prompt_txt is not None:
             prompt_txt = "Question: {} Answer:".format(prompt_txt)
         else:
             # If no text found, generates from the BOS token:
