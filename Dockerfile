@@ -1,7 +1,7 @@
-FROM dataloopai/dtlpy-agent:gpu.cuda.11.8.devel.py3.8.pytorch2
+FROM dataloopai/dtlpy-agent:gpu.cuda.11.8.py3.10.pytorch2
 
 USER root
-RUN apt update && apt install -y ffmpeg
+RUN apt update && apt install -y ffmpeg rustc cargo
 
 USER 1000
 COPY requirements.txt /tmp/
