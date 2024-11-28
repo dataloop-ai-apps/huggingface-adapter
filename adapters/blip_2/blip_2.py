@@ -86,7 +86,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 image_url = content.get("image_url", {}).get("url")
                 if image_url is not None:
                     if image_buffer is not None: # i.e., we previously found an image
-                        logger.error("Multiple images not supported, using only the first one")
                         raise ValueError("Multiple images not supported")
                     else:
                         base64_str = content["image_url"]["url"].split("base64,")[1]
