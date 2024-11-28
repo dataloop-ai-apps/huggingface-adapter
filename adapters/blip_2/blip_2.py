@@ -44,7 +44,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 model_info={
                     "name": self.model_name,
                     "confidence": 1.0,
-                    "model_id": '1',
+                    "model_id": self.model_entity.id,
                 },
             )
         return []
