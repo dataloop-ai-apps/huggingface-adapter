@@ -97,7 +97,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             prompt_txt = "What is in this image?"
         prompt_txt = "Question: {} Answer:".format(prompt_txt)
 
-        if not image_buffer:
+        if image_buffer is None:
             raise ValueError("No image found in messages.")
 
         return prompt_txt, image_buffer
