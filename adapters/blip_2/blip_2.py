@@ -49,7 +49,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             )
         return []
     
-    def get_last_user_message(messages):
+    def get_last_prompt_message(messages):
         for message in reversed(messages):
             if message.get("role") == "user":
                 return message
@@ -59,7 +59,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         # In case of multiple messages, 
         # we assume the last user message contains the image of interest
 
-        last_user_message = HuggingAdapter.get_last_user_message(messages)
+        last_user_message = HuggingAdapter.get_last_prompt_message(messages)
         
         prompt_txt = None
         image_buffer = None
