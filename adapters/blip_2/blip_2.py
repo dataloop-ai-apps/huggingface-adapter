@@ -5,13 +5,14 @@ import PIL
 import dtlpy as dl
 import logging
 from transformers import Blip2Processor, Blip2ForConditionalGeneration
+import torch
 
 logger = logging.getLogger("[BLIP-2]")
 
 class HuggingAdapter(dl.BaseModelAdapter):
     def load(self, local_path, **kwargs):
         self.model_name = self.configuration.get("model_name", "blip-2")
-        self.device = self.configuration.get("device", "cpu")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.conditioning = self.configuration.get("conditioning", False)
         self.processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b")

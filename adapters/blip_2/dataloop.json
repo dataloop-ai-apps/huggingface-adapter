@@ -106,7 +106,6 @@
           "configuration": {
             "model_name": "blip-2",
             "module_name": "adapters.blip_2.blip_2",
-            "device": "cpu",
             "conditioning": false
           },
           "metadata": {},
