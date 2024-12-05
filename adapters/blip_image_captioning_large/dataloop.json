@@ -24,18 +24,16 @@
         "name": "blip-image-captioning-large-huggingface-deploy",
         "secrets": [],
         "runtime": {
-          "podType": "regular-m",
-          "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+          "podType": "regular-l",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.45",
           "concurrency": 1,
           "autoscaler": {
-            "type": "rabbitmq",
             "minReplicas": 0,
             "maxReplicas": 2,
             "queueLength": 1000
-          },
-          "preemptible": false
-        }
+          }
       }
+    }
     ],
     "modules": [
       {
