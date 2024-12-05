@@ -19,40 +19,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
         self.model.to(self.device)
 
     def prepare_item_func(self, item: dl.Item):
-        buffer = json.load(item.download(save_locally=False))
-        prompts = buffer["prompts"]
-        ready_prompts = []
-        for prompt_key, prompt_content in prompts.items():
-            questions = list(prompt_content.values()) if isinstance(prompt_content, dict) else prompt_content
-
-            image_buffer = None
-            prompt_text = None
-            prompt_image_found = False
-            prompt_text_found = not self.conditioning
-            for prompt_part in questions:
-                if "image" in prompt_part["mimetype"] and not prompt_image_found:
-                    image_url = prompt_part["value"]
-                    item_id = image_url.split("/stream")[0].split("/items/")[-1]
-                    item = dl.items.get(item_id=item_id)
-                    image_buffer = item.download(save_locally=False)
-                    prompt_image_found = True
-                elif "text" in prompt_part["mimetype"] and not prompt_text_found:
-                    prompt_text = prompt_part["value"]
-                    prompt_text_found = True
-                else:
-                    logger.warning(f"BLIP only accepts text and image prompts, "
-                                   f"ignoring the current prompt.")
-
-                # Break loop after all inputs received
-                if prompt_image_found and prompt_text_found:
-                    break
-
-            if prompt_image_found and prompt_text_found:
-                ready_prompts.append((prompt_key, image_buffer, prompt_text))
-            else:
-                raise ValueError(f"{prompt_key} is missing either an image or a text prompt.")
-
-        return ready_prompts
+        prompt_item = dl.PromptItem.from_item(item)
+        return prompt_item
 
     def train(self, data_path, output_path, **kwargs):
         logger.info("Training not implemented yet")
