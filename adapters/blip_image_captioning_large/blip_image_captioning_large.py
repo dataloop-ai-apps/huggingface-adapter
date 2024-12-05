@@ -9,12 +9,11 @@ logger = logging.getLogger("[BLIP]")
 CAPTIONING_PROMPT = "Caption this image."
 
 
-class HuggingAdapter:
-    def __init__(self, configuration):
-        self.model_name = configuration.get("model_name")
-        self.device = configuration.get("device")
-        self.conditioning = configuration.get("conditioning", False)
-
+class HuggingAdapter(dl.BaseModelAdapter):
+    def load(self, local_path, **kwargs):
+        self.model_name = self.configuration.get("model_name", "blip-2")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.conditioning = self.configuration.get("conditioning", False)
         self.model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large")
         self.processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
         self.model.to(self.device)
