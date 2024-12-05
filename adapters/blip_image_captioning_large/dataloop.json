@@ -40,8 +40,8 @@
     "modules": [
       {
         "name": "blip-image-captioning-large-module",
-        "entryPoint": "model_adapter.py",
-        "className": "ModelAdapter",
+        "entryPoint": "adapters/blip_image_captioning_large/blip_image_captioning_large.py",
+        "className": "HuggingAdapter",
         "computeConfig": "blip-image-captioning-large-huggingface-deploy",
         "initInputs": [
           {
