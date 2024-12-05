@@ -22,9 +22,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
         prompt_item = dl.PromptItem.from_item(item)
         return prompt_item
 
-    def train(self, data_path, output_path, **kwargs):
-        logger.info("Training not implemented yet")
-
     def predict(self, batch, **kwargs):
         annotations = []
         for prompts in batch:
