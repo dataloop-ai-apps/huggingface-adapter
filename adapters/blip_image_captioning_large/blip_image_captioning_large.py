@@ -1,4 +1,4 @@
-import json
+from typing import List
 import torch
 import PIL
 import dtlpy as dl
@@ -22,22 +22,82 @@ class HuggingAdapter(dl.BaseModelAdapter):
         prompt_item = dl.PromptItem.from_item(item)
         return prompt_item
 
-    def predict(self, batch, **kwargs):
-        annotations = []
-        for prompts in batch:
-            item_annotations = dl.AnnotationCollection()
-            for prompt_key, image_buffer, prompt_txt in prompts:
-                encoding = self.processor(PIL.Image.open(image_buffer), prompt_txt, return_tensors='pt').to(self.device)
-                output = self.model.generate(**encoding)
-                response = self.processor.decode(output[0], skip_special_tokens=True)
-                print("Response: {}".format(response))
-                item_annotations.add(
-                    annotation_definition=dl.FreeText(text=response),
-                    prompt_id=prompt_key,
-                    model_info={
-                        'name': self.model_name,
-                        'confidence': 1.0
-                        }
-                    )
-            annotations.append(item_annotations)
-        return annotations
+    def predict(self, batch: List[dl.PromptItem], **kwargs):
+        for prompt_item in batch:
+            prompt_txt, image_buffer = HuggingAdapter.reformat_messages(
+                prompt_item.to_messages(model_name=self.model_name)
+            )
+            encoding = self.processor(
+                PIL.Image.open(image_buffer).convert('RGB'), prompt_txt, return_tensors="pt"
+            ).to(self.device)
+            
+            output = self.model.generate(**encoding, max_new_tokens=50)
+            response = self.processor.decode(
+                output[0], skip_special_tokens=True
+            ).strip()
+            print("Response: {}".format(response))
+            prompt_item.add(
+                message={
+                    "role": "assistant",
+                    "content": [{"mimetype": dl.PromptType.TEXT, "value": response}],
+                },
+                model_info={
+                    "name": self.model_name,
+                    "confidence": 1.0,
+                    "model_id": self.model_entity.id,
+                },
+            )
+        return []
+    
+    def get_last_prompt_message(messages):
+        for message in reversed(messages):
+            if message.get("role") == "user":
+                return message
+        raise ValueError("No message with role 'user' found")
+        
+    def reformat_messages(messages):
+        # In case of multiple messages, 
+        # we assume the last user message contains the image of interest
+
+        last_user_message = HuggingAdapter.get_last_prompt_message(messages)
+        
+        prompt_txt = None
+        image_buffer = None
+        
+        # The last user message may contain multiple contents, 
+        # such as a text component and an image component
+        # or multiple text components (e.g., multiple questions)
+        for content in last_user_message["content"]:
+            
+            content_type = content.get("type", None)
+            if content_type is None:
+                raise ValueError("Message content type not found")
+            
+            if content_type == "text":
+                # Concatenate multiple text contents with space
+                new_text = content.get("text", "").strip()
+                if new_text:
+                    if prompt_txt is None:
+                        prompt_txt = new_text
+                    else:
+                        prompt_txt = f"{prompt_txt} {new_text}".strip()
+
+            elif content_type == "image_url":
+                image_url = content.get("image_url", {}).get("url")
+                if image_url is not None:
+                    if image_buffer is not None: # i.e., we previously found an image
+                        raise ValueError("Multiple images not supported")
+                    else:
+                        base64_str = content["image_url"]["url"].split("base64,")[1]
+                        image_buffer = BytesIO(base64.b64decode(base64_str))
+            else:
+                raise ValueError(f"Unsupported content type: {content_type}")
+        
+        if prompt_txt is None:
+            prompt_txt = "What is in this image?"
+        prompt_txt = "Question: {} Answer:".format(prompt_txt)
+
+        if image_buffer is None:
+            raise ValueError("No image found in messages.")
+
+        return prompt_txt, image_buffer
