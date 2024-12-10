@@ -13,7 +13,7 @@ CAPTIONING_PROMPT = "Caption this image."
 
 class HuggingAdapter(dl.BaseModelAdapter):
     def load(self, local_path, **kwargs):
-        self.model_name = self.configuration.get("model_name", "blip-2")
+        self.model_name = self.configuration.get("model_name", "blip")
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.conditioning = self.configuration.get("conditioning", False)
         self.model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large")
