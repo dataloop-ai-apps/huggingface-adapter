@@ -102,8 +102,8 @@
         "scope": "project",
         "status": "pre-trained",
         "configuration": {
+          "model_name": "blip",
           "module_name": "adapters.blip_image_captioning_large.blip_image_captioning_large",
-          "device": "cpu",
           "conditioning": false
         },
         "metadata": {},
