@@ -37,7 +37,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             response = self.processor.decode(
                 output[0], skip_special_tokens=True
             ).strip()
-            print("Response: {}".format(response))
+            logger.debug("Response: {}".format(response))
             prompt_item.add(
                 message={
                     "role": "assistant",
