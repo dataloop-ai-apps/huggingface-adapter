@@ -8,7 +8,7 @@ import logging
 from diffusers import StableDiffusionInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
 
 # STREAM_URL = r"https://gate.dataloop.ai/api/v1/items/{}/stream"
-logger = logging.getLogger("[InstructPix2Pix]")
+logger = logging.getLogger("[Instruct Pix2Pix]")
 
 
 def create_folder(folder):
@@ -86,16 +86,20 @@ class HuggingAdapter:
 
                 image_result.save(image_result_path)
                 dataset = dl.datasets.get(dataset_id=dataset_id)
-                result_item = dataset.items.upload(local_path=image_result_path,
-                                                   remote_path="instruct_pix2pix_results")
+                result_item: dl.Item = dataset.items.upload(
+                    local_path=image_result_path,
+                    remote_path="instruct_pix2pix_results"
+                )
                 os.remove(image_result_path)
 
                 stream_url = result_item.stream
-                item_annotations.add(annotation_definition=dl.RefImage(ref=stream_url, mimetype="image/png"),
-                                     prompt_id=prompt_key,
-                                     model_info={
-                                         'name': self.model_name,
-                                         'confidence': 1.0
-                                         })
+                item_annotations.add(
+                    annotation_definition=dl.RefImage(ref=stream_url, mimetype=result_item.mimetype),
+                    prompt_id=prompt_key,
+                    model_info={
+                        "name": logger.name.strip('[]'),
+                        "confidence": 1.0
+                    }
+                )
             annotations.append(item_annotations)
         return annotations

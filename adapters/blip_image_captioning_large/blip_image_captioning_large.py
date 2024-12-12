@@ -1,11 +1,10 @@
 import json
-import torch
 import PIL
 import dtlpy as dl
 import logging
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
-logger = logging.getLogger("[BLIP]")
+logger = logging.getLogger("[BLIP Image Captioning Large]")
 CAPTIONING_PROMPT = "Caption this image."
 
 
@@ -71,9 +70,9 @@ class HuggingAdapter:
                     annotation_definition=dl.FreeText(text=response),
                     prompt_id=prompt_key,
                     model_info={
-                        'name': self.model_name,
-                        'confidence': 1.0
-                        }
-                    )
+                        "name": logger.name.strip('[]'),
+                        "confidence": 1.0
+                    }
+                )
             annotations.append(item_annotations)
         return annotations

@@ -7,8 +7,10 @@
         "License": "Apache 2.0",
         "Category": "Model",
         "NLP": "Conversational",
-        "Gen AI":"LLM",
-        "Media Type": ["Text"]
+        "Gen AI": "LLM",
+        "Media Type": [
+            "Text"
+        ]
     },
     "displayName": "OpenLLaMa-3B",
     "version": "0.1.45",
@@ -109,7 +111,11 @@
                     "module_name": "adapters.open_llama_3b.open_llama_3b",
                     "device": "cuda:0"
                 },
-                "tags": ["llm", "pretrained", "hugging-face"],
+                "tags": [
+                    "llm",
+                    "pretrained",
+                    "hugging-face"
+                ],
                 "metadata": {},
                 "description": "The model is mainly based on LLaMA with some modifications, incorporating memory-efficient attention from Xformers, stable embedding from Bloom, and shared input-output embedding from PaLM."
             }
