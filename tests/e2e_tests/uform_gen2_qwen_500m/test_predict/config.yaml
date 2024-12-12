@@ -1,25 +1,26 @@
 # ordered list of dpks to publish and install
 dpks:
-    - uform-gen2-qwen-500m-huggingface-app:
-        install_app: True
+    - name: uform-gen2-qwen-500m-huggingface-app
+      install_app: True
 
-# ordered list of datasets to create from local assets
-local_datasets:
-    - text_image_prompt_text_answer
+# ordered list of datasets to create from local assets or to get from installed apps
+datasets:
+    - name: text_image_prompt_text_answer
+      type: local
 
 # ordered list of models to get from apps
 models:
-    - uform-gen2-qwen-500m-huggingface-model:
-        deploy_model: False
-        source_app: uform-gen2-qwen-500m-huggingface-app
+    - name: uform-gen2-qwen-500m-huggingface-model
+      deploy_model: False
+      source_app: uform-gen2-qwen-500m-huggingface-app
 
 # list of pipeline variables to update with reference
 variables:
-    dataset:
-        text_image_prompt_text_answer:
-            resource_type: datasets
-            entity_field: id
-    model:
-        uform-gen2-qwen-500m-huggingface-model:
-            resource_type: models
-            entity_field: id
+    - name: dataset
+      resource_type: datasets
+      resource_value:
+          resource_name: text_image_prompt_text_answer
+    - name: model
+      resource_type: models
+      resource_value:
+          resource_name: uform-gen2-qwen-500m-huggingface-model

@@ -1,25 +1,26 @@
 # ordered list of dpks to publish and install
 dpks:
-    - meta-llama3-8b-instruct-huggingface-app:
-        install_app: True
+    - name: meta-llama3-8b-instruct-huggingface-app
+      install_app: True
 
-# ordered list of datasets to create from local assets
-local_datasets:
-    - text_prompt_text_answer
+# ordered list of datasets to create from local assets or to get from installed apps
+datasets:
+    - name: text_prompt_text_answer
+      type: local
 
 # ordered list of models to get from apps
 models:
-    - meta-llama-3-8b-instruct-huggingface-model:
-        deploy_model: False
-        source_app: meta-llama3-8b-instruct-huggingface-app
+    - name: meta-llama-3-8b-instruct-huggingface-model
+      deploy_model: False
+      source_app: meta-llama3-8b-instruct-huggingface-app
 
 # list of pipeline variables to update with reference
 variables:
-    dataset:
-        text_prompt_text_answer:
-            resource_type: datasets
-            entity_field: id
-    model:
-        meta-llama-3-8b-instruct-huggingface-model:
-            resource_type: models
-            entity_field: id
+    - name: dataset
+      resource_type: datasets
+      resource_value:
+          resource_name: text_prompt_text_answer
+    - name: model
+      resource_type: models
+      resource_value:
+          resource_name: meta-llama-3-8b-instruct-huggingface-model

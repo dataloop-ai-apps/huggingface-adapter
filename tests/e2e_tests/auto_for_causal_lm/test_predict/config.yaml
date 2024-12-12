@@ -1,25 +1,26 @@
 # ordered list of dpks to publish and install
 dpks:
-    - autoforcausallm-huggingface-app:
-        install_app: True
+    - name: autoforcausallm-huggingface-app
+      install_app: True
 
-# ordered list of datasets to create from local assets
-local_datasets:
-    - text_prompt_text_answer
+# ordered list of datasets to create from local assets or to get from installed apps
+datasets:
+    - name: text_prompt_text_answer
+      type: local
 
 # ordered list of models to get from apps
 models:
-    - autoforcausallm-huggingface-model:
-        deploy_model: False
-        source_app: autoforcausallm-huggingface-app
+    - name: autoforcausallm-huggingface-model
+      deploy_model: False
+      source_app: autoforcausallm-huggingface-app
 
 # list of pipeline variables to update with reference
 variables:
-    dataset:
-        text_prompt_text_answer:
-            resource_type: datasets
-            entity_field: id
-    model:
-        autoforcausallm-huggingface-model:
-            resource_type: models
-            entity_field: id
+    - name: dataset
+      resource_type: datasets
+      resource_value:
+          resource_name: text_prompt_text_answer
+    - name: model
+      resource_type: models
+      resource_value:
+          resource_name: autoforcausallm-huggingface-model
