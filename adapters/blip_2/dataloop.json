@@ -2,7 +2,7 @@
     "name": "blip-2-huggingface-app",
     "description": "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models",
     "attributes": {
-      "Provider": "Salesforce",
+      "Provider": "Hugging Face",
       "Deployed By": "Dataloop",
       "License": "BSD-3-Clause",
       "Category": "Model",

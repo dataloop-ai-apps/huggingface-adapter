@@ -2,7 +2,7 @@
   "name": "blip-image-captioning-large-huggingface-app",
   "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation",
   "attributes": {
-    "Provider": "Salesforce",
+    "Provider": "Hugging Face",
     "Deployed By": "Dataloop",
     "License": "BSD-3-Clause",
     "Category": "Model",
