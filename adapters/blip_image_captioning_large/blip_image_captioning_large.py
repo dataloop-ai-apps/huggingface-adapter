@@ -51,12 +51,14 @@ class HuggingAdapter(dl.BaseModelAdapter):
             )
         return []
     
+    @staticmethod
     def get_last_prompt_message(messages):
         for message in reversed(messages):
             if message.get("role") == "user":
                 return message
         raise ValueError("No message with role 'user' found")
         
+    @staticmethod
     def reformat_messages(messages):
         # In case of multiple messages, 
         # we assume the last user message contains the image of interest
