@@ -1,23 +1,21 @@
 import base64
 from io import BytesIO
 from typing import List
-import torch
 import PIL
 import dtlpy as dl
 import logging
-from transformers import BlipProcessor, BlipForConditionalGeneration
+from transformers import Blip2Processor, Blip2ForConditionalGeneration
+import torch
 
-logger = logging.getLogger("[BLIP]")
-CAPTIONING_PROMPT = "Caption this image."
-
+logger = logging.getLogger("[BLIP-2]")
 
 class HuggingAdapter(dl.BaseModelAdapter):
     def load(self, local_path, **kwargs):
-        self.model_name = self.configuration.get("model_name", "blip")
+        self.model_name = self.configuration.get("model_name", "blip-2")
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.conditioning = self.configuration.get("conditioning", False)
-        self.model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large")
-        self.processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
+        self.processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
+        self.model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b")
         self.model.to(self.device)
 
     def prepare_item_func(self, item: dl.Item):
@@ -37,7 +35,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             response = self.processor.decode(
                 output[0], skip_special_tokens=True
             ).strip()
-            logger.debug("Response: {}".format(response))
+            print("Response: {}".format(response))
             prompt_item.add(
                 message={
                     "role": "assistant",
@@ -51,14 +49,12 @@ class HuggingAdapter(dl.BaseModelAdapter):
             )
         return []
     
-    @staticmethod
     def get_last_prompt_message(messages):
         for message in reversed(messages):
             if message.get("role") == "user":
                 return message
         raise ValueError("No message with role 'user' found")
         
-    @staticmethod
     def reformat_messages(messages):
         # In case of multiple messages, 
         # we assume the last user message contains the image of interest
