@@ -22,9 +22,24 @@ def get_completion(prompt, model="gpt-4o-mini"):  # gpt-4o-mini-2024-07-18
     response = client.chat.completions.create(
         model=model,
         messages=messages,
-        temperature=0
+        temperature=0  # automatically increase temp until certain thresholds are hit
     )
     return response.choices[0].message.content, response.usage
+
+def script_to_string(file_path):
+    """Reads a Python script and converts it into a string."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+    except FileNotFoundError:
+        return "Error: File not found."
+    except Exception as e:
+        return f"Error: {e}"
+
+# Example usage
+script_path = "example_script.py"  # Replace with your script's path
+script_string = script_to_string(script_path)
+print(script_string)
 
 
 # get the model card to be generated
@@ -37,23 +52,23 @@ else:
 
 # give an example of a model card -> adapter
 ex1_repo = 'Salesforce/blip2-opt-2.7b'
-ex1_adapter = 'https://github.com/dataloop-ai-apps/huggingface-adapter/blob/APPS-1558-add-BLIP-2-model-adapter/adapters/blip_2/blip_2.py'
+ex1_adapter_url = 'https://github.com/dataloop-ai-apps/huggingface-adapter/blob/APPS-1558-add-BLIP-2-model-adapter/adapters/blip_2/blip_2.py'
 
 ex2_repo = 'Salesforce/blip-image-captioning-base'
-ex2_adapter = 'https://github.com/dataloop-ai-apps/huggingface-adapter/blob/APPS-1590-refactor-BLIP-model-adapter/adapters/blip_image_captioning_large/blip_image_captioning_large.py'
+ex2_adapter_url = 'https://github.com/dataloop-ai-apps/huggingface-adapter/blob/APPS-1590-refactor-BLIP-model-adapter/adapters/blip_image_captioning_large/blip_image_captioning_large.py'
 
 # fxn_to_include = ['load', 'prepare_item_func', 'predict', 'train', 'reformat_messages', 'compute_confidences']
 fxns_to_incl = ['load', 'prepare_item_func', 'predict']
 
 system_prompt = rf"""
 Your task is to generate code that creates a new Python class called \
-`HuggingAdapter`. This class should inherit from the `BaseModelAdapter` class provided in the dtlpy library \
+`HuggingAdapter`. This class should inherit from the `BaseModelAdapter` class in the dtlpy library. \
 (link: https://github.com/dataloop-ai/dtlpy/blob/master/dtlpy/ml/base_model_adapter.py). \
 Use the example below to complete the task. \n\n
 
 Model adapter example:\
- 1: This is an adapter for the {ex1_repo} model created based on the model info here: {ex1_adapter}. \n \\
- 2: This is an adapter for the {ex2_repo} model created based on the model info here: {ex2_adapter}. \n \\
+ 1: This is an adapter for the {ex1_repo} model created based on the model info here: {ex1_adapter_url}. \n \\
+ 2: This is an adapter for the {ex2_repo} model created based on the model info here: {ex2_adapter_url}. \n \\
 
 The `HuggingAdapter` class should have the following methods: {fxns_to_incl}. \n 
 Using the model info provided below, use the examples to generate the HuggingAdapter class script for the new \
