@@ -70,7 +70,7 @@ ex2_repo = 'Salesforce/blip-image-captioning-base'
 ex2_adapter_url = 'https://github.com/dataloop-ai-apps/huggingface-adapter/blob/APPS-1590-refactor-BLIP-model-adapter/adapters/blip_image_captioning_large/blip_image_captioning_large.py'
 
 # fxn_to_include = ['load', 'prepare_item_func', 'predict', 'train', 'reformat_messages', 'compute_confidences']
-fxns_to_incl = ['load'] #, 'prepare_item_func', 'predict']
+fxns_to_incl = ['load', 'prepare_item_func', 'predict']
 
 user_prompt = rf"""
 Your task is to generate code that creates a new Python class called \
@@ -78,9 +78,13 @@ Your task is to generate code that creates a new Python class called \
 (link: https://github.com/dataloop-ai/dtlpy/blob/master/dtlpy/ml/base_model_adapter.py). \
 Use the example below to complete the task. \n\n
 
-The new `HuggingAdapter` class should ONLY refactor the `init` commands into the `load` function.\
-No init function should be included, as the class is initialized with the `BaseModelAdapter` class. \
-The load function should include loading configurations from `self.configuration.get`\
+The `HuggingAdapter` class should have the following methods: {fxns_to_incl}. \n 
+Using the model info provided below, use the examples to generate the HuggingAdapter class script for the new \
+model. Pay special attention to the code snippets in the model card, and include the relevant code in the `predict`\
+ or `prepare_item_func` functions of the HuggingAdapter off of it.  \
+No init function should be included, as the class is initialized with the `BaseModelAdapter` class.  \
+The load function should include loading configurations from `self.configuration.get`.  \
+`prepare_item_func` should be simple and use the new `dtlpy.PromptItem` entity.  \
 
 Don't repeat this prompt and keep the response as concise as possible.\
 
@@ -98,14 +102,6 @@ Model adapter example:\
 Original model adapter:\
 {original_adapter}
 """
-# The `HuggingAdapter` class should have the following methods: {fxns_to_incl}. \n
-# Using the model info provided below, use the examples to generate the HuggingAdapter class script for the new \
-# model. Pay special attention to the code snippets in the model card, and include the relevant code in the "predict"\
-#  or "prepare_item_func" functions of the HuggingAdapter off of it. No init function should be included, as the class\
-#  is initialized with the `BaseModelAdapter` class. The load function should include loading configurations from \
-#  `self.configuration.get`\
-
-
 
 response, usage = get_completion(user_prompt)
 response = response.replace(r"```python", "")
