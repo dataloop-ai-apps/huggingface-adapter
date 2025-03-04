@@ -10,7 +10,7 @@ datasets:
 
 # ordered list of models to get from apps
 models:
-    - name: blip-2
+    - name: blip-2-huggingface-model
       deploy_model: False
       source_app: blip-2-huggingface-app
 
@@ -23,4 +23,4 @@ variables:
     - name: model
       resource_type: models
       resource_value:
-          resource_name: blip-2
+          resource_name: blip-2-huggingface-model
