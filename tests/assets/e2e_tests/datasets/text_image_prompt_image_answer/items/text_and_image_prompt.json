@@ -6,7 +6,7 @@
     "prompts": {
         "prompt1": [
             {
-                "mimetype": "image/jpeg",
+                "mimetype": "image/*",
                 "value": "dl.Item.stream"
             },
             {
