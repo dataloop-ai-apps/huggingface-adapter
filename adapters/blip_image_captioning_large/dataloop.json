@@ -2,7 +2,7 @@
     "name": "blip-image-captioning-large-huggingface-app",
     "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation",
     "attributes": {
-        "Provider": "Salesforce",
+        "Provider": "Hugging Face",
         "Deployed By": "Dataloop",
         "License": "BSD-3-Clause",
         "Category": "Model",
@@ -28,24 +28,22 @@
                 "name": "blip-image-captioning-large-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "regular-m",
-                    "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+                    "podType": "regular-l",
+                    "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.45",
                     "concurrency": 1,
                     "autoscaler": {
-                        "type": "rabbitmq",
                         "minReplicas": 0,
                         "maxReplicas": 2,
                         "queueLength": 1000
-                    },
-                    "preemptible": false
+                    }
                 }
             }
         ],
         "modules": [
             {
                 "name": "blip-image-captioning-large-module",
-                "entryPoint": "model_adapter.py",
-                "className": "ModelAdapter",
+                "entryPoint": "adapters/blip_image_captioning_large/blip_image_captioning_large.py",
+                "className": "HuggingAdapter",
                 "computeConfig": "blip-image-captioning-large-huggingface-deploy",
                 "initInputs": [
                     {
@@ -108,8 +106,8 @@
                 "scope": "project",
                 "status": "pre-trained",
                 "configuration": {
+                    "model_name": "blip",
                     "module_name": "adapters.blip_image_captioning_large.blip_image_captioning_large",
-                    "device": "cpu",
                     "conditioning": false
                 },
                 "metadata": {},
