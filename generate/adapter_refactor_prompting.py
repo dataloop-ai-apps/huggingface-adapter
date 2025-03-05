@@ -6,21 +6,18 @@ from huggingface_hub import hf_hub_download
 
 CARD_TYPE = 'url'
 MODEL_REPO = "dslim/bert-base-NER"
-    #'nlpconnect/vit-gpt2-image-captioning'
+#'nlpconnect/vit-gpt2-image-captioning'
 EXISTING_ADAPTER = "https://raw.githubusercontent.com/dataloop-ai-apps/huggingface-adapter/refs/heads/APPS-1558-add-BLIP-2-model-adapter/adapters/bert_base_ner/bert_base_ner.py"
-    #"https://raw.githubusercontent.com/dataloop-ai-apps/huggingface-adapter/refs/heads/APPS-1558-add-BLIP-2-model-adapter/adapters/vit_gpt2_image_captioning/vit_gpt2_image_captioning.py"
+# "https://raw.githubusercontent.com/dataloop-ai-apps/huggingface-adapter/refs/heads/APPS-1558-add-BLIP-2-model-adapter/adapters/vit_gpt2_image_captioning/vit_gpt2_image_captioning.py"
 
 client = openai.OpenAI(api_key=api_key)
 usage_file = os.path.join(os.getcwd(), 'usage.txt')
 
+
 # don't use gpt4o, too $$$
 def get_completion(prompt, model="gpt-4o-mini"):  # gpt-4o-mini-2024-07-18
     messages = [{"role": "user", "content": prompt}]
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=0
-    )
+    response = client.chat.completions.create(model=model, messages=messages, temperature=0)
     return response.choices[0].message.content, response.usage
 
 
@@ -85,8 +82,12 @@ response = response.replace(r"```", "")
 
 model_repo_name = MODEL_REPO.split('/')[1]
 os.makedirs(os.path.join(os.getcwd(), "responses", model_repo_name), exist_ok=True)
-with open(os.path.join(os.getcwd(), "responses", model_repo_name, f"{model_repo_name}_{time.strftime('%Y.%m.%d_%H.%M.%S')}.py"),
-          "w") as f:
+with open(
+    os.path.join(
+        os.getcwd(), "responses", model_repo_name, f"{model_repo_name}_{time.strftime('%Y.%m.%d_%H.%M.%S')}.py"
+    ),
+    "w",
+) as f:
     f.write(response)
 
 print("logging gpt usage...")

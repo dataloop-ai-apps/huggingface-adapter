@@ -16,15 +16,15 @@ client = openai.OpenAI(api_key=openai.api_key)
 
 usage_file = os.path.join(os.getcwd(), 'usage.txt')
 
+
 # don't use gpt4, too $$$
 def get_completion(prompt, model="gpt-4o-mini"):  # gpt-4o-mini-2024-07-18
     messages = [{"role": "user", "content": prompt}]
     response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=0  # automatically increase temp until certain thresholds are hit
+        model=model, messages=messages, temperature=0  # automatically increase temp until certain thresholds are hit
     )
     return response.choices[0].message.content, response.usage
+
 
 def script_to_string(file_path):
     """Reads a Python script and converts it into a string."""
@@ -35,6 +35,7 @@ def script_to_string(file_path):
         return "Error: File not found."
     except Exception as e:
         return f"Error: {e}"
+
 
 # Example usage
 script_path = "example_script.py"  # Replace with your script's path
@@ -87,7 +88,9 @@ response, usage = get_completion(system_prompt)
 response = response.replace(r"```python", "")
 response = response.replace(r"```", "")
 
-with open(os.path.join(os.getcwd(), "responses", f"{MODEL_REPO.split('/')[1]}_{time.strftime('%Y.%m.%d_%H.%M.%S')}.py"), "w") as f:
+with open(
+    os.path.join(os.getcwd(), "responses", f"{MODEL_REPO.split('/')[1]}_{time.strftime('%Y.%m.%d_%H.%M.%S')}.py"), "w"
+) as f:
     f.write(response)
 
 with open(usage_file, 'a') as f:
