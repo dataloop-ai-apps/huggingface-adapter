@@ -2,10 +2,29 @@ import os
 import sys
 import importlib.util
 import dtlpy as dl
+import glob
+
+
+def find_most_recent_adapter(model_name, responses_dir):
+    """Find the most recent adapter script for a given model name."""
+    # Remove any directory prefix from model name
+    model_name = model_name.split('/')[-1]
+
+    pattern = os.path.join(responses_dir, f"{model_name}_*.py")
+    adapter_files = glob.glob(pattern)
+
+    if not adapter_files:
+        raise FileNotFoundError(f"No adapter files found for model '{model_name}'")
+
+    # Sort by filename (which includes timestamp) in descending order
+    latest_file = max(adapter_files)
+    return os.path.basename(latest_file)
 
 
 def load_class_from_file(subdir, module_name, class_name):
     """Loads a class dynamically from a module in a subdirectory."""
+    # Remove any directory prefix from module name and .py extension if present
+    module_name = module_name.split('/')[-1].replace('.py', '')
     module_path = os.path.join(os.path.dirname(__file__), subdir, f"{module_name}.py")
 
     if not os.path.exists(module_path):
@@ -23,24 +42,23 @@ def load_class_from_file(subdir, module_name, class_name):
 
 
 if __name__ == "__main__":
-    adapter_path = "blip2-opt-2.7b.py"
+    model_name = "facebook/detr-resnet-50"
+    responses_dir = os.path.join(os.path.dirname(__file__), "responses")
+
+    # Find the most recent adapter script
+    adapter_filename = find_most_recent_adapter(model_name.split('/')[-1], responses_dir)
+    print(f"Using most recent adapter: {adapter_filename}")
 
     model_json = {
         "name": "model-adapter",
-        "moduleName": adapter_path,
+        "moduleName": adapter_filename,
         "scope": "project",
         "status": "pre-trained",
-        "configuration": {
-            "module_name": "examples.Salesforce.blip2-opt-2.7b.blip2-opt-2.7b",
-            "device": "cpu",
-            "model_name": "Salesforce/blip2-opt-2.7b",
-        },
+        "configuration": {"module_name": adapter_filename, "device": "cpu", "model_name": model_name},
         "metadata": {},
     }
 
-    ModelAdapter = load_class_from_file(
-        subdir="examples/Salesforce/blip2-opt-2.7b", module_name="blip2-opt-2.7b", class_name="HuggingAdapter"
-    )
+    ModelAdapter = load_class_from_file(subdir="responses", module_name=adapter_filename, class_name="HuggingAdapter")
     model_entity = dl.Model.from_json(_json=model_json, client_api=dl.client_api, project=None, package=dl.Package())
 
     model_app = ModelAdapter(model_entity=model_entity)
@@ -49,11 +67,14 @@ if __name__ == "__main__":
     dl.setenv("rc")
     project = dl.projects.get(project_name="Model mgmt demo")
     dataset = project.datasets.get(dataset_name="llama_testing")
-    item = dataset.items.get(item_id="67c961cc084575d04c468719")
+    # item = dataset.items.get(item_id="67c961cc084575d04c468719") # photo of a kitchen
+    # item = dataset.items.get(item_id="67da8d6da1b8775dbed524f2")  # text only item
+    item = dataset.items.get(item_id="67bee79dcb4162a4b84e1ab5")  # image 
 
     item.annotations.list().delete()
-    preds = model_app.predict_items(items=[item])
+    # returns a list of annotations
+    items, annotations = model_app.predict_items(items=[item])
 
-    for pred in preds:
-        print(pred)
-        print(pred.annotations.to_json())
+    for annotation in annotations:
+        print(annotation)
+        
