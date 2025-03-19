@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 CARD_TYPE = 'file'
-MODEL_REPO = 'nlpconnect/vit-gpt2-image-captioning'
-original_adapter_path = 'adapters/vit_gpt2_image_captioning/vit_gpt2_image_captioning.py'
+MODEL_REPO = 'dslim/bert-base-NER'
+original_adapter_path = 'adapters/bert_base_ner/bert_base_ner.py'
 
 # Retrieve the API key from the environment variable
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -24,9 +24,7 @@ usage_file = os.path.join(os.getcwd(), 'usage.txt')
 def get_completion(prompt, model="gpt-4o-mini"):  # gpt-4o-mini-2024-07-18
     messages = [{"role": "user", "content": prompt}]
     response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=0  # automatically increase temp until certain thresholds are hit
+        model=model, messages=messages, temperature=0  # automatically increase temp until certain thresholds are hit
     )
     return response.choices[0].message.content, response.usage
 
@@ -41,6 +39,8 @@ def script_to_string(file_path):
     except Exception as e:
         return f"Error: {e}"
 
+# load all relevant dtlpy context 
+dtlpy_context = script_to_string(os.path.join(os.getcwd(), 'dtlpy_context.py'))
 
 # convert python scripts to strings for prompting
 script_path = "adapters/blip_2/blip_2.py"  # Replace with your script's path
@@ -73,6 +73,8 @@ ex2_adapter_url = 'https://github.com/dataloop-ai-apps/huggingface-adapter/blob/
 fxns_to_incl = ['load', 'prepare_item_func', 'predict']
 
 user_prompt = rf"""
+You are an AI assistant specialized in Python development for Machine Learning and GenAI. \
+
 Your task is to generate code that creates a new Python class called \
 `HuggingAdapter`. This class should inherit from the `BaseModelAdapter` class in the dtlpy library. \
 (link: https://github.com/dataloop-ai/dtlpy/blob/master/dtlpy/ml/base_model_adapter.py). \
@@ -84,9 +86,14 @@ model. Pay special attention to the code snippets in the model card, and include
  or `prepare_item_func` functions of the HuggingAdapter off of it.  \
 No init function should be included, as the class is initialized with the `BaseModelAdapter` class.  \
 The load function should include loading configurations from `self.configuration.get`.  \
-`prepare_item_func` should be simple and use the new `dtlpy.PromptItem` entity.  \
+`prepare_item_func` should be simple and use the new `dl.PromptItem` entity.  \
+Make sure you include all the relevant imports for the code to run.  \
 
 Don't repeat this prompt and keep the response as concise as possible.\
+
+Create dltpy entities according to the dtlpy python sdk. Pay special attention to dl.PromptItem.
+Here is the relevant code context: {dtlpy_context}  
+
 
 Model adapter example:\
  1: This is an adapter for the {ex1_repo} model created based on the model info at the URL {ex1_adapter_url}: \n \\\

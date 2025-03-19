@@ -321,3 +321,6 @@ prompts
 
 # Environment variables
 .env
+
+# Cursor
+.cursor/
