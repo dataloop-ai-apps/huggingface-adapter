@@ -1,0 +1,10 @@
+transformers==4.47.1
+datasets==3.2.0
+peft==0.14.0
+bitsandbytes
+dtlpy
+accelerate==1.3.0
+protobuf==5.29.3
+adapters==1.1.0
+adapter-transformers==4.0.0
+tensorboardX==2.6.2.2

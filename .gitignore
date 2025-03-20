@@ -318,3 +318,5 @@ prompts
 *.ipynb
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,python,venv,visualstudiocode
+
+**/tmp/**
