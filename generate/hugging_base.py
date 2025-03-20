@@ -3,10 +3,9 @@ import base64
 import logging
 import dtlpy as dl
 
-from PIL import Image
 from io import BytesIO
+from PIL import Image
 from typing import List
-
 from abc import ABC, abstractmethod
 
 logger = logging.getLogger("[HuggingFaceAdapter]")
@@ -48,17 +47,30 @@ class HuggingBase(dl.BaseModelAdapter, ABC):
 
     def prepare_item_func(self, item: dl.Item):
         """
-        Prepare an item for inference as dl.PromptItem for multimodal processing.
+        Prepare an item for inference by checking its mimetype and converting to appropriate format.
 
         Args:
             item: Input item
 
         Returns:
-            PromptItem: Prepared prompt item
+            Union[dl.Item, dl.PromptItem]: Prepared item in appropriate format
         """
-        return item
+        # Get model type from configuration
+        media_type = self.configuration.get("media_type", "multimodal")
 
-    def predict(self, batch: List[dl.PromptItem], **kwargs):
+        if media_type == "image":
+            # For image-only models like DETR
+            if 'image/' not in item.mimetype:
+                raise ValueError(f"Item must be an image for {self.model_name}. Got mimetype: {item.mimetype}")
+            return item
+        elif media_type == "text":  
+            # For text-only models like GPT 
+            return item
+        else:
+            # For multimodal models like BLIP
+            return dl.PromptItem.from_item(item)
+
+    def predict(self, batch: List[dl.Item], **kwargs):
         """
         Process a batch of items and generate predictions.
 
@@ -136,9 +148,6 @@ class HuggingBase(dl.BaseModelAdapter, ABC):
 
         Returns:
             Dict: Last user message
-
-        Raises:
-            ValueError: If no user message is found
         """
         for message in reversed(messages):
             if message.get("role") == "user":
@@ -156,8 +165,6 @@ class HuggingBase(dl.BaseModelAdapter, ABC):
         Returns:
             Tuple: (prompt_txt, image_buffer)
 
-        Raises:
-            ValueError: If no image is found
         """
         # Get the last user message
         last_user_message = HuggingBase.get_last_prompt_message(messages)

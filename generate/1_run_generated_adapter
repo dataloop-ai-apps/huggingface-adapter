@@ -42,7 +42,7 @@ def load_class_from_file(subdir, module_name, class_name):
 
 
 if __name__ == "__main__":
-    model_name = "facebook/detr-resnet-50"
+    model_name = "google/pegasus-xsum"
     responses_dir = os.path.join(os.path.dirname(__file__), "responses")
 
     # Find the most recent adapter script
@@ -68,8 +68,8 @@ if __name__ == "__main__":
     project = dl.projects.get(project_name="Model mgmt demo")
     dataset = project.datasets.get(dataset_name="llama_testing")
     # item = dataset.items.get(item_id="67c961cc084575d04c468719") # photo of a kitchen
-    # item = dataset.items.get(item_id="67da8d6da1b8775dbed524f2")  # text only item
-    item = dataset.items.get(item_id="67bee79dcb4162a4b84e1ab5")  # image 
+    item = dataset.items.get(item_id="67da8d6da1b8775dbed524f2")  # text only item
+    # item = dataset.items.get(item_id="67bee79dcb4162a4b84e1ab5")  # image 
 
     item.annotations.list().delete()
     # returns a list of annotations
