@@ -175,7 +175,7 @@
             "logging_strategy": "steps",
             "save_every_n_epochs": 2
           },
-          "description": "Llama-HF-fintune-qlora"
+          "description": "Llama-3.1-8B-Instruct from Hugging Face for ready for fintune with QLoRA."
         }
       ]
     }
