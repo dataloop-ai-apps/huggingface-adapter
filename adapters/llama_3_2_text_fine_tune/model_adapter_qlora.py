@@ -32,7 +32,7 @@ class ModelAdapter(dl.BaseModelAdapter):
             raise ValueError("CUDA is not available! Check your GPU configuration.")
 
         # Llama 3.2 model requires a token
-        hf_token = os.environ.get("HUGGINGFACE_TOKEN")
+        hf_token = os.environ.get("OPENAI_API_KEY")
         if hf_token is None:
             raise ValueError("Missing API key")
         login(token=hf_token)
