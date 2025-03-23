@@ -28,9 +28,6 @@ class ModelAdapter(dl.BaseModelAdapter):
     def load(self, local_path, **kwargs):
         self.adapter_defaults.upload_annotations = False
 
-        if not torch.cuda.is_available():
-            raise ValueError("CUDA is not available! Check your GPU configuration.")
-
         # Llama 3.2 model requires a token
         hf_token = os.environ.get("OPENAI_API_KEY")
         if hf_token is None:
@@ -38,6 +35,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         login(token=hf_token)
 
         model_name = self.model_entity.configuration.get("model_name", "meta-llama/Llama-3.2-1B-Instruct")
+        self.logger.info(f"Model name: {model_name}")
         model_path = self.model_entity.configuration.get("model_path")
 
         # If no local path is provided, use the model name
@@ -253,7 +251,12 @@ class ModelAdapter(dl.BaseModelAdapter):
         self.eval_dataset = self.preprocess_chatbot_dataset(finetune_dataset["eval"])
 
     def train(self, data_path, output_path, **kwargs):
+        # Make sure CUDA is available
+        if not torch.cuda.is_available():
+            raise ValueError("CUDA is not available! Check your GPU configuration.")
+        
         # Prepare model and tokenizer for finetune
+        self.logger.info(f"Preparing model and tokenizer for finetune from {self.model_path}")
         self.model, self.tokenizer = self.prepare_model_and_tokenizer_for_finetune(model_path=self.model_path)
 
         # Start GPU monitoring in a separate thread
