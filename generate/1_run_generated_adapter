@@ -4,6 +4,15 @@ import importlib.util
 import dtlpy as dl
 import glob
 
+MODEL_NAME = "dslim/bert-base-NER"
+ITEM_ID = "67e16db0f27dd1335f907618"
+# Available items:
+# "67c961cc084575d04c468719"  -  photo in a prompt item
+# "67da8d6da1b8775dbed524f2" - text only prompt item
+# "67bee79dcb4162a4b84e1ab5" - image item
+# "67dbd95b45c52a84598f6793" - text item
+# "67e16db0f27dd1335f907618" - text prompt item for NER
+
 
 def find_most_recent_adapter(model_name, responses_dir):
     """Find the most recent adapter script for a given model name."""
@@ -13,8 +22,17 @@ def find_most_recent_adapter(model_name, responses_dir):
     pattern = os.path.join(responses_dir, f"{model_name}_*.py")
     adapter_files = glob.glob(pattern)
 
+    # If no files found in main responses dir, check the basemodeladapter subdirectory
     if not adapter_files:
-        raise FileNotFoundError(f"No adapter files found for model '{model_name}'")
+        base_adapter_dir = os.path.join(responses_dir, "basemodeladapter")
+        if os.path.exists(base_adapter_dir):
+            pattern = os.path.join(base_adapter_dir, f"{model_name}_*.py")
+            adapter_files = glob.glob(pattern)
+
+    if not adapter_files:
+        raise FileNotFoundError(
+            f"No adapter files found for model '{model_name}' in responses dir or basemodeladapter subdir"
+        )
 
     # Sort by filename (which includes timestamp) in descending order
     latest_file = max(adapter_files)
@@ -28,7 +46,16 @@ def load_class_from_file(subdir, module_name, class_name):
     module_path = os.path.join(os.path.dirname(__file__), subdir, f"{module_name}.py")
 
     if not os.path.exists(module_path):
-        raise FileNotFoundError(f"Module '{module_name}' not found in '{subdir}'.")
+        # Check basemodeladapter subdirectory if file not found
+        base_adapter_dir = os.path.join(os.path.dirname(__file__), subdir, "basemodeladapter")
+        alternate_path = os.path.join(base_adapter_dir, f"{module_name}.py")
+
+        if os.path.exists(alternate_path):
+            module_path = alternate_path
+        else:
+            raise FileNotFoundError(
+                f"Module '{module_name}' not found in '{subdir}' or its basemodeladapter subdirectory."
+            )
 
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     module = importlib.util.module_from_spec(spec)
@@ -42,11 +69,10 @@ def load_class_from_file(subdir, module_name, class_name):
 
 
 if __name__ == "__main__":
-    model_name = "google/pegasus-xsum"
     responses_dir = os.path.join(os.path.dirname(__file__), "responses")
 
     # Find the most recent adapter script
-    adapter_filename = find_most_recent_adapter(model_name.split('/')[-1], responses_dir)
+    adapter_filename = find_most_recent_adapter(MODEL_NAME.split('/')[-1], responses_dir)
     print(f"Using most recent adapter: {adapter_filename}")
 
     model_json = {
@@ -54,7 +80,7 @@ if __name__ == "__main__":
         "moduleName": adapter_filename,
         "scope": "project",
         "status": "pre-trained",
-        "configuration": {"module_name": adapter_filename, "device": "cpu", "model_name": model_name},
+        "configuration": {"module_name": adapter_filename, "device": "cpu", "model_name": MODEL_NAME},
         "metadata": {},
     }
 
@@ -67,9 +93,7 @@ if __name__ == "__main__":
     dl.setenv("rc")
     project = dl.projects.get(project_name="Model mgmt demo")
     dataset = project.datasets.get(dataset_name="llama_testing")
-    # item = dataset.items.get(item_id="67c961cc084575d04c468719") # photo of a kitchen
-    item = dataset.items.get(item_id="67da8d6da1b8775dbed524f2")  # text only item
-    # item = dataset.items.get(item_id="67bee79dcb4162a4b84e1ab5")  # image 
+    item = dataset.items.get(item_id=ITEM_ID)
 
     item.annotations.list().delete()
     # returns a list of annotations
@@ -77,4 +101,5 @@ if __name__ == "__main__":
 
     for annotation in annotations:
         print(annotation)
-        
+
+    print("\n\neverything looks good :)\n\n")

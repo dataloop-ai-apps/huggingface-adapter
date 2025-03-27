@@ -32,6 +32,7 @@ class HuggingBase(dl.BaseModelAdapter, ABC):
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.conditioning = self.configuration.get("conditioning", False)
+        self.model.to(self.device)
 
     @abstractmethod
     def load_model_and_processor(self):
@@ -60,11 +61,13 @@ class HuggingBase(dl.BaseModelAdapter, ABC):
 
         if media_type == "image":
             # For image-only models like DETR
-            if 'image/' not in item.mimetype:
-                raise ValueError(f"Item must be an image for {self.model_name}. Got mimetype: {item.mimetype}")
+            if "image/" not in item.mimetype:
+                raise ValueError(
+                    f"Item must be an image for {self.model_name}. Got mimetype: {item.mimetype}"
+                )
             return item
-        elif media_type == "text":  
-            # For text-only models like GPT 
+        elif media_type == "text":
+            # For text-only models like GPT
             return item
         else:
             # For multimodal models like BLIP
@@ -83,7 +86,9 @@ class HuggingBase(dl.BaseModelAdapter, ABC):
         """
         for prompt_item in batch:
             # Get the formatted prompt text and image buffer
-            prompt_txt, image_buffer = self.reformat_messages(prompt_item.to_messages(model_name=self.model_name))
+            prompt_txt, image_buffer = self.reformat_messages(
+                prompt_item.to_messages(model_name=self.model_name)
+            )
 
             # Process the image and text with the model
             encoding = self._prepare_encoding(dl.PromptItem(image_buffer, prompt_txt))
@@ -92,18 +97,23 @@ class HuggingBase(dl.BaseModelAdapter, ABC):
             output = self.model.generate(**encoding, max_new_tokens=50)
 
             # Decode the output
-            response = self.processor.decode(output[0], skip_special_tokens=True).strip()
+            response = self.processor.decode(
+                output[0], skip_special_tokens=True
+            ).strip()
 
             # Log the response
             logger.debug(f"Response: {response}")
 
             # Add the response to the prompt item
             prompt_item.add(
-                message={"role": "assistant", "content": [{"mimetype": dl.PromptType.TEXT, "value": response}]},
+                message={
+                    "role": "assistant",
+                    "content": [{"mimetype": dl.PromptType.TEXT, "value": response}],
+                },
                 model_info={
                     "name": self.model_name,
                     "confidence": 1.0,
-                    "model_id": getattr(self, 'model_entity', {}).get('id', 1),
+                    "model_id": getattr(self, "model_entity", {}).get("id", 1),
                 },
             )
 
@@ -123,7 +133,7 @@ class HuggingBase(dl.BaseModelAdapter, ABC):
         args = []
 
         if "image" in item.mimetype:
-            image = Image.open(item.buffer).convert('RGB')
+            image = Image.open(item.buffer).convert("RGB")
             args.append(image)
         elif "text" in item.mimetype:
             args.append(item.text)
@@ -134,7 +144,9 @@ class HuggingBase(dl.BaseModelAdapter, ABC):
         if isinstance(self.processor, dict):
             processor_fn = self.processor.get(args[0].__class__.__name__, None)
             if processor_fn is None:
-                raise ValueError(f"No processor found for type {args[0].__class__.__name__}")
+                raise ValueError(
+                    f"No processor found for type {args[0].__class__.__name__}"
+                )
 
         return processor_fn(*args, return_tensors="pt").to(self.device)
 
@@ -189,7 +201,9 @@ class HuggingBase(dl.BaseModelAdapter, ABC):
                 image_url = content.get("image_url", {}).get("url")
                 if image_url:
                     if image_buffer:  # already found an image
-                        logger.warning("Multiple images not supported, using only the first one")
+                        logger.warning(
+                            "Multiple images not supported, using only the first one"
+                        )
                     else:
                         base64_str = content["image_url"]["url"].split("base64,")[1]
                         image_buffer = BytesIO(base64.b64decode(base64_str))

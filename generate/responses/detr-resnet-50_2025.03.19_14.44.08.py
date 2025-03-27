@@ -1,7 +1,6 @@
 
 from transformers import DetrImageProcessor, DetrForObjectDetection
 from hugging_base import HuggingBase
-import torch
 
 class HuggingAdapter(HuggingBase):
     def load_model_and_processor(self):

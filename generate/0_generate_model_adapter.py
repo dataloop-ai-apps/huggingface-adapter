@@ -2,10 +2,9 @@
 # It uses existing, functional model adapters inherting from dl.BaseModelAdapter as examples to follow.
 # It uses GPT-4o-mini to generate the adapter.
 
-from os.path import exists
-import openai
 import os
 import time
+import openai
 from huggingface_hub import hf_hub_download
 from dotenv import load_dotenv
 from prompt_templates import ModelAdapterPrompts
@@ -13,8 +12,14 @@ from prompt_templates import ModelAdapterPrompts
 # Load environment variables from .env file
 load_dotenv()
 
-MODEL_ADAPTER_TYPE = "model_adapter_prompt"
+# Set the template type to use for the development process, eventually it should only be "create_hugging_adapter"
+MODEL_ADAPTER_TYPE = (
+    "convert_to_hugging_base"  # Options: "create_model_adapter", "create_hugging_adapter", "convert_to_hugging_base"
+)
 MODEL_REPO = 'google/pegasus-xsum'
+ORIGINAL_ADAPTER_PATH = (
+    "generate/responses/basemodeladapter/pegasus-xsum_2025.03.19_15.10.00.py"  # Path to adapter to convert
+)
 
 
 # Setup OpenAI client
@@ -22,6 +27,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 client = openai.OpenAI(api_key=openai.api_key)
 
 usage_file = os.path.join(os.getcwd(), 'usage.txt')
+
 
 # don't use gpt4, too $$$
 def get_completion(prompt, model="gpt-4o-mini"):  # gpt-4o-mini-2024-07-18
@@ -51,11 +57,25 @@ script_path = "adapters/blip_2/blip_2.py"  # Replace with your script's path
 script_string1 = script_to_string(os.path.join(os.getcwd(), script_path))
 # print(script_string1)
 
-script_path = "adapters/blip_image_captioning_large/blip_image_captioning_large.py"  # Replace with your script's path
+script_path = (
+    "generate/responses/basemodeladapter/detr-resnet-50_2025.03.19_12.30.00.py"  # Replace with your script's path
+)
 script_string2 = script_to_string(os.path.join(os.getcwd(), script_path))
 # print(script_string2)
 
-# original_adapter = script_to_string(os.path.join(os.getcwd(), original_adapter_path))
+script_path = (
+    "generate/responses/basemodeladapter/pegasus-xsum_2025.03.19_15.10.00.py"  # Replace with your script's path
+)
+script_string3 = script_to_string(os.path.join(os.getcwd(), script_path))
+# print(script_string3)
+
+if MODEL_ADAPTER_TYPE == "convert_to_hugging_base":
+    original_adapter = script_to_string(os.path.join(os.getcwd(), ORIGINAL_ADAPTER_PATH))
+    hugging_base_code = script_to_string(os.path.join(os.getcwd(), "generate/hugging_base.py"))
+    # Example adapter using HuggingBase
+    example_adapter = script_to_string(
+        os.path.join(os.getcwd(), "generate/responses/detr-resnet-50_2025.03.19_14.44.08.py")
+    )
 
 # get the model card to be generated
 model_card_path = hf_hub_download(repo_id=MODEL_REPO, filename='README.md')
@@ -63,22 +83,45 @@ with open(model_card_path, 'r') as f:
     model_card = f.read()
 
 # give an example of a model card -> adapter
-ex1_repo = 'Salesforce/blip2-opt-2.7b'
-ex2_repo = 'Salesforce/blip-image-captioning-base'
+ex1_repo = 'Salesforce/blip2-opt-2.7b'  # image captioning, prompt item with image
+ex2_repo = 'facebook/detr-resnet-50'  # object detection, image item
+ex3_repo = 'google/pegasus-xsum'  # text item, text item or prompt item with text
 
 fxns_to_incl = ['load', 'prepare_item_func', 'predict']
 
 # Get the template and render it with the required variables
 template = ModelAdapterPrompts.get_template(MODEL_ADAPTER_TYPE)
-user_prompt = template.render(
-    fxns_to_incl=fxns_to_incl,
-    dtlpy_context=dtlpy_context,
-    ex1_repo=ex1_repo,
-    script_string1=script_string1,
-    ex2_repo=ex2_repo,
-    script_string2=script_string2,
-    model_card=model_card,
-)
+
+# Prepare template variables based on the template type
+template_variables = {}
+
+if MODEL_ADAPTER_TYPE == "create_model_adapter":
+    template_variables = {
+        'fxns_to_incl': fxns_to_incl,
+        'dtlpy_context': dtlpy_context,
+        'ex1_repo': ex1_repo,
+        'script_string1': script_string1,
+        'ex2_repo': ex2_repo,
+        'script_string2': script_string2,
+        'ex3_repo': ex3_repo,
+        'script_string3': script_string3,
+        'model_card': model_card,
+    }
+elif MODEL_ADAPTER_TYPE == "create_hugging_adapter":
+    # For hugging base adapter, we only need the example script and model card
+    example_script = script_to_string(
+        os.path.join(os.getcwd(), "generate/responses/detr-resnet-50_2025.03.19_14.44.08.py")
+    )
+    template_variables = {'example_script': example_script, 'model_card': model_card}
+elif MODEL_ADAPTER_TYPE == "convert_to_hugging_base":
+    template_variables = {
+        'hugging_base_code': hugging_base_code,
+        'example_adapter': example_adapter,
+        'original_adapter': original_adapter,
+    }
+
+# Render the template with the appropriate variables
+user_prompt = template.render(**template_variables)
 
 response, usage = get_completion(user_prompt)
 response = response.replace(r"```python", "")

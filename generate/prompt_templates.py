@@ -33,6 +33,7 @@ with the relevant mimetype components required to run the model correctly.  \
 Make sure you include all the relevant imports for the code to run.  \
 Don't include any imports that are not used in the code.  \
 Don't repeat this prompt and keep the response as concise as possible.  \
+Do not include any text other than the code.  \ 
 
 Create dltpy entities according to the dtlpy python sdk. Pay special attention to dl.PromptItem.
 Here is the relevant code context: {{ dtlpy_context }}  
@@ -45,13 +46,16 @@ Model adapter example:\
  2: This is an adapter for the {{ ex2_repo }} model: \n \\\
  {{ script_string2 }}\
  
+ 3: This is an adapter for the {{ ex3_repo }} model: \n \\\
+ {{ script_string3 }}\
+ 
  \n\n\
  Info for the model to create an adapter: ```{{ model_card }}```\\
 \n\n\
 """
 
 # Template for generating model adapter scripts based on hugging_base.py
-HUGGING_BASE_PROMPT_STR = """
+HUGGING_ADAPTER_PROMPT_STR = """
 You are an AI assistant specialized in Python development for Machine Learning and GenAI.
 
 Your task is to generate a Python script that creates a new class called `HuggingAdapter` 
@@ -76,12 +80,53 @@ Make sure to:
 4. Follow the same structure as the example
 
 Don't repeat this prompt and keep the response as concise as possible.
+Do not include any text other than the code.
+"""
+
+# Template for converting existing model adapter to use HuggingBase
+HUGGING_BASE_CONVERTER_PROMPT_STR = """
+You are an AI assistant specialized in Python development for Machine Learning and GenAI.
+
+Your task is to convert an existing Hugging Face model adapter script into one that uses the `HuggingBase` class. 
+The output should be a new script with a `HuggingAdapter` class that inherits from `HuggingBase`.
+
+Here is the existing `HuggingBase` class implementation:
+```
+{{ hugging_base_code }}
+```
+
+Here is an example of a model adapter using `HuggingBase`:
+```
+{{ example_adapter }}
+```
+
+Your task is to convert the following model adapter script:
+```
+{{ original_adapter }}
+```
+
+When converting the script:
+1. Import necessary modules including the `HuggingBase` class
+2. Create a `HuggingAdapter` class that inherits from `HuggingBase`
+3. Implement the `load_model_and_processor` method to properly load the model and processor
+4. Make sure to maintain all the original functionality while removing code that's now handled by `HuggingBase`
+5. Include a `get_cmd` method if appropriate
+6. Preserve the model-specific logic and processor/model loading code
+7. Make statements as explicit as possible
+
+
+Focus on making the conversion clean and efficient, preserving all essential model-specific logic while
+leveraging the common functionality provided by `HuggingBase`.
+
+Don't repeat this prompt and keep the response as concise as possible.
+Do not include any text other than the code.
 """
 
 # Dictionary mapping template names to their content
 PROMPT_TEMPLATES = {
-    "model_adapter_prompt": MODEL_ADAPTER_PROMPT_STR,
-    "hugging_base_adapter_prompt": HUGGING_BASE_PROMPT_STR,
+    "create_model_adapter": MODEL_ADAPTER_PROMPT_STR,
+    "create_hugging_adapter": HUGGING_ADAPTER_PROMPT_STR,
+    "convert_to_hugging_base": HUGGING_BASE_CONVERTER_PROMPT_STR,
 }
 
 # Create Jinja templates once
