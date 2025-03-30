@@ -350,7 +350,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         final_save_path = os.path.join(local_path, "best")
         self.peft_model.save_pretrained(save_directory=final_save_path)
         self.tokenizer.save_pretrained(save_directory=final_save_path)
-        self.configuration["model_path"] = "best"
+        self.configuration["model_path"] = "Llama-3.1-8B-Instruct/best"
 
     def get_gpu_memory(self):
         """
@@ -434,6 +434,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         top_p = self.configuration.get("top_p", 0.95)
         repetition_penalty = self.configuration.get("repetition_penalty", 1.1)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        logger.info(f"Predicting on device: {device}")
         
         for prompt_item in batch:
             # Get all messages including model annotations
@@ -522,41 +523,3 @@ class SaveEpochCallback(TrainerCallback):
         else:
             logger.info(f"Skipping save for epoch {epoch} (Only saving every {self.save_every_n_epochs} epochs)")
 
-
-if __name__ == "__main__":
-    import dotenv
-    dotenv.load_dotenv()
-    dl.setenv('prod')
-    model = dl.models.get(model_id="67e56cfcb9c8621cab1c4a55") 
-    dataset = dl.datasets.get(dataset_id="67dfd1611da607d34685a2a3")
-    
-    # model.dataset_id = dataset.id
-    # model.metadata["system"]={}
-    # model.metadata["system"]["subsets"] = {
-    #     "train": dl.Filters(field="metadata.system.tags.train", values=True).prepare(),
-    #     "validation": dl.Filters(field="metadata.system.tags.validation", values=True).prepare(),
-    # }
-    # # # to train
-    # # model.status = "pre-trained"
-    # model.configuration["model_name"] = "meta-llama/Llama-3.2-3B-Instruct"
-    # model.update(True)
-    
-    # model_pretrained = dl.models.get(model_id="67dfdbb3f41fe379d3d2c3a3") # to predict pretrained
-    # model_pretrained.configuration["model_name"] = "meta-llama/Llama-3.2-1B-Instruct"
-    # model_pretrained.update(True)
-    
-    
-    # item_before_finetune = dl.items.get(item_id="67dfd16f53776f576f15da57") # before finetune
-    item_after_finetune = dl.items.get(item_id="67dfd1716e1a1a110b99e08e") # after finetune
-    
-    # predict prertrained
-    # model_adapter = ModelAdapter(model_entity=model_pretrained)
-    # model_adapter.predict_items([item_before_finetune])
-    
-    # # finetune
-    # model_adapter = ModelAdapter(model_entity=model)
-    # model_adapter.train_model(model)
-    
-    # predict after finetune
-    model_adapter = ModelAdapter(model_entity=model)
-    model_adapter.predict_items([item_after_finetune])

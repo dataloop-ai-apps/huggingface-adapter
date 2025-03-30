@@ -30,6 +30,7 @@ Ensure the following dependencies are installed:
     ```
 
 ## 📂 Dataset Structure
+
 This adapter currently supports chatbot-style fine-tuning datasets formatted as JSON. Each dataset should contain a list of conversations, where each example includes a "messages" key mapping to a list of messages with "role" and "content".
 
 ### Example Chat Dataset
@@ -51,7 +52,10 @@ This adapter currently supports chatbot-style fine-tuning datasets formatted as 
   }
 ]
 ```
-💡 Note: Currently, this adapter supports only chatbot-style fine-tuning. If you need support for other dataset formats, please contact us.
+
+💡 **Notes**: 
+* The to finetune the model, you need to provide both a `train` file and a `validation` jsons files. These files should be asigned into subsets for training and validation purposes. 
+* Currently, this adapter supports only `chatbot-style fine-tuning`. If you need support for other dataset formats, please contact us.
 
 ## 🔧 Model Configuration
 
@@ -59,8 +63,7 @@ The model configuration is defined in a JSON file, typically `dataloop.json`. Be
 
 ### Model Settings
 - **system_prompt**: Sets the initial prompt for the model, defining its behavior and tone. (Default: `"You are a helpful and a bit cynical assistant. Give relevant and short answers, if you don't know the answer just say it, don't make up an answer"`)
-- **model_name**: The name of the model to be used. (Default: `"meta-llama/Llama-3.1-8B-Instruct"`)
-
+- **model_name**: The name of the model to be used. (Default: `"meta-llama/Llama-3.2-1B-Instruct"`). You can replace to larger versions such as `"meta-llama/Llama-3.2-3B-Instruct"`.
 ### LoRA Parameters
 - **r**: The rank parameter for LoRA, controlling the number of low-rank matrices. (Default: `16`)
 - **lora_alpha**: A scaling factor for LoRA, affecting the learning rate of the low-rank matrices. (Default: `32`)

@@ -28,7 +28,7 @@
         {
           "name": "llama-fintune-qlora-deploy",
           "runtime": {
-            "podType": "regular-xs",
+            "podType": "regular-s",
             "concurrency": 10,
             "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.5",
             "autoscaler": {
@@ -140,7 +140,7 @@
       ],
       "models": [
         {
-          "name": "meta-llama/Llama-3.1-8B-Instruct",
+          "name": "meta-llama/Llama-3.2-1B-Instruct",
           "moduleName": "llama-fintune-qlora-module",
           "scope": "project",
           "status": "pre-trained",
@@ -175,7 +175,7 @@
             "logging_strategy": "steps",
             "save_every_n_epochs": 2
           },
-          "description": "Llama-3.1-8B-Instruct from Hugging Face for ready for fintune with QLoRA."
+          "description": "Llama-3.2-1B-Instruct from Hugging Face for ready for fintune with QLoRA."
         }
       ]
     }
