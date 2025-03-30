@@ -29,7 +29,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         self.adapter_defaults.allow_empty_subset = True
 
         # Llama 3.2 models requires a token
-        hf_token = os.environ.get("HF_TOKEN")
+        hf_token = os.environ.get("HUGGINGFACE_TOKEN")
         if hf_token is None:
             raise ValueError("Missing API key")
         login(token=hf_token)
