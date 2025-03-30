@@ -26,10 +26,10 @@ logger = logging.getLogger("finetune-llama-qlora")
 class ModelAdapter(dl.BaseModelAdapter):
 
     def load(self, local_path, **kwargs):
-        self.adapter_defaults.upload_annotations = False
+        self.adapter_defaults.allow_empty_subset = True
 
-        # Llama 3.2 model requires a token
-        hf_token = os.environ.get("OPENAI_API_KEY")
+        # Llama 3.2 models requires a token
+        hf_token = os.environ.get("HF_TOKEN")
         if hf_token is None:
             raise ValueError("Missing API key")
         login(token=hf_token)
@@ -48,8 +48,7 @@ class ModelAdapter(dl.BaseModelAdapter):
 
         self.model, self.tokenizer = self.create_model_and_tokenizer(model_path=self.model_path)
 
-    @staticmethod
-    def prepare_model_and_tokenizer_for_finetune(model_path):
+    def prepare_model_for_finetune(self,model_path):
         """
         Prepare the model and tokenizer for fine-tuning with QLoRA.
 
@@ -71,17 +70,6 @@ class ModelAdapter(dl.BaseModelAdapter):
         if torch.cuda.is_available() is False:
             raise ValueError("CUDA is not available! Check your GPU configuration.")
 
-        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        if not tokenizer.pad_token_id:
-            tokenizer.pad_token = tokenizer.eos_token
-
-        tokenizer.chat_template = """{{ bos_token }}{% for message in messages %}{% if (message['role'] == 'system') %}{{'<|system|>' + '
-                                    ' + message['content'] + '<|end|>' + '
-                                    '}}{% elif (message['role'] == 'user') %}{{'<|user|>' + '
-                                    ' + message['content'] + '<|end|>' + '
-                                    ' + '<|assistant|>' + '
-                                    '}}{% elif message['role'] == 'assistant' %}{{message['content'] + '<|end|>' + '
-                                    '}}{% endif %}{% endfor %}"""
 
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
@@ -107,11 +95,11 @@ class ModelAdapter(dl.BaseModelAdapter):
         model.enable_input_require_grads()
 
         # Ensure all necessary tokens are set
-        model.config.pad_token_id = tokenizer.pad_token_id
-        model.config.bos_token_id = tokenizer.bos_token_id
-        model.config.eos_token_id = tokenizer.eos_token_id
+        model.config.pad_token_id = self.tokenizer.pad_token_id
+        model.config.bos_token_id = self.tokenizer.bos_token_id
+        model.config.eos_token_id = self.tokenizer.eos_token_id
 
-        return model, tokenizer
+        return model
 
     @staticmethod
     def create_model_and_tokenizer(model_path):
@@ -120,6 +108,13 @@ class ModelAdapter(dl.BaseModelAdapter):
         """
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
         tokenizer.pad_token = tokenizer.eos_token if tokenizer.pad_token_id is None else tokenizer.pad_token
+        tokenizer.chat_template = """{{ bos_token }}{% for message in messages %}{% if (message['role'] == 'system') %}{{'<|system|>' + '
+                            ' + message['content'] + '<|end|>' + '
+                            '}}{% elif (message['role'] == 'user') %}{{'<|user|>' + '
+                            ' + message['content'] + '<|end|>' + '
+                            ' + '<|assistant|>' + '
+                            '}}{% elif message['role'] == 'assistant' %}{{message['content'] + '<|end|>' + '
+                            '}}{% endif %}{% endfor %}"""
 
         if os.path.exists(model_path):
             model = AutoPeftModelForCausalLM.from_pretrained(
@@ -257,7 +252,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         
         # Prepare model and tokenizer for finetune
         self.logger.info(f"Preparing model and tokenizer for finetune from {self.model_path}")
-        self.model, self.tokenizer = self.prepare_model_and_tokenizer_for_finetune(model_path=self.model_path)
+        self.model = self.prepare_model_for_finetune(model_path=self.model_path)
 
         # Start GPU monitoring in a separate thread
         torch.cuda.empty_cache()
@@ -438,7 +433,8 @@ class ModelAdapter(dl.BaseModelAdapter):
         do_sample = self.configuration.get("do_sample", True)
         top_p = self.configuration.get("top_p", 0.95)
         repetition_penalty = self.configuration.get("repetition_penalty", 1.1)
-
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
         for prompt_item in batch:
             # Get all messages including model annotations
             _messages = prompt_item.to_messages(model_name=model_name)
@@ -455,13 +451,14 @@ class ModelAdapter(dl.BaseModelAdapter):
             prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
             # Generate response
-            inputs = self.tokenizer(prompt, return_tensors="pt").to("cuda")
+            inputs = self.tokenizer(prompt, return_tensors="pt").to(device)
 
             outputs = self.model.generate(
                 input_ids=inputs["input_ids"],
                 attention_mask=inputs["attention_mask"],
                 max_new_tokens=max_new_tokens,
                 pad_token_id=self.tokenizer.pad_token_id,
+                eos_token_id=self.tokenizer.eos_token_id,
                 temperature=temperature,
                 do_sample=do_sample,
                 top_p=top_p,
@@ -470,7 +467,8 @@ class ModelAdapter(dl.BaseModelAdapter):
 
             # Decode correctly, removing input text
             response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            response_text = response[len(prompt) :].strip()
+            input_text = self.tokenizer.decode(inputs["input_ids"][0], skip_special_tokens=True)
+            response_text = response[len(input_text):].strip()
 
             prompt_item.add(
                 message={"role": "assistant", "content": [{"mimetype": dl.PromptType.TEXT, "value": response_text}]},
@@ -523,3 +521,42 @@ class SaveEpochCallback(TrainerCallback):
             logger.info(f"Model and tokenizer saved in {epoch_dir}")
         else:
             logger.info(f"Skipping save for epoch {epoch} (Only saving every {self.save_every_n_epochs} epochs)")
+
+
+if __name__ == "__main__":
+    import dotenv
+    dotenv.load_dotenv()
+    dl.setenv('prod')
+    model = dl.models.get(model_id="67e56cfcb9c8621cab1c4a55") 
+    dataset = dl.datasets.get(dataset_id="67dfd1611da607d34685a2a3")
+    
+    # model.dataset_id = dataset.id
+    # model.metadata["system"]={}
+    # model.metadata["system"]["subsets"] = {
+    #     "train": dl.Filters(field="metadata.system.tags.train", values=True).prepare(),
+    #     "validation": dl.Filters(field="metadata.system.tags.validation", values=True).prepare(),
+    # }
+    # # # to train
+    # # model.status = "pre-trained"
+    # model.configuration["model_name"] = "meta-llama/Llama-3.2-3B-Instruct"
+    # model.update(True)
+    
+    # model_pretrained = dl.models.get(model_id="67dfdbb3f41fe379d3d2c3a3") # to predict pretrained
+    # model_pretrained.configuration["model_name"] = "meta-llama/Llama-3.2-1B-Instruct"
+    # model_pretrained.update(True)
+    
+    
+    # item_before_finetune = dl.items.get(item_id="67dfd16f53776f576f15da57") # before finetune
+    item_after_finetune = dl.items.get(item_id="67dfd1716e1a1a110b99e08e") # after finetune
+    
+    # predict prertrained
+    # model_adapter = ModelAdapter(model_entity=model_pretrained)
+    # model_adapter.predict_items([item_before_finetune])
+    
+    # # finetune
+    # model_adapter = ModelAdapter(model_entity=model)
+    # model_adapter.train_model(model)
+    
+    # predict after finetune
+    model_adapter = ModelAdapter(model_entity=model)
+    model_adapter.predict_items([item_after_finetune])
