@@ -60,7 +60,7 @@
           "computeConfig": "llama-fintune-qlora-deploy",
           "description": "llama-fintune-qlora-module",
           "integrations": [
-            "dl-openai-api-key"
+            "dl-huggingface-api-key"
           ],
           "initInputs": [
             {
