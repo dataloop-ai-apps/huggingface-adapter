@@ -40,6 +40,9 @@
         },
         {
             "name": "llama-fintune-qlora-train",
+            "versions": {
+              "dtlpy": "1.106.5"
+            },
             "runtime": {
               "podType": "gpu-t4",
               "concurrency": 1,
