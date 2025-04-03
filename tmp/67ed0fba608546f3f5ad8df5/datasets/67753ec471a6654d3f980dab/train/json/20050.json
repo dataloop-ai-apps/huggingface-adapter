@@ -1,0 +1,62 @@
+{
+  "id": "67754b67e2d1e30ca28e6495",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754b67e2d1e30ca28e6495",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:04:23.909Z",
+  "dir": "/",
+  "filename": "/20050.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "20050.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "20050.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.074Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754b67e2d1e30ca28e6495/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754b67e2d1e30ca28e6495/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b51e0d061784756ec7b7",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754b67e2d1e30ca28e6495",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b51e0d061784756ec7b7",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754b67e2d1e30ca28e6495",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Mufflers from Women's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:35:26.689Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:35:26.689Z",
+      "hash": "dbe970ce32bd771c6c1828c89c26973cf9058cac",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

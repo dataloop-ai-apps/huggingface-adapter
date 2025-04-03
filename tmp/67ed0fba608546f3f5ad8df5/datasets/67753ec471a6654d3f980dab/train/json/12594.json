@@ -1,0 +1,62 @@
+{
+  "id": "67754af5e2d1e310068e5bbb",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754af5e2d1e310068e5bbb",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:02:29.353Z",
+  "dir": "/",
+  "filename": "/12594.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "12594.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "12594.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.510Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754af5e2d1e310068e5bbb/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754af5e2d1e310068e5bbb/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b4cea53101e1e60c5603",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754af5e2d1e310068e5bbb",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b4cea53101e1e60c5603",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754af5e2d1e310068e5bbb",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Topwear from Unisex's Apparel",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:34:06.915Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:34:06.915Z",
+      "hash": "c4b46bba02a7151a87207860cdb206cf1db7c070",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

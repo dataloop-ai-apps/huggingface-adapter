@@ -1,0 +1,62 @@
+{
+  "id": "67754a29571407ef41c4da48",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754a29571407ef41c4da48",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:59:05.750Z",
+  "dir": "/",
+  "filename": "/42828.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "42828.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "42828.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.473Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754a29571407ef41c4da48/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754a29571407ef41c4da48/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a5e083871cc28c06db2c",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754a29571407ef41c4da48",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a5e083871cc28c06db2c",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754a29571407ef41c4da48",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Wristbands from Unisex's Sporting Goods",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:30:24.530Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:30:24.530Z",
+      "hash": "13c248d361fe256b6f5872ad2b774093f23a3f76",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

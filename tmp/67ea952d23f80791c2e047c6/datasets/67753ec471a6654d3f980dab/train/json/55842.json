@@ -1,0 +1,62 @@
+{
+  "id": "677548fbaa417108cd1bda7b",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/677548fbaa417108cd1bda7b",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:54:03.481Z",
+  "dir": "/",
+  "filename": "/55842.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "55842.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "55842.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.517Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/677548fbaa417108cd1bda7b/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/677548fbaa417108cd1bda7b/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a50a83871cc2b406cd4f",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "677548fbaa417108cd1bda7b",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a50a83871cc2b406cd4f",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/677548fbaa417108cd1bda7b",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Nails from Women's Personal Care",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:26:50.625Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:26:50.625Z",
+      "hash": "a28f601884f81a44884f00fd5ac02ab5787a6294",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

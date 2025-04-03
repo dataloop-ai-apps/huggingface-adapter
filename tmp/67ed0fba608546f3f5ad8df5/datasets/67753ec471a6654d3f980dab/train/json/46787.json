@@ -1,0 +1,62 @@
+{
+  "id": "677545dc04951e14d77fb00a",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/677545dc04951e14d77fb00a",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:40:44.204Z",
+  "dir": "/",
+  "filename": "/46787.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "46787.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "46787.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:42.071Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/677545dc04951e14d77fb00a/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/677545dc04951e14d77fb00a/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a3740d061713ff6e8831",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "677545dc04951e14d77fb00a",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a3740d061713ff6e8831",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/677545dc04951e14d77fb00a",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Fragrance from Men's Personal Care",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:20:04.596Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:20:04.596Z",
+      "hash": "7b55311c03d6f1757c798729c43a1a77d85eaab2",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

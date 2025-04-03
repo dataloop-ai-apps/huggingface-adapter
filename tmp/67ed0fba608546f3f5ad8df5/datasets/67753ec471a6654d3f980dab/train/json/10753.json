@@ -1,0 +1,62 @@
+{
+  "id": "6775465504951e43d87fba0e",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775465504951e43d87fba0e",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:42:45.708Z",
+  "dir": "/",
+  "filename": "/10753.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "10753.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "10753.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:42.073Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775465504951e43d87fba0e/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775465504951e43d87fba0e/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a4c783871c68fb06c8c3",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775465504951e43d87fba0e",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a4c783871c68fb06c8c3",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775465504951e43d87fba0e",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Flip Flops from Unisex's Footwear",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:25:43.852Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:25:43.852Z",
+      "hash": "7b8120c0cc6255ef2f490ece87c56966a47f5040",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

@@ -1,0 +1,62 @@
+{
+  "id": "6775420a68373f04f97f62c2",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775420a68373f04f97f62c2",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:24:26.044Z",
+  "dir": "/",
+  "filename": "/20258.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "20258.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "20258.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.040Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775420a68373f04f97f62c2/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775420a68373f04f97f62c2/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a14c83871c127006915b",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775420a68373f04f97f62c2",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a14c83871c127006915b",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775420a68373f04f97f62c2",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Topwear from Men's Apparel",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:10:52.471Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:10:52.471Z",
+      "hash": "0eedf725ecc3854b3ca2076e14b3e371efd34ecc",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

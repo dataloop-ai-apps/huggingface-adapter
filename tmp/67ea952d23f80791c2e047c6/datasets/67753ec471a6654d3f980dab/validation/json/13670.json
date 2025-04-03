@@ -1,0 +1,62 @@
+{
+  "id": "6775436068373f5e437f8019",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775436068373f5e437f8019",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:30:07.947Z",
+  "dir": "/",
+  "filename": "/13670.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "13670.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "13670.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.032Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775436068373f5e437f8019/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775436068373f5e437f8019/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a1c4a53101b0a10c030a",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775436068373f5e437f8019",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a1c4a53101b0a10c030a",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775436068373f5e437f8019",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Sports Equipment from Unisex's Sporting Goods",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:12:52.036Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:12:52.036Z",
+      "hash": "b52f3118010dd7613bb88ac336269563dfa8deca",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

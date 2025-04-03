@@ -1,0 +1,62 @@
+{
+  "id": "677545e204951e5bea7fb08a",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/677545e204951e5bea7fb08a",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:40:49.993Z",
+  "dir": "/",
+  "filename": "/13571.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "13571.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "13571.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.510Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/677545e204951e5bea7fb08a/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/677545e204951e5bea7fb08a/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a376a531011dc10c1c27",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "677545e204951e5bea7fb08a",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a376a531011dc10c1c27",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/677545e204951e5bea7fb08a",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Innerwear from Men's Apparel",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:20:06.842Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:20:06.842Z",
+      "hash": "4d9f99cabef4c10a362e235e3bb84c9eaf3ce5e6",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

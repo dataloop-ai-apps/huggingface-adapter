@@ -1,0 +1,62 @@
+{
+  "id": "67754801e2d1e30b338e16e3",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754801e2d1e30b338e16e3",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:49:53.878Z",
+  "dir": "/",
+  "filename": "/50306.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "50306.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "50306.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.517Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754801e2d1e30b338e16e3/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754801e2d1e30b338e16e3/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a45e0d061763dd6e9770",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754801e2d1e30b338e16e3",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a45e0d061763dd6e9770",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754801e2d1e30b338e16e3",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Free Gifts from Men's Free Items",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:23:58.939Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:23:58.939Z",
+      "hash": "8cb99ca75ffa5ca421961ccec042f1195535f474",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

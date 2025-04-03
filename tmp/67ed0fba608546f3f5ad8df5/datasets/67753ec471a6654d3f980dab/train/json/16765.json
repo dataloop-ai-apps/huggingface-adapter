@@ -1,0 +1,62 @@
+{
+  "id": "67754b3204951e23998031ea",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754b3204951e23998031ea",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:03:30.912Z",
+  "dir": "/",
+  "filename": "/16765.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "16765.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "16765.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.078Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754b3204951e23998031ea/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754b3204951e23998031ea/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b4b7a5310112790c54a4",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754b3204951e23998031ea",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b4b7a5310112790c54a4",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754b3204951e23998031ea",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Bags from Women's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:33:43.781Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:33:43.781Z",
+      "hash": "6d6aaa25db8a505f13b040bd65dcacf2aadcd8c5",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

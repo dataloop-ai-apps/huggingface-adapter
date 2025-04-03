@@ -1,0 +1,62 @@
+{
+  "id": "677545b104951e2a5a7fac8a",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/677545b104951e2a5a7fac8a",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:40:01.219Z",
+  "dir": "/",
+  "filename": "/35268.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "35268.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "35268.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.039Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/677545b104951e2a5a7fac8a/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/677545b104951e2a5a7fac8a/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a395a53101ae970c1e07",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "677545b104951e2a5a7fac8a",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a395a53101ae970c1e07",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/677545b104951e2a5a7fac8a",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Topwear from Women's Apparel",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:20:37.616Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:20:37.616Z",
+      "hash": "43c7cad3296f597acb228032d425566fb7811652",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

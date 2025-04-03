@@ -1,0 +1,62 @@
+{
+  "id": "677545815cdbbe404bdc1cc1",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/677545815cdbbe404bdc1cc1",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:39:13.413Z",
+  "dir": "/",
+  "filename": "/6747.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "6747.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "6747.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.537Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/677545815cdbbe404bdc1cc1/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/677545815cdbbe404bdc1cc1/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a3cda5310163de0c2161",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "677545815cdbbe404bdc1cc1",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a3cda5310163de0c2161",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/677545815cdbbe404bdc1cc1",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Shoes from Men's Footwear",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:21:33.648Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:21:33.648Z",
+      "hash": "8bd5998683b75647faa848c3a13e653461fdf3a9",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

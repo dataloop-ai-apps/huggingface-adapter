@@ -1,0 +1,62 @@
+{
+  "id": "6775478e5cdbbe5d23dc4ead",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775478e5cdbbe5d23dc4ead",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:47:58.785Z",
+  "dir": "/",
+  "filename": "/47123.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "47123.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "47123.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.039Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775478e5cdbbe5d23dc4ead/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775478e5cdbbe5d23dc4ead/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a4a10d0617209e6e9b9f",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775478e5cdbbe5d23dc4ead",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a4a10d0617209e6e9b9f",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775478e5cdbbe5d23dc4ead",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Shoes from Boys's Footwear",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:25:05.275Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:25:05.275Z",
+      "hash": "8fa7600e57a1d5b8aef74cda1ac082c82b68bb0a",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

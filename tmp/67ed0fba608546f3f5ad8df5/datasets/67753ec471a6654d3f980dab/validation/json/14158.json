@@ -1,0 +1,62 @@
+{
+  "id": "6775468e68373f70ed7fc4c7",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775468e68373f70ed7fc4c7",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:43:42.670Z",
+  "dir": "/",
+  "filename": "/14158.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "14158.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "14158.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.053Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775468e68373f70ed7fc4c7/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775468e68373f70ed7fc4c7/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a3da83871c2d7906b8d9",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775468e68373f70ed7fc4c7",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a3da83871c2d7906b8d9",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775468e68373f70ed7fc4c7",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Cufflinks from Men's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:21:46.099Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:21:46.099Z",
+      "hash": "97e838c206614a26e5af47ebe31b6eb19ee26050",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

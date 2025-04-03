@@ -1,0 +1,62 @@
+{
+  "id": "6775480ae2d1e3c2038e17bc",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775480ae2d1e3c2038e17bc",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:50:02.098Z",
+  "dir": "/",
+  "filename": "/32513.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "32513.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "32513.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.525Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775480ae2d1e3c2038e17bc/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775480ae2d1e3c2038e17bc/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a4f683871c4aea06cbf9",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775480ae2d1e3c2038e17bc",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a4f683871c4aea06cbf9",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775480ae2d1e3c2038e17bc",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Sandal from Men's Footwear",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:26:30.837Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:26:30.837Z",
+      "hash": "ad6b2cc349c0868d2542a80bd58bff66bba1309d",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

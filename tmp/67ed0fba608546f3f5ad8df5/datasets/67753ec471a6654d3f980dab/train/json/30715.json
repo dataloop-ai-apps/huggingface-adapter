@@ -1,0 +1,62 @@
+{
+  "id": "6775447b68373fd8b77f9832",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775447b68373fd8b77f9832",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:34:51.705Z",
+  "dir": "/",
+  "filename": "/30715.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "30715.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "30715.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:42.073Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775447b68373fd8b77f9832/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775447b68373fd8b77f9832/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a23083871c3e8e06a0a9",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775447b68373fd8b77f9832",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a23083871c3e8e06a0a9",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775447b68373fd8b77f9832",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Apparel Set from Boys's Apparel",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:14:40.370Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:14:40.370Z",
+      "hash": "9e45d3f6f89692905dbb32f113680558383e13ab",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

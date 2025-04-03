@@ -1,0 +1,62 @@
+{
+  "id": "67754dd704951e42548070cd",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754dd704951e42548070cd",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:14:47.652Z",
+  "dir": "/",
+  "filename": "/34131.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "34131.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "34131.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:42.065Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754dd704951e42548070cd/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754dd704951e42548070cd/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b64a0d0617a16e6edb43",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754dd704951e42548070cd",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b64a0d0617a16e6edb43",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754dd704951e42548070cd",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Belts from Men's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:40:26.157Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:40:26.157Z",
+      "hash": "9a20c1c09cf838305ead43cd6c80326cf9f4b25c",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

@@ -1,0 +1,62 @@
+{
+  "id": "67754ef6e2d1e320fa8eb7aa",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754ef6e2d1e320fa8eb7aa",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:19:34.073Z",
+  "dir": "/",
+  "filename": "/32006.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "32006.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "32006.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.521Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754ef6e2d1e320fa8eb7aa/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754ef6e2d1e320fa8eb7aa/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b6d6a53101521b0c78b1",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754ef6e2d1e320fa8eb7aa",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b6d6a53101521b0c78b1",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754ef6e2d1e320fa8eb7aa",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Socks from Men's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:42:46.057Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:42:46.057Z",
+      "hash": "90bc4fcb8055824c484f607e3d15817ff9b60c6d",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

@@ -1,0 +1,62 @@
+{
+  "id": "677551e804951e2daf80d951",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/677551e804951e2daf80d951",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:32:07.943Z",
+  "dir": "/",
+  "filename": "/40769.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "40769.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "40769.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.046Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/677551e804951e2daf80d951/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/677551e804951e2daf80d951/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b8c5a5310126840c9965",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "677551e804951e2daf80d951",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b8c5a5310126840c9965",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/677551e804951e2daf80d951",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Headwear from Men's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:51:01.300Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:51:01.300Z",
+      "hash": "a298c852a7229b2e77b9ddcc20990ee9fea361f5",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

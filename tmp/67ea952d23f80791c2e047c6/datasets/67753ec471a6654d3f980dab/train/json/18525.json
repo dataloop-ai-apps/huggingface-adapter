@@ -1,0 +1,62 @@
+{
+  "id": "6775450a5cdbbe05e0dc116c",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775450a5cdbbe05e0dc116c",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:37:14.136Z",
+  "dir": "/",
+  "filename": "/18525.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "18525.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "18525.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.963Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775450a5cdbbe05e0dc116c/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775450a5cdbbe05e0dc116c/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a2cc83871cac6706abd4",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775450a5cdbbe05e0dc116c",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a2cc83871cac6706abd4",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775450a5cdbbe05e0dc116c",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Watches from Boys's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:17:16.915Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:17:16.915Z",
+      "hash": "1973b92ecc2d3e8f1569fe0cc09dd84aae3e71e5",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

@@ -1,0 +1,62 @@
+{
+  "id": "6775507d5cdbbe24b9dd25ae",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775507d5cdbbe24b9dd25ae",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:26:05.456Z",
+  "dir": "/",
+  "filename": "/54932.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "54932.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "54932.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.039Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775507d5cdbbe24b9dd25ae/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775507d5cdbbe24b9dd25ae/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b819a5310178de0c8e67",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775507d5cdbbe24b9dd25ae",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b819a5310178de0c8e67",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775507d5cdbbe24b9dd25ae",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Topwear from Boys's Apparel",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:48:09.612Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:48:09.612Z",
+      "hash": "b3f050cce16202074f4971bc34cba1327c4b3e62",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

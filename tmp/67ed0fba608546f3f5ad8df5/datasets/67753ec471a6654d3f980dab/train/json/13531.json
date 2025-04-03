@@ -1,0 +1,62 @@
+{
+  "id": "6775449768373f2b377f9abc",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775449768373f2b377f9abc",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:35:19.170Z",
+  "dir": "/",
+  "filename": "/13531.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "13531.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "13531.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.022Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775449768373f2b377f9abc/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775449768373f2b377f9abc/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a27aa5310198540c0f3d",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775449768373f2b377f9abc",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a27aa5310198540c0f3d",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775449768373f2b377f9abc",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Mufflers from Men's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:15:54.910Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:15:54.910Z",
+      "hash": "b1c47dfa434fdd4eb444a5a4a185fb75ae9cad45",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

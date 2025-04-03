@@ -1,0 +1,62 @@
+{
+  "id": "677545a468373f602d7fb1fe",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/677545a468373f602d7fb1fe",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:39:47.974Z",
+  "dir": "/",
+  "filename": "/52345.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "52345.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "52345.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.040Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/677545a468373f602d7fb1fe/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/677545a468373f602d7fb1fe/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a3bc0d0617f5ab6e8c72",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "677545a468373f602d7fb1fe",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a3bc0d0617f5ab6e8c72",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/677545a468373f602d7fb1fe",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Loungewear and Nightwear from Women's Apparel",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:21:16.900Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:21:16.900Z",
+      "hash": "5ab16e0efc231e6534878018eb0d7e5b4c55748f",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

@@ -1,0 +1,62 @@
+{
+  "id": "677551745cdbbe03efdd3dda",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/677551745cdbbe03efdd3dda",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:30:12.054Z",
+  "dir": "/",
+  "filename": "/8958.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "8958.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "8958.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.246Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/677551745cdbbe03efdd3dda/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/677551745cdbbe03efdd3dda/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b87fa53101b4480c9512",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "677551745cdbbe03efdd3dda",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b87fa53101b4480c9512",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/677551745cdbbe03efdd3dda",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Water Bottle from Unisex's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:49:51.184Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:49:51.184Z",
+      "hash": "8e75fb6c433f1e6832959d59895471b457464468",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

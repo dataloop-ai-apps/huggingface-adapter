@@ -1,0 +1,62 @@
+{
+  "id": "6775497804951e8275800f35",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775497804951e8275800f35",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:56:08.086Z",
+  "dir": "/",
+  "filename": "/12721.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "12721.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "12721.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.521Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775497804951e8275800f35/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775497804951e8275800f35/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a5ada53101ef980c40f9",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775497804951e8275800f35",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a5ada53101ef980c40f9",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775497804951e8275800f35",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Sandal from Unisex's Footwear",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:29:33.204Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:29:33.204Z",
+      "hash": "dd195877ccaf58cee0b9411653708111c1916a49",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

@@ -1,0 +1,62 @@
+{
+  "id": "6775470904951e169a7fd031",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775470904951e169a7fd031",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:45:45.922Z",
+  "dir": "/",
+  "filename": "/56547.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "56547.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "56547.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.044Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775470904951e169a7fd031/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775470904951e169a7fd031/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a489a53101e7130c2ddf",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775470904951e169a7fd031",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a489a53101e7130c2ddf",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775470904951e169a7fd031",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Lips from Women's Personal Care",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:24:41.904Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:24:41.904Z",
+      "hash": "eacd3485a1252c34274ea137d12e316fd7b8d404",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

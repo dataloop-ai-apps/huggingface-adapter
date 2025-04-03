@@ -1,0 +1,62 @@
+{
+  "id": "677542a568373fe99d7f6f4d",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/677542a568373fe99d7f6f4d",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:27:01.725Z",
+  "dir": "/",
+  "filename": "/58910.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "58910.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "58910.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.032Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/677542a568373fe99d7f6f4d/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/677542a568373fe99d7f6f4d/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a17583871c1e7706942e",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "677542a568373fe99d7f6f4d",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a17583871c1e7706942e",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/677542a568373fe99d7f6f4d",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Ties from Men's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:11:33.417Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:11:33.417Z",
+      "hash": "278e759b614cf09e652a342c4298c4da9d6ec2ee",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

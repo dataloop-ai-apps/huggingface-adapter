@@ -1,0 +1,62 @@
+{
+  "id": "6775466ce2d1e3ebc78deb17",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775466ce2d1e3ebc78deb17",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:43:08.711Z",
+  "dir": "/",
+  "filename": "/37910.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "37910.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "37910.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.525Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775466ce2d1e3ebc78deb17/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775466ce2d1e3ebc78deb17/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a3c40d0617c8f56e8d05",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775466ce2d1e3ebc78deb17",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a3c40d0617c8f56e8d05",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775466ce2d1e3ebc78deb17",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Fragrance from Unisex's Personal Care",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:21:24.988Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:21:24.988Z",
+      "hash": "6094e115c954481c813176b8e660b50aaa2e5eb3",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

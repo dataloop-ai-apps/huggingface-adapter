@@ -1,0 +1,62 @@
+{
+  "id": "6775422e5cdbbe9066dbce8a",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775422e5cdbbe9066dbce8a",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:25:02.803Z",
+  "dir": "/",
+  "filename": "/55205.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "55205.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "55205.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.473Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775422e5cdbbe9066dbce8a/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775422e5cdbbe9066dbce8a/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a13d0d0617f4416e6617",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775422e5cdbbe9066dbce8a",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a13d0d0617f4416e6617",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775422e5cdbbe9066dbce8a",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Lips from Women's Personal Care",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:10:37.457Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:10:37.457Z",
+      "hash": "503caa82809d567a013e10d9aea6bf2964c67148",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

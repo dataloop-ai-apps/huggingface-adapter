@@ -1,0 +1,62 @@
+{
+  "id": "677543c804951e5f6a7f818d",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/677543c804951e5f6a7f818d",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:31:52.188Z",
+  "dir": "/",
+  "filename": "/32870.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "32870.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "32870.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:42.027Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/677543c804951e5f6a7f818d/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/677543c804951e5f6a7f818d/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a23d83871c5eac06a18a",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "677543c804951e5f6a7f818d",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a23d83871c5eac06a18a",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/677543c804951e5f6a7f818d",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Bags from Unisex's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:14:53.583Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:14:53.583Z",
+      "hash": "c9630b97d26b3ba2e6e83a9db3228ca4039ab537",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

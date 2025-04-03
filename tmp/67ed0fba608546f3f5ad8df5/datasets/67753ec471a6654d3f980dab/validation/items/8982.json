@@ -1,0 +1,1 @@
+{"shebang": "dataloop", "metadata": {"dltype": "prompt"}, "prompts": {"1": [{"mimetype": "image/*", "value": "https://rc-gate.dataloop.ai/api/v1/items/6774e5214f5bb0320db029be/stream"}, {"mimetype": "metadata", "value": {"role": "user"}}]}}

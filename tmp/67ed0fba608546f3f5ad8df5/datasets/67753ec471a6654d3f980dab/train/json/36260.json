@@ -1,0 +1,62 @@
+{
+  "id": "67754f1a04951e1e0d808c91",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754f1a04951e1e0d808c91",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:20:10.339Z",
+  "dir": "/",
+  "filename": "/36260.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "36260.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "36260.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.537Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754f1a04951e1e0d808c91/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754f1a04951e1e0d808c91/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b6e783871cec4a071073",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754f1a04951e1e0d808c91",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b6e783871cec4a071073",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754f1a04951e1e0d808c91",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Loungewear and Nightwear from Men's Apparel",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:43:03.087Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:43:03.087Z",
+      "hash": "461d1b0d3d09b6bb91ef67e9b7a12f831203b456",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

@@ -1,0 +1,62 @@
+{
+  "id": "67754a6ae2d1e306e88e5083",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754a6ae2d1e306e88e5083",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:00:10.819Z",
+  "dir": "/",
+  "filename": "/39527.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "39527.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "39527.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.473Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754a6ae2d1e306e88e5083/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754a6ae2d1e306e88e5083/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b49283871c7fcc06e8d1",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754a6ae2d1e306e88e5083",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b49283871c7fcc06e8d1",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754a6ae2d1e306e88e5083",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Accessories from Unisex's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:33:06.965Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:33:06.965Z",
+      "hash": "f929a5ae876f96b4ee28501c362a9748abb4a836",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

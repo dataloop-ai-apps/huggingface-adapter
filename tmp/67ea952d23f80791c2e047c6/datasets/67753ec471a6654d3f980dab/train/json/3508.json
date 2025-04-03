@@ -1,0 +1,62 @@
+{
+  "id": "67754a4204951e45e3801e9c",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754a4204951e45e3801e9c",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:59:30.831Z",
+  "dir": "/",
+  "filename": "/3508.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "3508.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "3508.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.466Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754a4204951e45e3801e9c/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754a4204951e45e3801e9c/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b564a5310150c80c5fbd",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754a4204951e45e3801e9c",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b564a5310150c80c5fbd",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754a4204951e45e3801e9c",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Bottomwear from Men's Apparel",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:36:36.565Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:36:36.565Z",
+      "hash": "3f2ab15aa3e5584222ed355433d9d072541c74b7",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

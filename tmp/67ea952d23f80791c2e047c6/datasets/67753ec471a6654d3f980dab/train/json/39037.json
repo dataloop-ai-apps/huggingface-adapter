@@ -1,0 +1,62 @@
+{
+  "id": "67754bbd5cdbbe4175dcb0ee",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754bbd5cdbbe4175dcb0ee",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:05:49.037Z",
+  "dir": "/",
+  "filename": "/39037.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "39037.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "39037.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:42.073Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754bbd5cdbbe4175dcb0ee/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754bbd5cdbbe4175dcb0ee/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b4fa0d06173e736ec556",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754bbd5cdbbe4175dcb0ee",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b4fa0d06173e736ec556",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754bbd5cdbbe4175dcb0ee",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Cufflinks from Men's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:34:50.986Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:34:50.986Z",
+      "hash": "5fb14db9dc1466a78938e366af501b0debb8b26c",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

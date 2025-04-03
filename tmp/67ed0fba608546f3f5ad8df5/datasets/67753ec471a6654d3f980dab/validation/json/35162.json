@@ -1,0 +1,62 @@
+{
+  "id": "67755218e2d1e377678f0851",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67755218e2d1e377678f0851",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:32:56.847Z",
+  "dir": "/",
+  "filename": "/35162.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "35162.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "35162.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.053Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67755218e2d1e377678f0851/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67755218e2d1e377678f0851/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b87183871cbc15072ac8",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67755218e2d1e377678f0851",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b87183871cbc15072ac8",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67755218e2d1e377678f0851",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Sandal from Men's Footwear",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:49:37.362Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:49:37.362Z",
+      "hash": "2971c5e91df9b185dc5ef7b7773ae370e50d11c4",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

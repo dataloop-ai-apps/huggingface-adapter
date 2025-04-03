@@ -1,0 +1,62 @@
+{
+  "id": "677544e8e2d1e335938dc981",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/677544e8e2d1e335938dc981",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:36:40.243Z",
+  "dir": "/",
+  "filename": "/2354.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "2354.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "2354.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.525Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/677544e8e2d1e335938dc981/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/677544e8e2d1e335938dc981/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a2c00d0617259e6e8081",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "677544e8e2d1e335938dc981",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a2c00d0617259e6e8081",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/677544e8e2d1e335938dc981",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Sports Equipment from Unisex's Sporting Goods",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:17:04.500Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:17:04.500Z",
+      "hash": "f684ff3a44daca831517bdd6f6091c6e2ddf01af",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

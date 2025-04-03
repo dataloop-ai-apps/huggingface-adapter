@@ -1,0 +1,62 @@
+{
+  "id": "67754b91571407e0c8c4f754",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754b91571407e0c8c4f754",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:05:05.006Z",
+  "dir": "/",
+  "filename": "/15122.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "15122.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "validation": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "15122.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:43.040Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754b91571407e0c8c4f754/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754b91571407e0c8c4f754/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b5890d06177caa6ecebc",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754b91571407e0c8c4f754",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b5890d06177caa6ecebc",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754b91571407e0c8c4f754",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Bottomwear from Men's Apparel",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:37:13.973Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:37:13.973Z",
+      "hash": "7bf71c2300a73c69d0dc90615d8fde0f0f655b93",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

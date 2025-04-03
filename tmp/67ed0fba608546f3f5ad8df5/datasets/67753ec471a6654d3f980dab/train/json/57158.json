@@ -1,0 +1,62 @@
+{
+  "id": "67754af957140757dcc4ea40",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754af957140757dcc4ea40",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:02:33.178Z",
+  "dir": "/",
+  "filename": "/57158.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "57158.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "57158.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:42.068Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754af957140757dcc4ea40/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754af957140757dcc4ea40/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b4aca53101d5d80c53e4",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754af957140757dcc4ea40",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b4aca53101d5d80c53e4",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754af957140757dcc4ea40",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Topwear from Women's Apparel",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:33:32.646Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:33:32.646Z",
+      "hash": "77b38bb7bfa81779e5c9f041e8c9a0d206bbb981",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

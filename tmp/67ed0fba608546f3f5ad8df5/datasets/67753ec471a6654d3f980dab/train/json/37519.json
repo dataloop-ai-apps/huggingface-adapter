@@ -1,0 +1,62 @@
+{
+  "id": "67754e73e2d1e37e5e8eac1d",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754e73e2d1e37e5e8eac1d",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:17:23.093Z",
+  "dir": "/",
+  "filename": "/37519.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "37519.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "37519.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:42.068Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754e73e2d1e37e5e8eac1d/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754e73e2d1e37e5e8eac1d/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b6a383871c836c070bab",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754e73e2d1e37e5e8eac1d",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b6a383871c836c070bab",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754e73e2d1e37e5e8eac1d",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Gloves from Boys's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:41:55.209Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:41:55.209Z",
+      "hash": "8f7a1972f01cc8015e8457cae663ba6902b8c221",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

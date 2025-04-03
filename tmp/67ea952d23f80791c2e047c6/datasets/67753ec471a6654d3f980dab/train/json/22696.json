@@ -1,0 +1,62 @@
+{
+  "id": "6775462568373f8b447fbc45",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775462568373f8b447fbc45",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:41:57.600Z",
+  "dir": "/",
+  "filename": "/22696.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "22696.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "22696.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.535Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775462568373f8b447fbc45/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775462568373f8b447fbc45/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a44b83871cd51d06c0ad",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775462568373f8b447fbc45",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a44b83871cd51d06c0ad",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775462568373f8b447fbc45",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Flip Flops from Men's Footwear",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:23:39.612Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:23:39.612Z",
+      "hash": "ec7ff41e95272474cf512f3a32b8508e30834a51",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

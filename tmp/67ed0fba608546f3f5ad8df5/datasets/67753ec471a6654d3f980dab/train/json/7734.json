@@ -1,0 +1,62 @@
+{
+  "id": "67754bfbe2d1e3ab6c8e738c",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754bfbe2d1e3ab6c8e738c",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:06:51.725Z",
+  "dir": "/",
+  "filename": "/7734.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "7734.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "7734.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.908Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754bfbe2d1e3ab6c8e738c/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754bfbe2d1e3ab6c8e738c/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b5600d0617e71b6ecbf2",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754bfbe2d1e3ab6c8e738c",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b5600d0617e71b6ecbf2",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754bfbe2d1e3ab6c8e738c",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Headwear from Unisex's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:36:32.339Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:36:32.339Z",
+      "hash": "38d96c20441d68e80b05a4787bdabdac7404da38",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

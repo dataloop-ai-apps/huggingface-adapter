@@ -1,0 +1,62 @@
+{
+  "id": "67754d305cdbbec073dcd29c",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754d305cdbbec073dcd29c",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:12:00.052Z",
+  "dir": "/",
+  "filename": "/57616.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "57616.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "57616.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:40.963Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754d305cdbbec073dcd29c/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754d305cdbbec073dcd29c/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b5e3a531019e490c67b8",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754d305cdbbec073dcd29c",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b5e3a531019e490c67b8",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754d305cdbbec073dcd29c",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Skin Care from Women's Personal Care",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:38:43.148Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:38:43.148Z",
+      "hash": "7e39ba72e6255df4cfb5c477527b1f43586a78a9",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

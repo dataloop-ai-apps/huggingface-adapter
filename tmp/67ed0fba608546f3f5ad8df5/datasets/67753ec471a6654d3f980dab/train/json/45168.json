@@ -1,0 +1,62 @@
+{
+  "id": "6775466804951e0b5c7fbbb9",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/6775466804951e0b5c7fbbb9",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T13:43:04.055Z",
+  "dir": "/",
+  "filename": "/45168.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "45168.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "45168.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:42.065Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/6775466804951e0b5c7fbbb9/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/6775466804951e0b5c7fbbb9/thumbnail",
+  "annotations": [
+    {
+      "id": "6775a3c283871c86d606b74b",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "6775466804951e0b5c7fbbb9",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775a3c283871c86d606b74b",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/6775466804951e0b5c7fbbb9",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Watches from Men's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T20:21:22.683Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T20:21:22.683Z",
+      "hash": "c687ec20fdd0fbaee76c0c526a71ad94e07b4fdb",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}

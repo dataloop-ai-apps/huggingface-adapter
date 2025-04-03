@@ -1,0 +1,62 @@
+{
+  "id": "67754e34e2d1e3d1928ea670",
+  "datasetId": "67753ec471a6654d3f980dab",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/67754e34e2d1e3d1928ea670",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+  "createdAt": "2025-01-01T14:16:20.636Z",
+  "dir": "/",
+  "filename": "/35026.json",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": false,
+      "mimetype": "application/json",
+      "originalname": "35026.json",
+      "refs": [],
+      "shebang": {
+        "dltype": "prompt"
+      },
+      "size": 240,
+      "tags": {
+        "train": true
+      },
+      "taskStatusLog": []
+    }
+  },
+  "name": "35026.json",
+  "creator": "yaya.t@dataloop.ai",
+  "updatedAt": "2025-01-02T05:02:41.476Z",
+  "updatedBy": "rubiks@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/67754e34e2d1e3d1928ea670/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/67754e34e2d1e3d1928ea670/thumbnail",
+  "annotations": [
+    {
+      "id": "6775b6cb0d061795916ee3f2",
+      "datasetId": "67753ec471a6654d3f980dab",
+      "itemId": "67754e34e2d1e3d1928ea670",
+      "url": "https://rc-gate.dataloop.ai/api/v1/annotations/6775b6cb0d061795916ee3f2",
+      "item": "https://rc-gate.dataloop.ai/api/v1/items/67754e34e2d1e3d1928ea670",
+      "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/67753ec471a6654d3f980dab",
+      "type": "text",
+      "label": "free-text",
+      "coordinates": "This is a photo of Stoles from Women's Accessories",
+      "metadata": {
+        "system": {
+          "automated": true,
+          "promptId": "1"
+        },
+        "user": {}
+      },
+      "creator": "yaya.t@dataloop.ai",
+      "createdAt": "2025-01-01T21:42:35.259Z",
+      "updatedBy": "yaya.t@dataloop.ai",
+      "updatedAt": "2025-01-01T21:42:35.259Z",
+      "hash": "8d1cd4707090510c39a7ee80f3a9533642578da1",
+      "source": "sdk"
+    }
+  ],
+  "annotationsCount": 1,
+  "annotated": true
+}
