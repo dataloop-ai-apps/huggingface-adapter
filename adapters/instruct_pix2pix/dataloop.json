@@ -2,8 +2,8 @@
   "name": "instruct-pix2pix-huggingface-app",
   "description": "InstructPix2Pix is a Stable Diffusion model trained to edit images from human-provided instructions.",
   "attributes": {
-    "Provider": "Hugging Face",
-    "Deployed By": "Dataloop",
+    "Provider": "Other",
+    "Deployed By": "Hugging Face",
     "License": "MIT",
     "Category": "Model",
     "Gen AI": "LMM",

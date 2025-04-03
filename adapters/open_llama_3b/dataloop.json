@@ -2,8 +2,8 @@
     "name": "open-llama-3b-huggingface-app",
     "description": "The model is mainly based on LLaMA with some modifications, incorporating memory-efficient attention from Xformers, stable embedding from Bloom, and shared input-output embedding from PaLM.",
     "attributes": {
-        "Provider": "Hugging Face",
-        "Deployed By": "Dataloop",
+        "Provider": "Other",
+        "Deployed By": "Hugging Face",
         "License": "Apache 2.0",
         "Category": "Model",
         "NLP": "Conversational",

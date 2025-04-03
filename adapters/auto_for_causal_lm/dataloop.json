@@ -2,8 +2,8 @@
   "name": "autoforcausallm-huggingface-app",
   "description": "AutoForCausalLM for chatting - HF",
   "attributes": {
-    "Provider": "Hugging Face",
-    "Deployed By": "Dataloop",
+    "Provider": "Microsoft",
+    "Deployed By": "Hugging Face",
     "License": "Apache 2.0",
     "Category": "Model",
     "NLP": "Conversational",

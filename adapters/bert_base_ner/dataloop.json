@@ -2,8 +2,8 @@
   "name": "bert-base-ner-huggingface-app",
   "description": "bert-base-NER is a fine-tuned BERT model that is ready to use for Named Entity Recognition and achieves state-of-the-art performance for the NER task.",
   "attributes": {
-    "Provider": "Hugging Face",
-    "Deployed By": "Dataloop",
+    "Provider": "Other",
+    "Deployed By": "Hugging Face",
     "License": "MIT",
     "Category": "Model",
     "Media Type": ["Text"],

@@ -2,8 +2,8 @@
   "name": "vit-gpt2-image-captioning-huggingface-app",
   "description": "Vision Transformer (ViT) GPT2 an image captioning model.",
   "attributes": {
-    "Provider": "Hugging Face",
-    "Deployed By": "Dataloop",
+    "Provider": "NLP Connect",
+    "Deployed By": "Hugging Face",
     "License": "Apache 2.0",
     "Category": "Model",
     "NLP": "Conversational",

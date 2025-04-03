@@ -3,7 +3,7 @@
   "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation",
   "attributes": {
     "Provider": "Salesforce",
-    "Deployed By": "Dataloop",
+    "Deployed By": "Hugging Face",
     "License": "BSD-3-Clause",
     "Category": "Model",
     "NLP": "Conversational",

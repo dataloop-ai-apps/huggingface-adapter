@@ -2,8 +2,8 @@
   "name": "vilt-b32-finetuned-vqa-huggingface-app",
   "description": "Vision-and-Language Transformer (ViLT) model fine-tuned on VQAv2.",
   "attributes": {
-    "Provider": "Hugging Face",
-    "Deployed By": "Dataloop",
+    "Provider": "Other",
+    "Deployed By": "Hugging Face",
     "License": "Apache 2.0",
     "Category": "Model",
     "NLP": "Conversational",
