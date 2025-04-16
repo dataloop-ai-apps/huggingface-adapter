@@ -40,7 +40,6 @@ def run_train(env, project_name, dataset_name, model_name, delete_previous_model
 
 
 if __name__ == '__main__':
-<<<<<<< Updated upstream
     ENV = "rc"
     # PROJECT_NAME = "test yaya"
     # DATASET_NAME = "Data Management Demo Dataset prompt items-o4pVA"
@@ -51,13 +50,11 @@ if __name__ == '__main__':
     DATASET_NAME = "ceyda_fashion prompt items"
     
     MODEL_NAME = "llama-3-2-90b-vision-instruct"
+    # ENV = "prod"
+    
+    # PROJECT_NAME = "Model mgmt demo"
+    # DATASET_NAME = "clip testing"   
+    
+    # MODEL_NAME = "llama-3-2-90b-vision-instruct"  # the actual model is 11b, this is just the entity that currently exists
 
-=======
-    ENV = "prod"
-    
-    PROJECT_NAME = "Model mgmt demo"
-    DATASET_NAME = "clip testing"   
-    
-    MODEL_NAME = "llama-3-2-90b-vision-instruct"  # the actual model is 11b, this is just the entity that currently exists
->>>>>>> Stashed changes
     run_train(env=ENV, project_name=PROJECT_NAME, dataset_name=DATASET_NAME, model_name=MODEL_NAME, delete_previous_model=True)

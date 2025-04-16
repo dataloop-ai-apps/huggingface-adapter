@@ -5,13 +5,8 @@
     "scope": "public",
     "description": "Llama-3.2-Text-Fine-Tune from Hugging Face, ready for fintune with QLoRA.",
     "attributes": {
-<<<<<<< Updated upstream
-      "Provider": "Hugging Face",
-      "Deployed By": "Dataloop",
-=======
       "Provider": "Meta",
       "Deployed By": "Hugging Face",
->>>>>>> Stashed changes
       "License": "Llama 3.2",
       "Media Type": [
         "Text"
