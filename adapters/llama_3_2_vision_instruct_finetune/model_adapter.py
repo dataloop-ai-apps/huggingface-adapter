@@ -33,7 +33,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         self.adapter_defaults.upload_annotations = False
 
         # Llama 3.2 model requires a token
-        hf_token = os.environ.get("HF_API_KEY")
+        hf_token = os.environ.get("HUGGINGFACE_TOKEN")
         if hf_token is None:
             raise ValueError("Missing API key")
         login(token=hf_token)

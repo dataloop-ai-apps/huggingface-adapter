@@ -28,11 +28,11 @@
     "components": {
       "computeConfigs": [
         {
-          "name": "llama-vision-deploy",
+          "name": "llama-vision-finetuned-deploy",
           "runtime": {
-            "podType": "gpu-a100-l",
+            "podType": "regular-s",
             "concurrency": 5,
-            "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.5",
+            "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.6",
             "autoscaler": {
               "type": "rabbitmq",
               "minReplicas": 0,
@@ -41,14 +41,14 @@
           }
         },
         {
-          "name": "llama-vision-train",
+          "name": "llama-vision-finetuned-train",
           "versions": {
             "dtlpy": "1.106.5"
           },
           "runtime": {
-            "podType": "gpu-a100-xl",
+            "podType": "gpu-a100-s",
             "concurrency": 1,
-            "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.5",
+            "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.6",
             "autoscaler": {
               "type": "rabbitmq",
               "minReplicas": 0,
@@ -59,11 +59,11 @@
       ],
       "modules": [
         {
-          "name": "llama-vision-module",
-          "entryPoint": "adapters/llama_3_2_vision_instruct/model_adapter.py",
+          "name": "llama-vision-finetuned-module",
+          "entryPoint": "adapters/llama_3_2_vision_instruct_finetune/model_adapter.py",
           "className": "ModelAdapter",
-          "computeConfig": "llama-vision-deploy",
-          "description": "Llama 3.2 Vision-Instruct model adapter for inference and fine-tuning",
+          "computeConfig": "llama-vision-finetuned-deploy",
+          "description": "Llama 3.2 Vision-Instruct model adapter for fine-tuning and inference",
           "integrations": [
             "dl-huggingface-api-key"
           ],
@@ -120,7 +120,7 @@
             },
             {
               "name": "train_model",
-              "computeConfig": "llama-vision-train",
+              "computeConfig": "llama-vision-finetuned-train",
               "input": [
                 {
                   "type": "Model",
@@ -135,9 +135,9 @@
                   "description": "Dataloop Model Entity"
                 }
               ],
-              "displayName": "Fine-tune Vision Model",
+              "displayName": "Fine-tuned Llama Vision Model",
               "displayIcon": "",
-              "description": "Fine-tune the vision-language model on a custom dataset using QLoRA."
+              "description": "Fine-tune the Llama vision-language model on a custom dataset using QLoRA."
             }
           ]
         }
@@ -145,12 +145,12 @@
       "models": [
         {
           "name": "meta-llama/Llama-3.2-11B-Vision-Instruct",
-          "moduleName": "llama-vision-module",
+          "moduleName": "llama-vision-finetuned-module",
           "scope": "project",
           "status": "pre-trained",
           "outputType": "text",
           "configuration": {
-            "system_prompt": "You are a helpful vision assistant. Describe what you see in the image accurately and answer questions related to the visual content. If you don't know or can't see clearly, just say so.",
+            "system_prompt": "You are a helpful visual assistant. Describe what you see in the image accurately and answer questions related to the visual content. If you don't know or can't see clearly, just say so.",
             "model_name": "meta-llama/Llama-3.2-11B-Vision-Instruct",
             "r": 16,
             "lora_alpha": 32,
