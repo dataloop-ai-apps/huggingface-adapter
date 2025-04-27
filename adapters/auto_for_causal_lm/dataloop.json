@@ -1,120 +1,118 @@
 {
-    "name": "autoforcausallm-huggingface-app",
-    "description": "AutoForCausalLM for chatting - HF",
-    "attributes": {
-        "Provider": "Hugging Face",
-        "Deployed By": "Dataloop",
-        "License": "Apache 2.0",
-        "Category": "Model",
-        "NLP": "Conversational",
-        "Gen AI": "LLM",
-        "Media Type": [
-            "Text"
-        ]
-    },
-    "displayName": "AutoForCausalLM",
-    "version": "0.1.45",
-    "scope": "public",
-    "codebase": {
-        "type": "git",
-        "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.45"
-    },
-    "components": {
-        "computeConfigs": [
-            {
-                "name": "autoforcausallm-huggingface-deploy",
-                "secrets": [],
-                "runtime": {
-                    "podType": "highmem-l",
-                    "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
-                    "concurrency": 1,
-                    "autoscaler": {
-                        "type": "rabbitmq",
-                        "minReplicas": 0,
-                        "maxReplicas": 2,
-                        "queueLength": 1000
-                    },
-                    "preemptible": false
-                }
-            }
+  "name": "autoforcausallm-huggingface-app",
+  "description": "AutoForCausalLM for chatting - HF",
+  "attributes": {
+    "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
+    "License": "Apache 2.0",
+    "Category": "Model",
+    "NLP": "Conversational",
+    "Gen AI": "LLM",
+    "Media Type": ["Text"]
+  },
+  "displayName": "AutoForCausalLM",
+  "version": "0.1.46",
+  "scope": "public",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+    "gitTag": "0.1.46"
+  },
+  "components": {
+    "computeConfigs": [
+      {
+        "name": "autoforcausallm-huggingface-deploy",
+        "secrets": [],
+        "runtime": {
+          "podType": "highmem-l",
+          "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+          "concurrency": 1,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 1000
+          },
+          "preemptible": false
+        }
+      }
+    ],
+    "modules": [
+      {
+        "name": "autoforcausallm-module",
+        "entryPoint": "model_adapter.py",
+        "className": "ModelAdapter",
+        "computeConfig": "autoforcausallm-huggingface-deploy",
+        "initInputs": [
+          {
+            "type": "Model",
+            "name": "model_entity"
+          }
         ],
-        "modules": [
-            {
-                "name": "autoforcausallm-module",
-                "entryPoint": "model_adapter.py",
-                "className": "ModelAdapter",
-                "computeConfig": "autoforcausallm-huggingface-deploy",
-                "initInputs": [
-                    {
-                        "type": "Model",
-                        "name": "model_entity"
-                    }
-                ],
-                "functions": [
-                    {
-                        "name": "predict_items",
-                        "input": [
-                            {
-                                "type": "Item[]",
-                                "name": "items",
-                                "description": "The input images for prediction."
-                            }
-                        ],
-                        "output": [
-                            {
-                                "type": "Item[]",
-                                "name": "items",
-                                "description": "The same input images for prediction."
-                            },
-                            {
-                                "type": "Annotation[]",
-                                "name": "annotations",
-                                "description": "The predicted annotations."
-                            }
-                        ],
-                        "displayName": "Predict Items",
-                        "displayIcon": "",
-                        "description": "The inference function of the model."
-                    },
-                    {
-                        "name": "predict_dataset",
-                        "input": [
-                            {
-                                "type": "Dataset",
-                                "name": "dataset",
-                                "description": "The input dataset of the items required for prediction."
-                            },
-                            {
-                                "type": "Json",
-                                "name": "filters",
-                                "description": "The DQL in json format to get all the items required for prediction."
-                            }
-                        ],
-                        "output": [],
-                        "displayName": "Predict Dataset",
-                        "displayIcon": "",
-                        "description": "Inference function of the model on a dataset."
-                    }
-                ]
-            }
-        ],
-        "models": [
-            {
-                "name": "autoforcausallm-huggingface-model",
-                "moduleName": "autoforcausallm-module",
-                "scope": "project",
-                "status": "pre-trained",
-                "configuration": {
-                    "weights_filename": "dialogpt-auto.pt",
-                    "module_name": "adapters.auto_for_causal_lm.auto_for_causal_lm",
-                    "model_name": "microsoft/DialoGPT-large",
-                    "tokenizer": "microsoft/DialoGPT-large",
-                    "device": "cpu"
-                },
-                "metadata": {},
-                "description": "Flexible AutoForCausalLM adapter for HF models"
-            }
+        "functions": [
+          {
+            "name": "predict_items",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The input images for prediction."
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input images for prediction."
+              },
+              {
+                "type": "Annotation[]",
+                "name": "annotations",
+                "description": "The predicted annotations."
+              }
+            ],
+            "displayName": "Predict Items",
+            "displayIcon": "",
+            "description": "The inference function of the model."
+          },
+          {
+            "name": "predict_dataset",
+            "input": [
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "The input dataset of the items required for prediction."
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "The DQL in json format to get all the items required for prediction."
+              }
+            ],
+            "output": [],
+            "displayName": "Predict Dataset",
+            "displayIcon": "",
+            "description": "Inference function of the model on a dataset."
+          }
         ]
-    }
+      }
+    ],
+    "models": [
+      {
+        "name": "autoforcausallm-huggingface-model",
+        "moduleName": "autoforcausallm-module",
+        "scope": "project",
+        "status": "pre-trained",
+        "configuration": {
+          "weights_filename": "dialogpt-auto.pt",
+          "module_name": "adapters.auto_for_causal_lm.auto_for_causal_lm",
+          "model_name": "microsoft/DialoGPT-large",
+          "tokenizer": "microsoft/DialoGPT-large",
+          "device": "cpu"
+        },
+        "metadata": {},
+        "description": "Flexible AutoForCausalLM adapter for HF models"
+      }
+    ]
+  }
 }

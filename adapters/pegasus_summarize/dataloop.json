@@ -1,16 +1,16 @@
 {
-  "name": "vit-gpt2-image-captioning-huggingface-app",
-  "description": "Vision Transformer (ViT) GPT2 an image captioning model.",
+  "name": "pegasus-huggingface-app",
+  "description": "Pegasus Huggingface Model to summarize long text",
   "attributes": {
-    "Provider": "Hugging Face",
+    "Provider": "Google",
     "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
-    "NLP": "Conversational",
-    "Gen AI": "LMM",
-    "Media Type": ["Text", "Image", "Multi Modal"]
+    "NLP": "Other",
+    "Gen AI": "LLM",
+    "Media Type": ["Text"]
   },
-  "displayName": "ViT-GPT2 Image Captioning",
+  "displayName": "Pegasus Huggingface Model",
   "version": "0.1.46",
   "scope": "public",
   "codebase": {
@@ -21,10 +21,10 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "vit-gpt2-image-captioning-huggingface-deploy",
+        "name": "pegasus-huggingface-deploy",
         "secrets": [],
         "runtime": {
-          "podType": "gpu-t4",
+          "podType": "regular-m",
           "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
           "concurrency": 1,
           "autoscaler": {
@@ -39,10 +39,10 @@
     ],
     "modules": [
       {
-        "name": "vit-gpt2-image-captioning-module",
+        "name": "pegasus-huggingface-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "vit-gpt2-image-captioning-huggingface-deploy",
+        "computeConfig": "pegasus-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -99,18 +99,17 @@
     ],
     "models": [
       {
-        "name": "vit-gpt2-image-captioning-huggingface-model",
-        "moduleName": "vit-gpt2-image-captioning-module",
+        "name": "pegasus-huggingface-model",
+        "moduleName": "pegasus-huggingface-module",
         "scope": "project",
         "status": "pre-trained",
         "configuration": {
-          "module_name": "adapters.vit_gpt2_image_captioning.vit_gpt2_image_captioning",
-          "image_width": 512,
-          "image_height": 512,
-          "device": "cuda"
+          "module_name": "adapters.pegasus_summarize.pegasus_summarize",
+          "model_name": "google/pegasus-xsum"
         },
+        "tags": ["llm", "pretrained", "hugging-face"],
         "metadata": {},
-        "description": "Vision Transformer (ViT) GPT2 an image captioning model."
+        "description": "Pegasus Huggingface Model to summarize long text"
       }
     ]
   }

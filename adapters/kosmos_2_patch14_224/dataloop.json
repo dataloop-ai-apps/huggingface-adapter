@@ -8,19 +8,15 @@
         "Category": "Model",
         "NLP": "Conversational",
         "Gen AI": "LMM",
-        "Media Type": [
-            "Text",
-            "Image",
-            "Multi Modal"
-        ]
+        "Media Type": ["Text", "Image", "Multi Modal"]
     },
     "displayName": "Kosmos-2 Patch14 224",
-    "version": "0.1.45",
+    "version": "0.1.46",
     "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.45"
+        "gitTag": "0.1.46"
     },
     "components": {
         "computeConfigs": [
@@ -114,11 +110,7 @@
                     "module_name": "adapters.kosmos_2_patch14_224.kosmos_2_patch14_224",
                     "device": "cuda:0"
                 },
-                "tags": [
-                    "llm",
-                    "pretrained",
-                    "hugging-face"
-                ],
+                "tags": ["llm", "pretrained", "hugging-face"],
                 "metadata": {},
                 "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world."
             }
