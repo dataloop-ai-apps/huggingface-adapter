@@ -8,7 +8,9 @@
         "Category": "Model",
         "NLP": "Conversational",
         "Gen AI": "LLM",
-        "Media Type": ["Text"]
+        "Media Type": [
+            "Text"
+        ]
     },
     "displayName": "Meta LLama 3 8b Instruct",
     "version": "0.1.46",
@@ -116,7 +118,11 @@
                     "hf_access_token": "",
                     "system_prompt": "You are an intelligent and helpful assistant that seeks to give precise and detailed information. Never mention who you are unless you are asked."
                 },
-                "tags": ["llm", "pretrained", "hugging-face"],
+                "tags": [
+                    "llm",
+                    "pretrained",
+                    "hugging-face"
+                ],
                 "metadata": {},
                 "description": "Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8 and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks."
             }
