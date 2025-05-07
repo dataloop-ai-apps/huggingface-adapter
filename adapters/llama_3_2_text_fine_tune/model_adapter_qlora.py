@@ -26,8 +26,6 @@ logger = logging.getLogger("finetune-llama-qlora")
 class ModelAdapter(dl.BaseModelAdapter):
 
     def load(self, local_path, **kwargs):
-        self.adapter_defaults.allow_empty_subset = True
-
         # Llama 3.2 models requires a token
         hf_token = os.environ.get("HUGGINGFACE_TOKEN")
         if hf_token is None:
