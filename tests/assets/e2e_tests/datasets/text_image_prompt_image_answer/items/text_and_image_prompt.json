@@ -4,7 +4,7 @@
         "dltype": "prompt"
     },
     "prompts": {
-        "prompt1": [
+        "1": [
             {
                 "mimetype": "image/*",
                 "value": "dl.Item.stream"
