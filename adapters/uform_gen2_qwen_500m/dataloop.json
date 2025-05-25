@@ -1,116 +1,120 @@
 {
-  "name": "uform-gen2-qwen-500m-huggingface-app",
-  "description": "UForm-Gen is a small generative vision-language model primarily designed for Image Captioning and Visual Question Answering.",
-  "attributes": {
-    "Provider": "Unum",
-    "Deployed By": "Dataloop",
-    "License": "Apache 2.0",
-    "Category": "Model",
-    "NLP": "Conversational",
-    "Gen AI": "LMM",
-    "Media Type": ["Text", "Image", "Multi Modal"]
-  },
-  "displayName": "Uform-Gen2",
-  "version": "0.1.46",
-  "scope": "public",
-  "codebase": {
-    "type": "git",
-    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.46"
-  },
-  "components": {
-    "computeConfigs": [
-      {
-        "name": "uform-gen2-qwen-500m-huggingface-deploy",
-        "secrets": [],
-        "runtime": {
-          "podType": "regular-m",
-          "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
-          "concurrency": 1,
-          "autoscaler": {
-            "type": "rabbitmq",
-            "minReplicas": 0,
-            "maxReplicas": 2,
-            "queueLength": 1000
-          },
-          "preemptible": false
-        }
-      }
-    ],
-    "modules": [
-      {
-        "name": "uform-gen2-qwen-500m-module",
-        "entryPoint": "model_adapter.py",
-        "className": "ModelAdapter",
-        "computeConfig": "uform-gen2-qwen-500m-huggingface-deploy",
-        "initInputs": [
-          {
-            "type": "Model",
-            "name": "model_entity"
-          }
-        ],
-        "functions": [
-          {
-            "name": "predict_items",
-            "input": [
-              {
-                "type": "Item[]",
-                "name": "items",
-                "description": "The input images for prediction."
-              }
-            ],
-            "output": [
-              {
-                "type": "Item[]",
-                "name": "items",
-                "description": "The same input images for prediction."
-              },
-              {
-                "type": "Annotation[]",
-                "name": "annotations",
-                "description": "The predicted annotations."
-              }
-            ],
-            "displayName": "Predict Items",
-            "displayIcon": "",
-            "description": "The inference function of the model."
-          },
-          {
-            "name": "predict_dataset",
-            "input": [
-              {
-                "type": "Dataset",
-                "name": "dataset",
-                "description": "The input dataset of the items required for prediction."
-              },
-              {
-                "type": "Json",
-                "name": "filters",
-                "description": "The DQL in json format to get all the items required for prediction."
-              }
-            ],
-            "output": [],
-            "displayName": "Predict Dataset",
-            "displayIcon": "",
-            "description": "Inference function of the model on a dataset."
-          }
+    "name": "uform-gen2-qwen-500m-huggingface-app",
+    "description": "UForm-Gen is a small generative vision-language model primarily designed for Image Captioning and Visual Question Answering.",
+    "attributes": {
+        "Provider": "Unum",
+        "Deployed By": "Dataloop",
+        "License": "Apache 2.0",
+        "Category": "Model",
+        "NLP": "Conversational",
+        "Gen AI": "LMM",
+        "Media Type": [
+            "Text",
+            "Image",
+            "Multi Modal"
         ]
-      }
-    ],
-    "models": [
-      {
-        "name": "uform-gen2-qwen-500m-huggingface-model",
-        "moduleName": "uform-gen2-qwen-500m-module",
-        "scope": "project",
-        "status": "pre-trained",
-        "configuration": {
-          "module_name": "adapters.uform_gen2_qwen_500m.uform_gen2_qwen_500m",
-          "device": "cpu",
-          "captioning": false
-        },
-        "metadata": {},
-        "description": "UForm-Gen is a small generative vision-language model primarily designed for Image Captioning and Visual Question Answering."
-      }
-    ]
-  }
+    },
+    "displayName": "Uform-Gen2",
+    "version": "0.1.46",
+    "scope": "public",
+    "codebase": {
+        "type": "git",
+        "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+        "gitTag": "0.1.46"
+    },
+    "components": {
+        "computeConfigs": [
+            {
+                "name": "uform-gen2-qwen-500m-huggingface-deploy",
+                "secrets": [],
+                "runtime": {
+                    "podType": "regular-m",
+                    "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+                    "concurrency": 1,
+                    "autoscaler": {
+                        "type": "rabbitmq",
+                        "minReplicas": 0,
+                        "maxReplicas": 2,
+                        "queueLength": 1000
+                    },
+                    "preemptible": false
+                }
+            }
+        ],
+        "modules": [
+            {
+                "name": "uform-gen2-qwen-500m-module",
+                "entryPoint": "model_adapter.py",
+                "className": "ModelAdapter",
+                "computeConfig": "uform-gen2-qwen-500m-huggingface-deploy",
+                "initInputs": [
+                    {
+                        "type": "Model",
+                        "name": "model_entity"
+                    }
+                ],
+                "functions": [
+                    {
+                        "name": "predict_items",
+                        "input": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The input images for prediction."
+                            }
+                        ],
+                        "output": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The same input images for prediction."
+                            },
+                            {
+                                "type": "Annotation[]",
+                                "name": "annotations",
+                                "description": "The predicted annotations."
+                            }
+                        ],
+                        "displayName": "Predict Items",
+                        "displayIcon": "",
+                        "description": "The inference function of the model."
+                    },
+                    {
+                        "name": "predict_dataset",
+                        "input": [
+                            {
+                                "type": "Dataset",
+                                "name": "dataset",
+                                "description": "The input dataset of the items required for prediction."
+                            },
+                            {
+                                "type": "Json",
+                                "name": "filters",
+                                "description": "The DQL in json format to get all the items required for prediction."
+                            }
+                        ],
+                        "output": [],
+                        "displayName": "Predict Dataset",
+                        "displayIcon": "",
+                        "description": "Inference function of the model on a dataset."
+                    }
+                ]
+            }
+        ],
+        "models": [
+            {
+                "name": "uform-gen2-qwen-500m-huggingface-model",
+                "moduleName": "uform-gen2-qwen-500m-module",
+                "scope": "project",
+                "status": "pre-trained",
+                "configuration": {
+                    "module_name": "adapters.uform_gen2_qwen_500m.uform_gen2_qwen_500m",
+                    "device": "cpu",
+                    "captioning": false
+                },
+                "metadata": {},
+                "description": "UForm-Gen is a small generative vision-language model primarily designed for Image Captioning and Visual Question Answering."
+            }
+        ]
+    }
 }
