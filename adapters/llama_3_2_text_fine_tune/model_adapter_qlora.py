@@ -17,7 +17,12 @@ from datasets import load_dataset
 import subprocess
 import threading
 import time
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, AutoPeftModelForCausalLM
+from peft import (
+    LoraConfig,
+    get_peft_model,
+    prepare_model_for_kbit_training,
+    AutoPeftModelForCausalLM,
+)
 import glob
 
 logger = logging.getLogger("finetune-llama-qlora")
@@ -34,21 +39,31 @@ class ModelAdapter(dl.BaseModelAdapter):
             raise ValueError("Missing API key")
         login(token=hf_token)
 
-        model_name = self.model_entity.configuration.get("model_name", "meta-llama/Llama-3.2-1B-Instruct")
+        model_name = self.model_entity.configuration.get(
+            "model_name", "meta-llama/Llama-3.2-1B-Instruct"
+        )
         self.logger.info(f"Model name: {model_name}")
         model_path = self.model_entity.configuration.get("model_path")
 
         # If no local path is provided, use the model name
         if model_path is None:
-            self.logger.info("Preparing model and tokenizer for inference from HuggingFace {}".format(model_name))
+            self.logger.info(
+                "Preparing model and tokenizer for inference from HuggingFace {}".format(
+                    model_name
+                )
+            )
             self.model_path = model_name
         else:
             self.model_path = os.path.join(local_path, model_path)
-            self.logger.info("Preparing model and tokenizer for inference from {}".format(model_path))
+            self.logger.info(
+                "Preparing model and tokenizer for inference from {}".format(model_path)
+            )
 
-        self.model, self.tokenizer = self.create_model_and_tokenizer(model_path=self.model_path)
+        self.model, self.tokenizer = self.create_model_and_tokenizer(
+            model_path=self.model_path
+        )
 
-    def prepare_model_for_finetune(self,model_path):
+    def prepare_model_for_finetune(self, model_path):
         """
         Prepare the model and tokenizer for fine-tuning with QLoRA.
 
@@ -69,7 +84,6 @@ class ModelAdapter(dl.BaseModelAdapter):
         # Load 4-bit quantized model with CPU offloading enabled
         if torch.cuda.is_available() is False:
             raise ValueError("CUDA is not available! Check your GPU configuration.")
-
 
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
@@ -107,7 +121,11 @@ class ModelAdapter(dl.BaseModelAdapter):
         Load the model and tokenizer by name orfrom local path.
         """
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        tokenizer.pad_token = tokenizer.eos_token if tokenizer.pad_token_id is None else tokenizer.pad_token
+        tokenizer.pad_token = (
+            tokenizer.eos_token
+            if tokenizer.pad_token_id is None
+            else tokenizer.pad_token
+        )
         tokenizer.chat_template = """{{ bos_token }}{% for message in messages %}{% if (message['role'] == 'system') %}{{'<|system|>' + '
                             ' + message['content'] + '<|end|>' + '
                             '}}{% elif (message['role'] == 'user') %}{{'<|user|>' + '
@@ -118,11 +136,17 @@ class ModelAdapter(dl.BaseModelAdapter):
 
         if os.path.exists(model_path):
             model = AutoPeftModelForCausalLM.from_pretrained(
-                model_path, device_map="auto", torch_dtype=torch.bfloat16, trust_remote_code=True
+                model_path,
+                device_map="auto",
+                torch_dtype=torch.bfloat16,
+                trust_remote_code=True,
             )
         else:
             model = AutoModelForCausalLM.from_pretrained(
-                model_path, device_map="auto", torch_dtype=torch.bfloat16, trust_remote_code=True
+                model_path,
+                device_map="auto",
+                torch_dtype=torch.bfloat16,
+                trust_remote_code=True,
             )
 
         return model, tokenizer
@@ -148,11 +172,17 @@ class ModelAdapter(dl.BaseModelAdapter):
 
             for example in examples["messages"]:
                 # Flatten conversation into a structured format
-                text = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" for msg in example])
+                text = "\n".join(
+                    [f"{msg['role'].capitalize()}: {msg['content']}" for msg in example]
+                )
 
                 # Tokenize conversation
                 output = self.tokenizer(
-                    text, truncation=True, max_length=max_length, padding="max_length", return_tensors="pt"
+                    text,
+                    truncation=True,
+                    max_length=max_length,
+                    padding="max_length",
+                    return_tensors="pt",
                 )
 
                 # Remove batch dimension
@@ -163,11 +193,19 @@ class ModelAdapter(dl.BaseModelAdapter):
                 labels = input_ids.clone()
                 labels[labels == self.tokenizer.pad_token_id] = -100
 
-                tokenized_outputs.append({"input_ids": input_ids, "attention_mask": attention_mask, "labels": labels})
+                tokenized_outputs.append(
+                    {
+                        "input_ids": input_ids,
+                        "attention_mask": attention_mask,
+                        "labels": labels,
+                    }
+                )
 
             return {
                 "input_ids": torch.stack([x["input_ids"] for x in tokenized_outputs]),
-                "attention_mask": torch.stack([x["attention_mask"] for x in tokenized_outputs]),
+                "attention_mask": torch.stack(
+                    [x["attention_mask"] for x in tokenized_outputs]
+                ),
                 "labels": torch.stack([x["labels"] for x in tokenized_outputs]),
             }
 
@@ -235,13 +273,22 @@ class ModelAdapter(dl.BaseModelAdapter):
                 )
 
             # Items are not downloaded in prepare_data() because of the annotations filters
-            self.model_entity.dataset.items.download(filters=filters, local_path=data_subset_base_path)
+            self.model_entity.dataset.items.download(
+                filters=filters, local_path=data_subset_base_path
+            )
 
-        train_files = glob.glob(os.path.join(data_path, "train", "items", "**", "*.json"), recursive=True)
-        eval_files = glob.glob(os.path.join(data_path, "validation", "items", "**", "*.json"), recursive=True)
+        train_files = glob.glob(
+            os.path.join(data_path, "train", "items", "**", "*.json"), recursive=True
+        )
+        eval_files = glob.glob(
+            os.path.join(data_path, "validation", "items", "**", "*.json"),
+            recursive=True,
+        )
 
         # Prepare datasets
-        finetune_dataset = load_dataset("json", data_files={"train": train_files, "eval": eval_files})
+        finetune_dataset = load_dataset(
+            "json", data_files={"train": train_files, "eval": eval_files}
+        )
         self.train_dataset = self.preprocess_chatbot_dataset(finetune_dataset["train"])
         self.eval_dataset = self.preprocess_chatbot_dataset(finetune_dataset["eval"])
 
@@ -249,9 +296,11 @@ class ModelAdapter(dl.BaseModelAdapter):
         # Make sure CUDA is available
         if not torch.cuda.is_available():
             raise ValueError("CUDA is not available! Check your GPU configuration.")
-        
+
         # Prepare model and tokenizer for finetune
-        self.logger.info(f"Preparing model and tokenizer for finetune from {self.model_path}")
+        self.logger.info(
+            f"Preparing model and tokenizer for finetune from {self.model_path}"
+        )
         self.model = self.prepare_model_for_finetune(model_path=self.model_path)
 
         # Start GPU monitoring in a separate thread
@@ -266,8 +315,12 @@ class ModelAdapter(dl.BaseModelAdapter):
 
             # Training arguments setup
             num_train_epochs = self.configuration.get("num_train_epochs", 1)
-            per_device_train_batch_size = self.configuration.get("per_device_train_batch_size", 1)
-            gradient_accumulation_steps = self.configuration.get("gradient_accumulation_steps", 16)
+            per_device_train_batch_size = self.configuration.get(
+                "per_device_train_batch_size", 1
+            )
+            gradient_accumulation_steps = self.configuration.get(
+                "gradient_accumulation_steps", 16
+            )
             optim = self.configuration.get("optim", "paged_adamw_32bit")
             save_steps = self.configuration.get("save_steps", 10)
             logging_steps = self.configuration.get("logging_steps", 10)
@@ -278,8 +331,12 @@ class ModelAdapter(dl.BaseModelAdapter):
             group_by_length = self.configuration.get("group_by_length", True)
             save_total_limit = self.configuration.get("save_total_limit", 3)
             max_grad_norm = self.configuration.get("max_grad_norm", 0.3)
-            remove_unused_columns = self.configuration.get("remove_unused_columns", False)
-            gradient_checkpointing = self.configuration.get("gradient_checkpointing", True)
+            remove_unused_columns = self.configuration.get(
+                "remove_unused_columns", False
+            )
+            gradient_checkpointing = self.configuration.get(
+                "gradient_checkpointing", True
+            )
             use_reentrant = self.configuration.get("use_reentrant", False)
             report_to = self.configuration.get("report_to", ["tensorboard"])
             logging_first_step = self.configuration.get("logging_first_step", True)
@@ -360,13 +417,25 @@ class ModelAdapter(dl.BaseModelAdapter):
             tuple: Three lists containing free, total, and used memory for each GPU.
         """
         command = "nvidia-smi --query-gpu=memory.free --format=csv"
-        info = subprocess.check_output(command.split()).decode("ascii").split("\n")[:-1][1:]
+        info = (
+            subprocess.check_output(command.split())
+            .decode("ascii")
+            .split("\n")[:-1][1:]
+        )
         free = [int(x.split()[0]) for i, x in enumerate(info)]
         command = "nvidia-smi --query-gpu=memory.total --format=csv"
-        info = subprocess.check_output(command.split()).decode("ascii").split("\n")[:-1][1:]
+        info = (
+            subprocess.check_output(command.split())
+            .decode("ascii")
+            .split("\n")[:-1][1:]
+        )
         total = [int(x.split()[0]) for i, x in enumerate(info)]
         command = "nvidia-smi --query-gpu=memory.used --format=csv"
-        info = subprocess.check_output(command.split()).decode("ascii").split("\n")[:-1][1:]
+        info = (
+            subprocess.check_output(command.split())
+            .decode("ascii")
+            .split("\n")[:-1][1:]
+        )
         used = [int(x.split()[0]) for i, x in enumerate(info)]
         return free, total, used
 
@@ -380,7 +449,9 @@ class ModelAdapter(dl.BaseModelAdapter):
         while not self.stop_monitoring:
             try:
                 free, total, used = self.get_gpu_memory()
-                logger.info(f"GPU Memory - Total: {total}MB, Used: {used}MB, Free: {free}MB")
+                logger.info(
+                    f"GPU Memory - Total: {total}MB, Used: {used}MB, Free: {free}MB"
+                )
                 time.sleep(5)  # Check every 5 seconds
             except Exception as e:
                 logger.error(f"Error monitoring GPU: {e}")
@@ -435,7 +506,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         repetition_penalty = self.configuration.get("repetition_penalty", 1.1)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"Predicting on device: {device}")
-        
+
         for prompt_item in batch:
             # Get all messages including model annotations
             _messages = prompt_item.to_messages(model_name=model_name)
@@ -444,12 +515,16 @@ class ModelAdapter(dl.BaseModelAdapter):
 
             nearest_items = prompt_item.prompts[-1].metadata.get("nearestItems", [])
             if len(nearest_items) > 0:
-                context = prompt_item.build_context(nearest_items=nearest_items, add_metadata=add_metadata)
+                context = prompt_item.build_context(
+                    nearest_items=nearest_items, add_metadata=add_metadata
+                )
                 logger.info(f"Nearest items Context: {context}")
                 messages.append({"role": "assistant", "content": context})
 
             # Format the input using the chat template
-            prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            prompt = self.tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
 
             # Generate response
             inputs = self.tokenizer(prompt, return_tensors="pt").to(device)
@@ -468,12 +543,23 @@ class ModelAdapter(dl.BaseModelAdapter):
 
             # Decode correctly, removing input text
             response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            input_text = self.tokenizer.decode(inputs["input_ids"][0], skip_special_tokens=True)
-            response_text = response[len(input_text):].strip()
+            input_text = self.tokenizer.decode(
+                inputs["input_ids"][0], skip_special_tokens=True
+            )
+            response_text = response[len(input_text) :].strip()
 
             prompt_item.add(
-                message={"role": "assistant", "content": [{"mimetype": dl.PromptType.TEXT, "value": response_text}]},
-                model_info={"name": self.model_entity.name, "confidence": 1.0, "model_id": self.model_entity.id},
+                message={
+                    "role": "assistant",
+                    "content": [
+                        {"mimetype": dl.PromptType.TEXT, "value": response_text}
+                    ],
+                },
+                model_info={
+                    "name": self.model_entity.name,
+                    "confidence": 1.0,
+                    "model_id": self.model_entity.id,
+                },
             )
 
         return []
@@ -521,5 +607,49 @@ class SaveEpochCallback(TrainerCallback):
 
             logger.info(f"Model and tokenizer saved in {epoch_dir}")
         else:
-            logger.info(f"Skipping save for epoch {epoch} (Only saving every {self.save_every_n_epochs} epochs)")
+            logger.info(
+                f"Skipping save for epoch {epoch} (Only saving every {self.save_every_n_epochs} epochs)"
+            )
 
+
+if __name__ == "__main__":
+    # TODO remove once done building the adapter
+
+    ENV = "prod"
+    PROJECT_NAME = "yaya multimodal"
+    DATASET_NAME = "radiology prompt items"
+    MODEL_NAME = "llama-3-2-90b-vision-instruct"  # can use any to get it to work here
+
+    dl.setenv(ENV)
+    project = dl.projects.get(project_name=PROJECT_NAME)
+    dataset = project.datasets.get(dataset_name=DATASET_NAME)
+    model = project.models.get(model_name=MODEL_NAME)
+
+    model.metadata["system"] = {}
+    model.metadata["system"]["subsets"] = {}
+
+    train_filters = dl.Filters(field="metadata.system.tags.train", values=True)
+    val_filters = dl.Filters(field="metadata.system.tags.validation", values=True)
+
+    model.metadata["system"]["subsets"]["train"] = train_filters.prepare()
+    model.metadata["system"]["subsets"]["validation"] = val_filters.prepare()
+    model.configuration = {
+        "system_prompt": "You are a helpful and a bit cynical assistant. Give relevant and short answers, if you dont know the answer just say it, dont make up an answer",
+        "max_tokens": 1024,
+        "temperature": 0.2,
+        "top_p": 0.7,
+        "seed": 0,
+        "stream": True,
+    }
+    model.output_type = "text"
+    try:
+        model_name = "llama vision SFT"
+        model_delete = project.models.get(model_name=model_name)
+        if model_delete:
+            model_delete.delete()
+    except Exception as e:
+        print("no model to delete. continuing...")
+    new_model = model.clone(model_name=model_name, dataset=dataset)
+
+    app = ModelAdapter()
+    app.train_model(new_model)

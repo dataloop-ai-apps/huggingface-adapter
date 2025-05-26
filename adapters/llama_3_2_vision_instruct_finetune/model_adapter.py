@@ -1,234 +1,219 @@
-import time
 import os
-import glob
 import json
+import time
 import torch
 import base64
 import logging
-import threading
-import subprocess
-import transformers
-
 import dtlpy as dl
 
-from PIL import Image
-from io import BytesIO
-from datasets import load_dataset
+from concurrent.futures import ThreadPoolExecutor
+from datasets import Dataset
+from datetime import datetime
 from huggingface_hub import login
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, AutoPeftModelForCausalLM
-from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    TrainingArguments,
-    BitsAndBytesConfig,
-    Trainer,
-    TrainerCallback,
+from io import BytesIO
+from pathlib import Path
+from peft import PeftModel, LoraConfig, get_peft_model
+from PIL import Image
+from transformers import AutoProcessor, MllamaForConditionalGeneration, Trainer, TrainerCallback, TrainingArguments
+
+# Configure logging TODO REMOVE
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(), logging.FileHandler("llama_vision.log")],  # Print to console  # Save to file
 )
 
-logger = logging.getLogger("[finetune-llama-vision]")
+logger = logging.getLogger("[llama-vision-finetune]")
 
 
 class ModelAdapter(dl.BaseModelAdapter):
+    """
+    Model Adapter for Llama Vision model from Meta
+    """
+
     def load(self, local_path, **kwargs):
-        self.adapter_defaults.upload_annotations = False
+        """Load the model and processor from local path."""
+        self.hf_token = os.environ.get("HUGGINGFACE_TOKEN")
+        if self.hf_token is None:
+            raise ValueError("Missing HUGGINGFACE_TOKEN environment variable")
+        login(token=self.hf_token)
 
-        # Llama 3.2 model requires a token
-        hf_token = os.environ.get("HUGGINGFACE_TOKEN")
-        if hf_token is None:
-            raise ValueError("Missing API key")
-        login(token=hf_token)
+        hf_model_name = self.model_entity.configuration.get("model_name", "meta-llama/Llama-3.2-11B-Vision")
+        logger.info(f"Model name: {hf_model_name}")
+        self.device = self.model_entity.configuration.get(
+            "device", torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        )
 
-        model_name = self.model_entity.configuration.get("model_name", "meta-llama/Llama-3.2-11B-Vision-Instruct")
-        self.logger.info(f"Model name: {model_name}")
-        model_path = self.model_entity.configuration.get("model_path")
+        # load base model
+        logger.info(f"Downloading model from HuggingFace {hf_model_name}")
+        base_model, self.processor = self._prepare_model_and_tokenizer(ckpt=hf_model_name)
 
-        # If no local path is provided, use the model name
-        if model_path is None:
-            self.logger.info("Preparing model and tokenizer for inference from HuggingFace {}".format(model_name))
-            self.model_path = model_name
+        # check if lora adapter weights exist
+        lora_dir = os.path.join(local_path)
+        if os.path.exists(lora_dir) is True:
+            logger.info(f"Loading LoRA weights from {lora_dir}")
+            model_to_merge = PeftModel.from_pretrained(base_model, lora_dir, device_map=self.device)
+            merged_model = model_to_merge.merge_and_unload()
+            self.model = merged_model
         else:
-            self.model_path = os.path.join(local_path, model_path)
-            self.logger.info("Preparing model and tokenizer for inference from {}".format(model_path))
+            self.model = base_model
 
-        self.model, self.tokenizer = self.create_model_and_tokenizer(model_path=self.model_path)
+    def save(self, local_path, **kwargs):
+        """Save the model and processor to Dataloop"""
+        self.model.save_pretrained(save_directory=local_path)
+        self.processor.save_pretrained(save_directory=local_path)
+        logger.info(f"Successfully saved trained LoRA weights to {local_path}")
 
-    @staticmethod
-    def prepare_model_and_tokenizer_for_finetune(model_path):
-        """
-        Prepare the model and tokenizer for fine-tuning with QLoRA.
+    def prepare_item_func(self, item: dl.Item):
+        """Prepare item for prediction"""
+        prompt_item = dl.PromptItem.from_item(item)
+        return prompt_item
 
-        This function loads a 4-bit quantized model with CPU offloading enabled,
-        ensuring that the model is ready for k-bit training. It also sets up the
-        tokenizer with necessary tokens and configurations.
+    def predict(self, batch, **kwargs):
+        """Make predictions using the model."""
+        try:
+            system_prompt = self.model_entity.configuration.get("system_prompt", None)
+            # Retrieve generation parameters from configuration
+            max_new_tokens = self.configuration.get("max_new_tokens", 512)
+            temperature = self.configuration.get("temperature", 0.7)
+            do_sample = self.configuration.get("do_sample", True)
+            use_cache = self.configuration.get("use_cache", True)
+            top_p = self.configuration.get("top_p", 0.9)
+            # repetition_penalty = self.configuration.get("repetition_penalty", 1.1) # https://discuss.huggingface.co/t/issues-when-fine-tuning-llama-3-2-11b-vision/153972
 
-        Parameters:
-        - model_path (str): The path to the local model or the model name from HuggingFace.
+            logger.info(f"Predicting on device: {self.device}")
+            logger.info(f"Available GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
 
-        Returns:
-        - model (transformers.PreTrainedModel): The prepared model ready for fine-tuning.
-        - tokenizer (transformers.PreTrainedTokenizer): The tokenizer associated with the model.
+            with torch.amp.autocast(device_type=self.device.type):
+                for prompt_item in batch:
+                    try:
+                        _messages = prompt_item.to_messages()
+                        prompt_txt, image = ModelAdapter._reformat_messages(_messages, system_prompt)
 
-        Raises:
-        - ValueError: If CUDA is not available, indicating a potential issue with the GPU configuration.
-        """
-        # Load 4-bit quantized model with CPU offloading enabled
-        if torch.cuda.is_available() is False:
-            raise ValueError("CUDA is not available! Check your GPU configuration.")
+                        logger.info(f"Prompt text: {prompt_txt}")
+                        logger.info(f"Processing image of size: {image.size}")
 
-        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        if not tokenizer.pad_token_id:
-            tokenizer.pad_token = tokenizer.eos_token
+                        # prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n<|image|>Answer briefly. <|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{prompt_txt}<|eot_id|>"
+                        prompt_content = [{"type": "image", "image": image}, {"type": "text", "text": prompt_txt}]
+                        prompt = self.processor.apply_chat_template(
+                            [{"role": "user", "content": prompt_content}], add_generation_prompt=True
+                        )
 
-        tokenizer.chat_template = """{{ bos_token }}{% for message in messages %}{% if (message['role'] == 'system') %}{{'<|system|>' + '
-                                    ' + message['content'] + '<|end|>' + '
-                                    '}}{% elif (message['role'] == 'user') %}{{'<|user|>' + '
-                                    ' + message['content'] + '<|end|>' + '
-                                    ' + '<|assistant|>' + '
-                                    '}}{% elif message['role'] == 'assistant' %}{{message['content'] + '<|end|>' + '
-                                    '}}{% endif %}{% endfor %}"""
+                        # Process the image and text together
+                        inputs = self.processor(text=prompt, images=image, return_tensors="pt", padding=True).to(
+                            self.device
+                        )
+                        logger.info("Generating response...")
 
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.bfloat16,
+                        outputs = self.model.generate(
+                            **inputs,
+                            max_new_tokens=max_new_tokens,
+                            temperature=temperature,
+                            do_sample=do_sample,
+                            use_cache=use_cache,
+                            top_p=top_p,
+                        ).to(self.device)
+                        # response = self.processor.batch_decode(outputs[0], skip_special_tokens=True)
+                        response = self.processor.decode(outputs[0][inputs["input_ids"].shape[-1] :])
+
+                        logger.info(f"Response: {response}")
+                        prompt_item.add(
+                            message={
+                                "role": "assistant",
+                                "content": [{"mimetype": dl.PromptType.TEXT, "value": response}],
+                            },
+                            model_info={
+                                "name": self.model_entity.name,
+                                "confidence": 1.0,
+                                "model_id": self.model_entity.id,
+                            },
+                        )
+                    except Exception as e:
+                        logger.error(f"Error processing item: {str(e)}")
+                        continue
+
+        except Exception as e:
+            logger.error(f"Error in predict: {str(e)}")
+            raise
+
+        return []
+
+    def train(self, data_path, output_path, **kwargs):
+        """Train the model using the provided training data."""
+        configs = self.model_entity.configuration
+        # Configure training arguments
+        num_train_epochs = configs.get("num_train_epochs", 10)
+        per_device_train_batch_size = configs.get("per_device_train_batch_size", 5)
+        gradient_accumulation_steps = configs.get("gradient_accumulation_steps", 16)
+        warmup_steps = configs.get("warmup_steps", 2)
+        learning_rate = configs.get("learning_rate", 2e-4)
+        weight_decay = configs.get("weight_decay", 1e-6)
+        adam_beta2 = configs.get("adam_beta2", 0.999)
+        optim = configs.get("optim", "paged_adamw_32bit")
+        bf16 = configs.get("bf16", True)
+        save_strategy = configs.get("save_strategy", "epoch")
+        logging_strategy = configs.get("logging_strategy", "epoch")
+        evaluation_strategy = configs.get("evaluation_strategy", "epoch")
+        remove_unused_columns = configs.get("remove_unused_columns", False)
+        output_dir = output_path
+        dataloader_pin_memory = configs.get("dataloader_pin_memory", False)
+
+        # Configure training arguments
+        training_args = TrainingArguments(
+            num_train_epochs=num_train_epochs,
+            per_device_train_batch_size=per_device_train_batch_size,
+            gradient_accumulation_steps=gradient_accumulation_steps,
+            warmup_steps=warmup_steps,
+            learning_rate=learning_rate,
+            weight_decay=weight_decay,
+            adam_beta2=adam_beta2,
+            optim=optim,
+            bf16=bf16,
+            remove_unused_columns=remove_unused_columns,
+            save_strategy=save_strategy,
+            logging_strategy=logging_strategy,
+            evaluation_strategy=evaluation_strategy,
+            output_dir=output_dir,
+            dataloader_pin_memory=dataloader_pin_memory,
         )
 
-        model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            quantization_config=bnb_config,
-            torch_dtype=torch.bfloat16,
-            device_map="auto",
-            trust_remote_code=True,
-            use_cache=False,
+        # Create save callback
+        save_callback = SaveEpochCallback(
+            save_path=output_path, tokenizer=self.processor, model_entity=self.model_entity
         )
 
-        # Prepare model for k-bit training
-        model = prepare_model_for_kbit_training(model)
+        # Get training data
+        train_dataset, val_dataset = self.convert_from_dtlpy(data_path)
 
-        # Enable gradient checkpointing
-        model.gradient_checkpointing_enable()
-        model.enable_input_require_grads()
-
-        # Ensure all necessary tokens are set
-        model.config.pad_token_id = tokenizer.pad_token_id
-        model.config.bos_token_id = tokenizer.bos_token_id
-        model.config.eos_token_id = tokenizer.eos_token_id
-
-        return model, tokenizer
-
-    @staticmethod
-    def create_model_and_tokenizer(model_path):
-        """
-        Load the model and tokenizer by name or from local path.
-        """
-        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        tokenizer.pad_token = tokenizer.eos_token if tokenizer.pad_token_id is None else tokenizer.pad_token
-
-        if os.path.exists(model_path):
-            model = AutoPeftModelForCausalLM.from_pretrained(
-                model_path, device_map="auto", torch_dtype=torch.bfloat16, trust_remote_code=True
-            )
-        else:
-            model = AutoModelForCausalLM.from_pretrained(
-                model_path, device_map="auto", torch_dtype=torch.bfloat16, trust_remote_code=True
-            )
-
-        return model, tokenizer
-
-    def preprocess_chatbot_dataset(self, dataset, max_length=1024):
-        """
-        Preprocesses a chat-based dataset for fine-tuning an LLM.
-
-        - Formats messages into structured dialogue.
-        - Tokenizes text with truncation and padding.
-        - Masks padding tokens in labels (-100) for loss calculation.
-
-        Args:
-            dataset: Hugging Face Dataset object or list of dictionaries.
-            max_length: Maximum sequence length.
-
-        Returns:
-            Tokenized dataset with input_ids, attention_mask, and labels.
-        """
-
-        def process_function(examples):
-            tokenized_outputs = []
-
-            for example in examples["messages"]:
-                # Flatten conversation into a structured format
-                text = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" for msg in example])
-
-                # Tokenize conversation
-                output = self.tokenizer(
-                    text, truncation=True, max_length=max_length, padding="max_length", return_tensors="pt"
-                )
-
-                # Remove batch dimension
-                input_ids = output["input_ids"].squeeze(0)
-                attention_mask = output["attention_mask"].squeeze(0)
-
-                # Create labels (mask padding tokens with -100)
-                labels = input_ids.clone()
-                labels[labels == self.tokenizer.pad_token_id] = -100
-
-                tokenized_outputs.append({"input_ids": input_ids, "attention_mask": attention_mask, "labels": labels})
-
-            return {
-                "input_ids": torch.stack([x["input_ids"] for x in tokenized_outputs]),
-                "attention_mask": torch.stack([x["attention_mask"] for x in tokenized_outputs]),
-                "labels": torch.stack([x["labels"] for x in tokenized_outputs]),
-            }
-
-        # Apply processing to the dataset
-        processed_dataset = dataset.map(
-            process_function,
-            batched=True,
-            batch_size=8,  # Adjust batch size as needed
-            remove_columns=dataset.column_names,
-            load_from_cache_file=False,
+        # Initialize trainer
+        trainer = Trainer(
+            model=self.model,
+            train_dataset=train_dataset,
+            eval_dataset=val_dataset,
+            args=training_args,
+            data_collator=self._process_inputs,
+            callbacks=[save_callback],
         )
+        trainer.can_return_loss = True  # https://github.com/huggingface/peft/issues/1881
 
-        processed_dataset.set_format(type="torch")
-
-        return processed_dataset
-
-    def setup_peft_config(self):
-        """
-        Setup the PEFT configuration for the model.
-        """
-        # Find target modules by inspecting the model's named modules
-        target_modules = self.configuration.get("target_modules", [])
-        if target_modules == []:
-            for name, module in self.model.named_modules():
-                # Check if the module is of a supported type
-                if isinstance(
-                    module,
-                    (
-                        torch.nn.Linear,
-                        torch.nn.Embedding,
-                        torch.nn.Conv2d,
-                        torch.nn.Conv3d,
-                        transformers.pytorch_utils.Conv1D,
-                    ),
-                ):
-                    target_modules.append(name)
-
-        # Log the identified target modules
-        logger.info(f"Identified target modules for LoRA: {target_modules}")
-
-        return LoraConfig(
-            r=self.configuration.get("r", 16),
-            lora_alpha=self.configuration.get("lora_alpha", 32),
-            target_modules=target_modules,
-            lora_dropout=self.configuration.get("lora_dropout", 0.05),
-            bias="none",
-            task_type=self.configuration.get("task_type", "CAUSAL_LM"),
-        )
+        # Train
+        trainer.train()
 
     def convert_from_dtlpy(self, data_path, **kwargs):
+        """Convert Dataloop data to format suitable for training."""
         # Subsets validation
         subsets = self.model_entity.metadata.get("system", {}).get("subsets", None)
+        if "train" not in subsets:
+            raise ValueError(
+                "Could not find train set. Llama Vision requires train and validation set for training. "
+                "Add a train set DQL filter in the dl.Model metadata"
+            )
+        if "validation" not in subsets:
+            raise ValueError(
+                "Could not find validation set. Llama Vision requires train and validation set for training. "
+                "Add a validation set DQL filter in the dl.Model metadata"
+            )
+
         for subset, filters_dict in subsets.items():
             data_subset_base_path = os.path.join(data_path, subset)
             # Add json type validation
@@ -246,328 +231,376 @@ class ModelAdapter(dl.BaseModelAdapter):
             # Items are not downloaded in prepare_data() because of the annotations filters
             self.model_entity.dataset.items.download(filters=filters, local_path=data_subset_base_path)
 
-        train_files = glob.glob(os.path.join(data_path, "train", "items", "**", "*.json"), recursive=True)
-        eval_files = glob.glob(os.path.join(data_path, "validation", "items", "**", "*.json"), recursive=True)
+        # Get image-text pairs for training and validation
+        train_items, train_captions = self._get_img_txt_pairs(os.path.join(data_path, "train"), overwrite=False)
+        val_items, val_captions = self._get_img_txt_pairs(os.path.join(data_path, "validation"), overwrite=False)
 
-        # Prepare datasets
-        finetune_dataset = load_dataset("json", data_files={"train": train_files, "eval": eval_files})
-        self.train_dataset = self.preprocess_chatbot_dataset(finetune_dataset["train"])
-        self.eval_dataset = self.preprocess_chatbot_dataset(finetune_dataset["eval"])
+        logger.info(f"number of train items: {len(train_items)}")
+        logger.info(f"number of val items: {len(val_items)}")
 
-    def train(self, data_path, output_path, **kwargs):
-        # Make sure CUDA is available
-        if not torch.cuda.is_available():
-            raise ValueError("CUDA is not available! Check your GPU configuration.")
-        
-        # Prepare model and tokenizer for finetune
-        self.logger.info(f"Preparing model and tokenizer for finetune from {self.model_path}")
-        self.model, self.tokenizer = self.prepare_model_and_tokenizer_for_finetune(model_path=self.model_path)
+        # Convert to Dataset objects
+        train_dataset = Dataset.from_list(
+            [{"image": img, "caption": cap} for img, cap in zip(train_items, train_captions)]
+        )
+        val_dataset = Dataset.from_list([{"image": img, "caption": cap} for img, cap in zip(val_items, val_captions)])
 
-        # Start GPU monitoring in a separate thread
-        torch.cuda.empty_cache()
-        monitor_thread = threading.Thread(target=self.keep, daemon=True)
-        monitor_thread.start()
+        return train_dataset, val_dataset
 
-        try:
-            peft_config = self.setup_peft_config()
-            self.peft_model = get_peft_model(self.model, peft_config)
-            logger.info(self.peft_model.print_trainable_parameters())
+    def _prepare_model_and_tokenizer(self, ckpt=None):
+        """Prepare the vision-language model and tokenizer for predicting or training LoRA."""
+        use_lora = self.configuration.get("use_lora", True)
+        freeze_llm = self.configuration.get("freeze_llm", False)
+        freeze_image = self.configuration.get("freeze_image", False)
 
-            # Training arguments setup
-            num_train_epochs = self.configuration.get("num_train_epochs", 1)
-            per_device_train_batch_size = self.configuration.get("per_device_train_batch_size", 1)
-            gradient_accumulation_steps = self.configuration.get("gradient_accumulation_steps", 16)
-            optim = self.configuration.get("optim", "paged_adamw_32bit")
-            save_steps = self.configuration.get("save_steps", 10)
-            logging_steps = self.configuration.get("logging_steps", 10)
-            learning_rate = self.configuration.get("learning_rate", 2e-4)
-            warmup_ratio = self.configuration.get("warmup_ratio", 0.03)
-            lr_scheduler_type = self.configuration.get("lr_scheduler_type", "constant")
-            bf16 = self.configuration.get("bf16", True)
-            group_by_length = self.configuration.get("group_by_length", True)
-            save_total_limit = self.configuration.get("save_total_limit", 3)
-            max_grad_norm = self.configuration.get("max_grad_norm", 0.3)
-            remove_unused_columns = self.configuration.get("remove_unused_columns", False)
-            gradient_checkpointing = self.configuration.get("gradient_checkpointing", True)
-            use_reentrant = self.configuration.get("use_reentrant", False)
-            report_to = self.configuration.get("report_to", ["tensorboard"])
-            logging_first_step = self.configuration.get("logging_first_step", True)
-            log_level = self.configuration.get("log_level", "info")
-            logging_strategy = self.configuration.get("logging_strategy", "steps")
-
-            # Create training arguments
-            training_args = TrainingArguments(
-                output_dir=output_path,
-                num_train_epochs=num_train_epochs,
-                per_device_train_batch_size=per_device_train_batch_size,
-                gradient_accumulation_steps=gradient_accumulation_steps,
-                optim=optim,
-                save_steps=save_steps,
-                logging_steps=logging_steps,
-                learning_rate=learning_rate,
-                warmup_ratio=warmup_ratio,
-                lr_scheduler_type=lr_scheduler_type,
-                bf16=bf16,
-                group_by_length=group_by_length,
-                save_total_limit=save_total_limit,
-                max_grad_norm=max_grad_norm,
-                remove_unused_columns=remove_unused_columns,
-                gradient_checkpointing=gradient_checkpointing,
-                gradient_checkpointing_kwargs={"use_reentrant": use_reentrant},
-                report_to=report_to,
-                logging_dir=os.path.join(output_path, "logs"),
-                logging_first_step=logging_first_step,
-                log_level=log_level,
-                logging_strategy=logging_strategy,
+        if use_lora is True:
+            lora_config = LoraConfig(
+                r=self.configuration.get("r", 8),
+                lora_alpha=self.configuration.get("lora_alpha", 8),
+                lora_dropout=self.configuration.get("lora_dropout", 0.1),
+                target_modules=self.configuration.get(
+                    "target_modules", ["down_proj", "o_proj", "k_proj", "q_proj", "gate_proj", "up_proj", "v_proj"]
+                ),
+                use_dora=self.configuration.get("use_dora", True),  # optional DoRA
+                init_lora_weights=self.configuration.get("init_lora_weights", "gaussian"),
             )
 
-            logger.info(f"\nTraining arguments:\n{training_args}")
-
-            # Create callback for epoch-end saving
-            save_callback = SaveEpochCallback(
-                save_path=os.path.join(output_path, "checkpoints"),
-                tokenizer=self.tokenizer,
-                save_every_n_epochs=self.configuration.get("save_every_n_epochs", 1),
+            # Initialize model with proper device handling
+            model = MllamaForConditionalGeneration.from_pretrained(
+                ckpt,
+                torch_dtype=torch.bfloat16,
+                device_map=self.device,
+                low_cpu_mem_usage=True,  # Enable low CPU memory usage
             )
 
-            # Create trainer and start training
-            self.trainer = Trainer(
-                model=self.peft_model,
-                train_dataset=self.train_dataset,
-                eval_dataset=self.eval_dataset,
-                args=training_args,
-                callbacks=[save_callback],
+            # Apply LoRA
+            model = get_peft_model(model, lora_config)
+            model.print_trainable_parameters()
+
+        elif freeze_image is True:
+            if freeze_llm is True:
+                raise ValueError("You cannot freeze image encoder and text decoder at the same time.")
+            model = MllamaForConditionalGeneration.from_pretrained(
+                ckpt, torch_dtype=torch.bfloat16, device_map=self.device
             )
-            self.trainer.train()
+            # freeze vision model to save up on compute
+            for param in model.vision_model.parameters():
+                param.requires_grad = False
 
-        except Exception as e:
-            raise Exception(f"Training error: {e}") from e
+        elif freeze_llm is True:
+            if freeze_image is True:
+                raise ValueError("You cannot freeze image encoder and text decoder at the same time.")
+            model = MllamaForConditionalGeneration.from_pretrained(
+                ckpt, torch_dtype=torch.bfloat16, device_map=self.device
+            )
+            # freeze text model, this is encouraged in paper
+            for param in model.language_model.parameters():
+                param.requires_grad = False
 
-        finally:
-            # Training finished or error - stop monitoring
-            self.stop_monitoring = True
-            monitor_thread.join(timeout=5)  # Wait for monitoring thread to finish
+        else:  # full ft
+            model = MllamaForConditionalGeneration.from_pretrained(
+                ckpt, torch_dtype=torch.bfloat16, device_map=self.device
+            )
 
-    def save(self, local_path, **kwargs):
-        """
-        Saves the fine-tuned model and tokenizer to the specified path.
+        processor = AutoProcessor.from_pretrained(ckpt)
 
-        Args:
-            local_path (str): Path where the model will be saved.
-            **kwargs: Additional arguments.
-        """
-        final_save_path = os.path.join(local_path, "best")
-        self.peft_model.save_pretrained(save_directory=final_save_path)
-        self.tokenizer.save_pretrained(save_directory=final_save_path)
-        self.configuration["model_path"] = "best"
+        return model, processor
 
-    def get_gpu_memory(self):
-        """
-        Retrieves current GPU memory usage information.
+    def _process_inputs(self, examples):
+        """Prepare items for training or inference."""
+        texts = [
+            f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n<|image|>Answer briefly. <|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{example['caption']}<|eot_id|>"
+            for example in examples
+        ]
+        images = [[example["image"].convert("RGB")] for example in examples]
 
-        Returns:
-            tuple: Three lists containing free, total, and used memory for each GPU.
-        """
-        command = "nvidia-smi --query-gpu=memory.free --format=csv"
-        info = subprocess.check_output(command.split()).decode("ascii").split("\n")[:-1][1:]
-        free = [int(x.split()[0]) for i, x in enumerate(info)]
-        command = "nvidia-smi --query-gpu=memory.total --format=csv"
-        info = subprocess.check_output(command.split()).decode("ascii").split("\n")[:-1][1:]
-        total = [int(x.split()[0]) for i, x in enumerate(info)]
-        command = "nvidia-smi --query-gpu=memory.used --format=csv"
-        info = subprocess.check_output(command.split()).decode("ascii").split("\n")[:-1][1:]
-        used = [int(x.split()[0]) for i, x in enumerate(info)]
-        return free, total, used
+        batch = self.processor(text=texts, images=images, return_tensors="pt", padding=True)
+        labels = batch["input_ids"].clone()
+        labels[labels == self.processor.tokenizer.pad_token_id] = -100
+        labels[labels == 128256] = -100  # image token index
+        batch["labels"] = labels
+        batch = batch.to(torch.bfloat16).to("cuda")
 
-    def keep(self):
-        """
-        Monitors GPU memory usage during training in a separate thread.
-
-        Continuously logs GPU memory statistics until training completes.
-        """
-        self.stop_monitoring = False
-        while not self.stop_monitoring:
-            try:
-                free, total, used = self.get_gpu_memory()
-                logger.info(f"GPU Memory - Total: {total}MB, Used: {used}MB, Free: {free}MB")
-                time.sleep(5)  # Check every 5 seconds
-            except Exception as e:
-                logger.error(f"Error monitoring GPU: {e}")
-                break
+        return batch
 
     @staticmethod
-    def reformat_messages(messages):
-        """
-        Convert OpenAI message format to HTTP request format.
-        This function takes messages formatted for OpenAI's API and transforms them into a format suitable for HTTP
-        requests.
+    def _reformat_messages(messages, system_prompt=None):
+        # In case of multiple messages,
+        # we assume the last user message contains the image of interest
 
-        :param messages: A list of messages in the OpenAI format.
-        :return: A list of messages reformatted for HTTP requests.
-        """
-        reformat_messages = list()
-        for message in messages:
-            content = message["content"]
-            question = content[0][content[0].get("type")]
-            role = message["role"]
+        last_user_message = ModelAdapter._get_last_prompt_message(messages)
 
-            reformat_message = {"role": role, "content": question}
-            reformat_messages.append(reformat_message)
-        return reformat_messages
+        prompt_txt = None
+        image = None
 
-    def prepare_item_func(self, item: dl.Item):
-        prompt_item = dl.PromptItem.from_item(item)
-        return prompt_item
+        # The last user message may contain multiple contents,
+        # such as a text component and an image component
+        # or multiple text components (e.g., multiple questions)
+        for content in last_user_message["content"]:
 
-    def process_image(self, image_data):
-        """
-        Process image data from various formats (base64, PIL Image, or file path).
-        
-        Args:
-            image_data: Image data in base64 string, PIL Image, or file path format.
-            
-        Returns:
-            PIL Image object ready for model input.
-        """
-        if isinstance(image_data, str):
-            if image_data.startswith('data:image'):
-                # Handle base64 encoded image
-                image_data = image_data.split(',')[1]
-                image_bytes = base64.b64decode(image_data)
-                image = Image.open(BytesIO(image_bytes))
+            content_type = content.get("type", None)
+            if content_type is None:
+                raise ValueError("Message content type not found")
+
+            if content_type == "text":
+                # Concatenate multiple text contents with space
+                new_text = content.get("text", "").strip()
+                if new_text:
+                    if prompt_txt is None:
+                        prompt_txt = new_text
+                    else:
+                        prompt_txt = f"{prompt_txt} {new_text}".strip()
+
+            elif content_type == "image_url":
+                image_url = content.get("image_url", {}).get("url")
+                if image_url is not None:
+                    if image is not None:  # i.e., we previously found an image
+                        raise ValueError("Multiple images not supported")
+                    else:
+                        base64_str = content["image_url"]["url"].split("base64,")[1]
+                        image_buffer = BytesIO(base64.b64decode(base64_str))
+                        image = Image.open(image_buffer).convert("RGB")
             else:
-                # Handle file path
-                image = Image.open(image_data)
-        elif isinstance(image_data, Image.Image):
-            image = image_data
-        else:
-            raise ValueError("Unsupported image format")
+                raise ValueError(f"Unsupported content type: {content_type}")
 
-        # Convert to RGB if necessary
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
-            
-        return image
+        if prompt_txt is None:
+            if system_prompt is not None:
+                prompt_txt = system_prompt
+            else:
+                prompt_txt = "What is in this image?"
+        prompt_txt = "Question: {} Answer:".format(prompt_txt)
 
-    def predict(self, batch, **kwargs):
-        """
-        Performs inference on a batch of items using the loaded model.
+        if image is None:
+            raise ValueError("No image found in messages.")
 
-        Processes each prompt item in the batch, generates responses using
-        the model, and adds the responses back to the prompt items.
+        return prompt_txt, image
 
-        Args:
-            batch: List of prompt items to process.
-            **kwargs: Additional arguments.
+    @staticmethod
+    def _get_last_prompt_message(messages):
+        text = None
+        try:
+            for message in reversed(messages):
+                if message.get("role") == "user":
+                    text = message
+        except Exception as e:
+            logger.error(f"Error getting last message from messages: {e}. Skipping...")
+        return text
 
-        Returns:
-            list: Empty list (annotations are added directly to prompt items).
-        """
-        system_prompt = self.model_entity.configuration.get("system_prompt", "")
-        add_metadata = self.configuration.get("add_metadata")
-        model_name = self.model_entity.name
-        # Retrieve generation parameters from configuration
-        max_new_tokens = self.configuration.get("max_new_tokens", 512)
-        temperature = self.configuration.get("temperature", 0.7)
-        do_sample = self.configuration.get("do_sample", True)
-        top_p = self.configuration.get("top_p", 0.95)
-        repetition_penalty = self.configuration.get("repetition_penalty", 1.1)
+    @staticmethod
+    def _get_img_txt_pairs(data_path, overwrite=False):
+        """Get image-text pairs from downloaded Dataloop items."""
+        logger.debug(f"Data path: {data_path}")
+        path = Path(data_path)
 
-        for prompt_item in batch:
-            # Get all messages including model annotations
-            _messages = prompt_item.to_messages(model_name=model_name)
-            messages = self.reformat_messages(_messages)
-            messages.insert(0, {"role": "system", "content": system_prompt})
+        # List all downloaded prompt item jsons and download images from link
+        item_jsons = (path / "items").rglob("*.json")
+        with ThreadPoolExecutor() as executor:
+            images = list(executor.map(lambda item_file: ModelAdapter._load_stream(item_file, overwrite), item_jsons))
+        # image_paths = []  # DEBUG
+        # for item_file in item_jsons:
+        #     image_paths.append(_download_stream(item_file, overwrite))
 
-            # Process image if present in the prompt
-            image = None
-            for message in messages:
-                if isinstance(message.get("content"), list):
-                    for content in message["content"]:
-                        if content.get("type") == "image":
-                            image = self.process_image(content.get("value"))
-                            break
-                    if image:
-                        break
+        item_captions = []
+        annots_files = (path / "json").rglob("*.json")
+        for src_file in annots_files:
+            with open(src_file, "r") as f:
+                data = json.load(f)
+            if len(data["annotations"]) > 0:
+                annot = data["annotations"][0]
+                if annot["label"] == "free-text":
+                    item_captions.append(annot.get("coordinates", ""))
+                else:
+                    raise TypeError(
+                        f"No free-text annotation found in json file {src_file}. Please check annotation type."
+                    )
+            else:
+                raise ValueError(f"No annotations found in json file {src_file} to use as image caption.")
 
-            nearest_items = prompt_item.prompts[-1].metadata.get("nearestItems", [])
-            if len(nearest_items) > 0:
-                context = prompt_item.build_context(nearest_items=nearest_items, add_metadata=add_metadata)
-                logger.info(f"Nearest items Context: {context}")
-                messages.append({"role": "assistant", "content": context})
+        # Clean up empty directories
+        for root, dirs, files in os.walk(data_path, topdown=False):
+            for dir_name in dirs:
+                dir_path = os.path.join(root, dir_name)
+                if not os.listdir(dir_path):
+                    os.rmdir(dir_path)
 
-            # Format the input using the chat template
-            prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        return images, item_captions
 
-            # Prepare inputs
-            inputs = self.tokenizer(prompt, return_tensors="pt").to("cuda")
-            
-            # Add image to inputs if present
-            if image:
-                inputs["images"] = image
+    @staticmethod
+    def _load_stream(item_file, overwrite=False):
+        """Download image from Dataloop item."""
+        with open(item_file) as json_data:
+            d = json.load(json_data)
+        img_prompt = next(iter(d["prompts"].values()))
 
-            outputs = self.model.generate(
-                **inputs,
-                max_new_tokens=max_new_tokens,
-                pad_token_id=self.tokenizer.pad_token_id,
-                temperature=temperature,
-                do_sample=do_sample,
-                top_p=top_p,
-                repetition_penalty=repetition_penalty,
-            )
+        item_url = None
+        for dictionary in img_prompt:
+            if dictionary.get("mimetype") == "image/*":
+                item_url = dictionary.get("value")
+                break
+        if item_url is None:
+            raise ValueError(f"Image URL not found in prompt item {Path(item_file).name}.")
 
-            # Decode correctly, removing input text
-            response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            response_text = response[len(prompt):].strip()
+        item_id = item_url.split("/")[-2]
+        item = dl.items.get(item_id=item_id)
+        download_path = item.download(local_path=Path(item_file).parents[0])
+        image_name = Path(item_file).stem + Path(download_path).suffix
+        new_path = Path(item_file).parents[0] / image_name
 
-            prompt_item.add(
-                message={"role": "assistant", "content": [{"mimetype": dl.PromptType.TEXT, "value": response_text}]},
-                model_info={"name": self.model_entity.name, "confidence": 1.0, "model_id": self.model_entity.id},
-            )
+        try:
+            os.rename(Path(download_path), new_path)
+        except FileExistsError:
+            if overwrite is True:
+                logger.debug(f"Overwriting file {new_path}.")
+                os.remove(new_path)
+                os.rename(Path(download_path), new_path)
+            else:
+                logger.debug(f"File {new_path} already exists. Skipping.")
 
-        return []
+        new_image = Image.open(new_path).convert("RGB")
+        return new_image
 
 
 class SaveEpochCallback(TrainerCallback):
-    """Custom callback to save model after each epoch."""
+    """Custom callback to save model after each epoch and track eval loss."""
 
-    def __init__(self, save_path, tokenizer, save_every_n_epochs=1):
+    def __init__(self, save_path, tokenizer, model_entity, save_every_n_epochs=1):
         self.save_path = save_path
         self.tokenizer = tokenizer
+        self.model_entity = model_entity
         self.save_every_n_epochs = save_every_n_epochs
+        self.best_loss = float("inf")
+        self.best_epoch = 0
+        self.current_loss = None
+        self.current_epoch = 0
+        self.eval_losses = []  # Track evaluation losses
+        self.log_file = os.path.join(self.save_path, "training_logs.json")
+
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        if logs is not None and "loss" in logs:
+            self.current_loss = logs["loss"]
+            self.current_epoch = logs["epoch"]
+            if self.best_loss == float("inf"):
+                self.best_loss = self.current_loss
+                logger.info(f"Initial best loss set to: {self.best_loss:.4f}")
+            self.model_entity.metrics.create(
+                samples=dl.PlotSample(figure="loss", legend="train", x=self.current_epoch, y=self.current_loss),
+                dataset_id=self.model_entity.dataset_id,
+            )
+            current_logs = state.log_history
+            with open(self.log_file, "w") as f:
+                json.dump(current_logs, f, indent=2)
+            logger.info(f"Updated training logs in {self.log_file}")
+
+    def on_evaluate(self, args, state, control, metrics=None, **kwargs):
+        if metrics is not None and "eval_loss" in metrics:
+            eval_loss = metrics["eval_loss"]
+            # epoch_loss = {"epoch": self.current_epoch, "eval_loss": eval_loss}
+            self.eval_losses.append(eval_loss)
+
+            # Log the evaluation loss
+            logger.info(f"Epoch {self.current_epoch:.2f} - Eval Loss: {eval_loss:.4f}")
+
+            # Add eval loss to the metrics visualization
+            self.model_entity.metrics.create(
+                samples=dl.PlotSample(figure="loss", legend="validation", x=self.current_epoch, y=eval_loss),
+                dataset_id=self.model_entity.dataset_id,
+            )
+
+            # # Consider using eval loss instead of training loss for model selection
+            # if eval_loss < self.best_loss:
+            #     self.best_loss = eval_loss
+            #     self.best_epoch = self.current_epoch
+            #     logger.info(f"New best model based on eval loss: {eval_loss:.4f}")
 
     def on_epoch_end(self, args, state, control, **kwargs):
-        """
-        Callback triggered at the end of each training epoch.
+        model = kwargs.get("model", None)
+        if model is None:
+            raise ValueError("Cannot save model. Model is None.")
+        if self.current_epoch > 0:
+            if self.current_loss is not None and self.current_loss < self.best_loss:
+                logger.info(f"\nNew best model found! Loss updated to {self.current_loss:.4f}")
+                self.best_loss = self.current_loss
+                self.best_epoch = self.current_epoch
+                self.current_loss = None
+                best_model_dir = os.path.join(self.save_path, "best_model")
+                os.makedirs(best_model_dir, exist_ok=True)
+                model.save_pretrained(best_model_dir)
+                self.tokenizer.save_pretrained(best_model_dir)
+                logger.info(f"Best model saved in {best_model_dir}")
+            else:
+                logger.info(
+                    f"Skipping save for epoch {self.current_epoch} (Current loss: {self.current_loss:.4f}, Best loss: {self.best_loss:.4f})"
+                )
 
-        Saves the model and tokenizer periodically based on the specified frequency.
 
-        Args:
-            args: Training arguments.
-            state: The current training state.
-            control: TrainerControl object.
-            **kwargs: Additional arguments including the model.
-        """
-        epoch = int(state.epoch)
+if __name__ == "__main__":
+    # Set up Dataloop environment
+    dl.setenv("prod")
+    MODE = "predict"
 
-        if epoch % self.save_every_n_epochs == 0:
-            logger.info(f"\nSaving model and tokenizer for epoch {epoch}")
+    # Get project and dataset
+    project = dl.projects.get(project_name="yaya multimodal")
+    dataset = project.datasets.get(dataset_name="dummy testing")
+    base_model = project.models.get("llama-3.2-11B-vision-instruct-finetuned-dev")
+    saved_model = project.models.get("saved trained llama vision")
 
-            # Get model from kwargs
-            model = kwargs.get("model", None)
+    train_filters = dl.Filters(field="metadata.system.tags.train", values=True)
+    val_filters = dl.Filters(field="metadata.system.tags.validation", values=True)
 
-            if model is None:
-                logger.error("Cannot save model. Model is None.")
-                return
+    if MODE == "train":
+        # Create new model entity
+        model_entity = project.models.get(model_id=base_model.id)
 
-            # Create epoch-specific directory
-            epoch_dir = os.path.join(self.save_path, f"epoch_{epoch}")
-            os.makedirs(epoch_dir, exist_ok=True)
+        model_entity.configuration.update(
+            {
+                "system_prompt": (
+                    "You are an expert radiographer. Describe accurately what you see in this image in a a very concise manner in one or two sentences."
+                )
+            }
+        )
+        model_entity.configuration["num_train_epochs"] = 10
 
-            # Save model and tokenizer
-            model.save_pretrained(save_directory=epoch_dir)
-            self.tokenizer.save_pretrained(save_directory=epoch_dir)
+        model_entity.metadata["system"]["subsets"] = {}
+        model_entity.metadata["system"]["subsets"]["train"] = train_filters.prepare()
+        model_entity.metadata["system"]["subsets"]["validation"] = val_filters.prepare()
 
-            logger.info(f"Model and tokenizer saved in {epoch_dir}")
-        else:
-            logger.info(f"Skipping save for epoch {epoch} (Only saving every {self.save_every_n_epochs} epochs)") 
+        model_entity = model_entity.clone(
+            model_name=model_entity.name + "-radiology",
+            dataset=dataset,
+            train_filter=train_filters,
+            validation_filter=val_filters,
+        )
+
+        model_adapter = ModelAdapter(model_entity)  # Train model
+        model_adapter.train_model(model=model_entity)  # include save model
+
+    elif MODE == "load_saved":
+        model_entity = project.models.get(model_id=base_model.id)
+        model_entity = model_entity.clone(model_name="test llama vision", dataset=dataset, train_filter=train_filters)
+
+        model_adapter = ModelAdapter(model_entity)
+        model_adapter.load_from_model()
+        # model_adapter.save(local_path="saved_model")
+        # model_adapter.load(local_path="saved_model")
+        model_adapter.save_to_model()
+
+    elif MODE == "save":
+        model_entity = project.models.get(model_id=base_model.id)
+        model_entity = model_entity.clone(
+            model_name="saved trained llama vision", dataset=dataset, train_filter=train_filters
+        )
+        model_adapter = ModelAdapter(model_entity)
+        model_adapter.save_to_model(local_path="tmp/682afc2483ff3a5dc755f272/output/best_model")
+
+    elif MODE == "predict":
+        model_entity = project.models.get(model_id=saved_model.id)
+
+        model_entity.configuration["system_prompt"] = (
+            "You are an expert radiographer. Describe accurately what you see in this image."
+        )
+        model_adapter = ModelAdapter(model_entity)
+
+        item = dataset.items.get(item_id="6811bab49b48cafb99cd6cdd")
+        model_adapter.predict_items(items=[item])
+
+    print("Done")
+    print("--------------------------------")

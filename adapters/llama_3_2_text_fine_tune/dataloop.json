@@ -178,7 +178,7 @@
             "logging_strategy": "steps",
             "save_every_n_epochs": 2
           },
-          "description": "Llama-3.2-1B-Instruct from Hugging Face ready for fintune with QLoRA."
+          "description": "Llama-3.2-1B-Instruct from Hugging Face ready for finetuning with QLoRA."
         }
       ]
     }
