@@ -1,31 +1,31 @@
 {
-    "name": "open-llama-3b-huggingface-app",
-    "description": "The model is mainly based on LLaMA with some modifications, incorporating memory-efficient attention from Xformers, stable embedding from Bloom, and shared input-output embedding from PaLM.",
+    "name": "apple-dclm-7b-huggingface-app",
+    "description": "The DCLM-Baseline-7B is a 7 billion parameter language model developed as part of the DataComp for Language Models (DCLM) benchmark. Its unique value lies in showcasing the impact of systematic data curation techniques to enhance model performance.",
     "attributes": {
         "Provider": "Hugging Face",
         "Deployed By": "Dataloop",
-        "License": "Apache 2.0",
+        "License": "Apple Sample Code License",
         "Category": "Model",
         "NLP": "Conversational",
         "Gen AI":"LLM",
         "Media Type": ["Text"]
     },
-    "displayName": "OpenLLaMa-3B",
-    "version": "0.1.47",
+    "displayName": "DCLM-Baseline-7B",
+    "version": "0.1.45",
     "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.47"
+        "gitTag": "0.1.45"
     },
     "components": {
         "computeConfigs": [
             {
-                "name": "open-llama-3b-huggingface-deploy",
+                "name": "apple-dclm-7b-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "gpu-t4",
-                    "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+                    "podType": "highmem-l",
+                    "runnerImage": "gcr.io/viewo-g/piper/agent/gpu/huggingface-adapter-dclm-7b:0.0.1",
                     "concurrency": 1,
                     "autoscaler": {
                         "type": "rabbitmq",
@@ -39,10 +39,10 @@
         ],
         "modules": [
             {
-                "name": "open-llama-3b-module",
+                "name": "apple-dclm-7b-module",
                 "entryPoint": "model_adapter.py",
                 "className": "ModelAdapter",
-                "computeConfig": "open-llama-3b-huggingface-deploy",
+                "computeConfig": "apple-dclm-7b-huggingface-deploy",
                 "initInputs": [
                     {
                         "type": "Model",
@@ -99,19 +99,40 @@
         ],
         "models": [
             {
-                "name": "open-llama-3b-huggingface-model",
-                "moduleName": "open-llama-3b-module",
+                "name": "DCLM-Baseline-7B",
+                "moduleName": "apple-dclm-7b-module",
                 "scope": "project",
                 "status": "pre-trained",
                 "configuration": {
-                    "weights_filename": "openllama.pt",
-                    "model_path": "openlm-research/open_llama_3b",
-                    "module_name": "adapters.open_llama_3b.open_llama_3b",
-                    "device": "cuda:0"
+                    "weights_filename": "dclm_7b.pt",
+                    "module_name": "adapters.apple_dclm_7b.apple_dclm_7b",
+                    "max_new_tokens": 50,
+                    "top_p": 0.5,
+                    "temperature": 0.7,
+                    "do_sample": true,
+                    "repetition_penalty": 1.0
                 },
                 "tags": ["llm", "pretrained", "hugging-face"],
                 "metadata": {},
-                "description": "The model is mainly based on LLaMA with some modifications, incorporating memory-efficient attention from Xformers, stable embedding from Bloom, and shared input-output embedding from PaLM."
+                "description": "The DCLM-Baseline-7B is a 7 billion parameter language model developed as part of the DataComp for Language Models (DCLM) benchmark. Its unique value lies in showcasing the impact of systematic data curation techniques to enhance model performance."
+            },
+            {
+                "name": "DCLM-Baseline-7B-8k",
+                "moduleName": "apple-dclm-7b-module",
+                "scope": "project",
+                "status": "pre-trained",
+                "configuration": {
+                    "weights_filename": "dclm_7b_8k.pt",
+                    "module_name": "adapters.apple_dclm_7b.apple_dclm_7b",
+                    "max_new_tokens": 50,
+                    "top_p": 0.5,
+                    "temperature": 0.7,
+                    "do_sample": true,
+                    "repetition_penalty": 1.0
+                },
+                "tags": ["llm", "pretrained", "hugging-face"],
+                "metadata": {},
+                "description": "The DCLM-Baseline-7B-8K is a 7 billion parameter language model developed as part of the DataComp for Language Models (DCLM) benchmark. Its unique value lies in showcasing the impact of systematic data curation techniques to enhance model performance. This model has an increased context length from 2k to 8k."
             }
         ]
     }
