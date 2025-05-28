@@ -1,6 +1,6 @@
-# LLaMA 3.2 Vision Model Adapter for Fine-Tuning on Dataloop  
+# LLaMA 3.2 Vision Intruct Model Adapter for Fine-Tuning on Dataloop  
 
-This repository provides a **QLoRA-based fine-tuning adapter** for **LLaMA 3.2 Vision Instruct**, enabling efficient fine-tuning with **QLoRA**.  
+This repository provides a **QLoRA-based fine-tuning adapter** for **LLaMA 3.2**, enabling efficient fine-tuning with **QLoRA**.  
 
 This adapter is designed for use within the **Dataloop AI platform** and can be **installed and utilized for both fine-tuning and inference** directly from the **Dataloop Model Marketplace**.
 
@@ -19,8 +19,8 @@ This adapter is designed for use within the **Dataloop AI platform** and can be 
 
 ## Requirements
 
-- Dataloop account with appropriate GPU access (GPU-A100 recommended)
-- Hugging Face API key with read access
+- Dataloop account with appropriate GPU access (GPU-T4 recommended)
+- Hugging Face API key with access to Llama 3.2 models
 - Dataset containing image-text pairs in the proper format
 
 ## Getting Started
@@ -35,13 +35,17 @@ This adapter is designed for use within the **Dataloop AI platform** and can be 
 Your dataset should contain training examples in prompt items with:
 
 - Images as the prompt
-- Caption or image description as the annotation
+- Caption or image description as the free-text annotation
 
-Prompt item JSONS will be formatted as follows:
+Prompt item JSONS should be formatted as follows:
 
 ```json
 {
   "messages": [
+    {
+      "role": "system",
+      "content": "Your system prompt here"
+    },
     {
       "role": "user",
       "content": [

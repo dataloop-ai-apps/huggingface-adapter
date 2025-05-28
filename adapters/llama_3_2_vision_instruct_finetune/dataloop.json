@@ -24,6 +24,7 @@
     "computeConfigs": [
       {
         "name": "llama-vision-finetune-deploy",
+        "executionTimeout": 36000,
         "runtime": {
           "podType": "highmem-l",
           "concurrency": 5,
@@ -37,9 +38,7 @@
       },
       {
         "name": "llama-vision-finetune-train",
-        "versions": {
-          "dtlpy": "1.106.5"
-        },
+        "executionTimeout": 36000000,
         "runtime": {
           "podType": "gpu-a100-s",
           "concurrency": 1,
@@ -145,9 +144,14 @@
         "configuration": {
           "system_prompt": "You are a helpful visual assistant. Describe what you see in the image accurately and answer questions related to the visual content. If you don't know or can't see clearly, just say so.",
           "model_name": "meta-llama/Llama-3.2-11B-Vision-Instruct",
-          "use_load": true,
-          "FREEZE_LLM": false,
-          "FREEZE_IMAGE": false,
+          "max_new_tokens": 512,
+          "temperature": 0.7,
+          "do_sample": true,
+          "use_cache": true,
+          "top_p": 0.9,
+          "use_lora": true,
+          "freeze_llm": false,
+          "freeze_image": false,
           "r": 8,
           "lora_alpha": 8,
           "lora_dropout": 0.1,
@@ -165,22 +169,17 @@
           "num_train_epochs": 10,
           "per_device_train_batch_size": 1,
           "gradient_accumulation_steps": 16,
-          "optim": "paged_adamw_32bit",
-          "save_strategy": "no",
+          "warmup_steps": 2,
           "learning_rate": 2e-4,
-          "bf16": true,
-          "save_total_limit": 3,
-          "remove_unused_columns": false,
-          "logging_strategy": "epoch",
-          "dataloader_pin_memory": false,
           "weight_decay": 1e-6,
           "adam_beta2": 0.999,
-          "warmup_steps": 2,
-          "max_new_tokens": 512,
-          "temperature": 0.7,
-          "do_sample": true,
-          "top_p": 0.9,
-          "repetition_penalty": 1.1
+          "optim": "paged_adamw_32bit",
+          "bf16": true,
+          "save_strategy": "no",
+          "logging_strategy": "epoch",
+          "evaluation_strategy": "epoch",
+          "remove_unused_columns": false,
+          "dataloader_pin_memory": false
         },
         "description": "Llama-3.2-11B-Vision-Instruct from Hugging Face, ready for fine-tuning with LoRA. Process both images and text for multimodal understanding."
       }
