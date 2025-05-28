@@ -16,14 +16,7 @@ from peft import PeftModel, LoraConfig, get_peft_model
 from PIL import Image
 from transformers import AutoProcessor, MllamaForConditionalGeneration, Trainer, TrainerCallback, TrainingArguments
 
-# Configure logging TODO REMOVE
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler("llama_vision.log")],  # Print to console  # Save to file
-)
-
-logger = logging.getLogger("[llama-vision-finetune]")
+logger = logging.getLogger("llama-vision-finetune")
 
 
 class ModelAdapter(dl.BaseModelAdapter):
@@ -43,6 +36,8 @@ class ModelAdapter(dl.BaseModelAdapter):
         self.device = self.model_entity.configuration.get(
             "device", torch.device("cuda" if torch.cuda.is_available() else "cpu")
         )
+        if self.device == "cuda":
+            logger.info(f'GPU available: {torch.cuda.is_available()}')
 
         # load base model
         logger.info(f"Downloading model from HuggingFace {hf_model_name}")
@@ -82,7 +77,8 @@ class ModelAdapter(dl.BaseModelAdapter):
             # repetition_penalty = self.configuration.get("repetition_penalty", 1.1) # https://discuss.huggingface.co/t/issues-when-fine-tuning-llama-3-2-11b-vision/153972
 
             logger.info(f"Predicting on device: {self.device}")
-            logger.info(f"Available GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
+            if self.device == "cuda":
+                logger.info(f"Available GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
 
             with torch.amp.autocast(device_type=self.device.type):
                 for prompt_item in batch:
@@ -104,7 +100,7 @@ class ModelAdapter(dl.BaseModelAdapter):
                             self.device
                         )
                         logger.info("Generating response...")
-
+                        start_time = time.time()
                         outputs = self.model.generate(
                             **inputs,
                             max_new_tokens=max_new_tokens,
@@ -113,6 +109,8 @@ class ModelAdapter(dl.BaseModelAdapter):
                             use_cache=use_cache,
                             top_p=top_p,
                         ).to(self.device)
+                        end_time = time.time()
+                        logger.info(f"Time to generate response: {end_time - start_time} seconds")
                         # response = self.processor.batch_decode(outputs[0], skip_special_tokens=True)
                         response = self.processor.decode(outputs[0][inputs["input_ids"].shape[-1] :])
 
@@ -530,77 +528,3 @@ class SaveEpochCallback(TrainerCallback):
                 logger.info(
                     f"Skipping save for epoch {self.current_epoch} (Current loss: {self.current_loss:.4f}, Best loss: {self.best_loss:.4f})"
                 )
-
-
-if __name__ == "__main__":
-    # Set up Dataloop environment
-    dl.setenv("prod")
-    MODE = "predict"
-
-    # Get project and dataset
-    project = dl.projects.get(project_name="yaya multimodal")
-    dataset = project.datasets.get(dataset_name="dummy testing")
-    base_model = project.models.get("llama-3.2-11B-vision-instruct-finetuned-dev")
-    saved_model = project.models.get("saved trained llama vision")
-
-    train_filters = dl.Filters(field="metadata.system.tags.train", values=True)
-    val_filters = dl.Filters(field="metadata.system.tags.validation", values=True)
-
-    if MODE == "train":
-        # Create new model entity
-        model_entity = project.models.get(model_id=base_model.id)
-
-        model_entity.configuration.update(
-            {
-                "system_prompt": (
-                    "You are an expert radiographer. Describe accurately what you see in this image in a a very concise manner in one or two sentences."
-                )
-            }
-        )
-        model_entity.configuration["num_train_epochs"] = 10
-
-        model_entity.metadata["system"]["subsets"] = {}
-        model_entity.metadata["system"]["subsets"]["train"] = train_filters.prepare()
-        model_entity.metadata["system"]["subsets"]["validation"] = val_filters.prepare()
-
-        model_entity = model_entity.clone(
-            model_name=model_entity.name + "-radiology",
-            dataset=dataset,
-            train_filter=train_filters,
-            validation_filter=val_filters,
-        )
-
-        model_adapter = ModelAdapter(model_entity)  # Train model
-        model_adapter.train_model(model=model_entity)  # include save model
-
-    elif MODE == "load_saved":
-        model_entity = project.models.get(model_id=base_model.id)
-        model_entity = model_entity.clone(model_name="test llama vision", dataset=dataset, train_filter=train_filters)
-
-        model_adapter = ModelAdapter(model_entity)
-        model_adapter.load_from_model()
-        # model_adapter.save(local_path="saved_model")
-        # model_adapter.load(local_path="saved_model")
-        model_adapter.save_to_model()
-
-    elif MODE == "save":
-        model_entity = project.models.get(model_id=base_model.id)
-        model_entity = model_entity.clone(
-            model_name="saved trained llama vision", dataset=dataset, train_filter=train_filters
-        )
-        model_adapter = ModelAdapter(model_entity)
-        model_adapter.save_to_model(local_path="tmp/682afc2483ff3a5dc755f272/output/best_model")
-
-    elif MODE == "predict":
-        model_entity = project.models.get(model_id=saved_model.id)
-
-        model_entity.configuration["system_prompt"] = (
-            "You are an expert radiographer. Describe accurately what you see in this image."
-        )
-        model_adapter = ModelAdapter(model_entity)
-
-        item = dataset.items.get(item_id="6811bab49b48cafb99cd6cdd")
-        model_adapter.predict_items(items=[item])
-
-    print("Done")
-    print("--------------------------------")
