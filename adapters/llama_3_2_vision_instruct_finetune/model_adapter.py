@@ -6,14 +6,14 @@ import base64
 import logging
 import dtlpy as dl
 
-from concurrent.futures import ThreadPoolExecutor
+from PIL import Image
+from io import BytesIO
+from pathlib import Path
 from datasets import Dataset
 from datetime import datetime
 from huggingface_hub import login
-from io import BytesIO
-from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 from peft import PeftModel, LoraConfig, get_peft_model
-from PIL import Image
 from transformers import AutoProcessor, MllamaForConditionalGeneration, Trainer, TrainerCallback, TrainingArguments
 
 logger = logging.getLogger("llama-vision-finetune")
@@ -110,7 +110,7 @@ class ModelAdapter(dl.BaseModelAdapter):
                             top_p=top_p,
                         ).to(self.device)
                         end_time = time.time()
-                        logger.info(f"Time to generate response: {end_time - start_time} seconds")
+
                         # response = self.processor.batch_decode(outputs[0], skip_special_tokens=True)
                         response = self.processor.decode(outputs[0][inputs["input_ids"].shape[-1] :])
 
@@ -126,8 +126,15 @@ class ModelAdapter(dl.BaseModelAdapter):
                                 "model_id": self.model_entity.id,
                             },
                         )
+
+                        # Clear memory after processing each item
+                        if self.device == "cuda":
+                            torch.cuda.empty_cache()
+                            del outputs
+                            del inputs
+                            torch.cuda.synchronize()
                     except Exception as e:
-                        logger.error(f"Error processing item: {str(e)}")
+                        logger.error(f"Error processing item {prompt_item.id}: {str(e)}")
                         continue
 
         except Exception as e:

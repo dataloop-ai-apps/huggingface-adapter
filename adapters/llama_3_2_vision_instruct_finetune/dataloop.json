@@ -1,9 +1,9 @@
 {
-  "name": "llama-3-2-vision-instruct-finetune",
-  "displayName": "Llama-3.2-Vision-Instruct-Finetune",
-  "version": "0.1.0",
-  "scope": "public",
-  "description": "Llama-3.2-Vision-Instruct from Hugging Face, ready for fine-tuning with LoRA. Supports multimodal vision-to-text capabilities.",
+  "name": "llama-vision-finetune",
+  "displayName": "Llama-3.2-Vision-Finetune",
+  "version": "0.1.20",
+  "scope": "project",
+  "description": "Llama-3.2-Vision or Vision-Instruct from Hugging Face, ready for fine-tuning with LoRA. Supports multimodal vision-to-text capabilities.",
   "attributes": {
     "Provider": "Meta",
     "Deployed By": "Hugging Face",
@@ -15,34 +15,29 @@
     "NLP": "Conversational",
     "Hub": ["Dataloop"]
   },
-  "codebase": {
-    "type": "git",
-    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.0"
-  },
   "components": {
     "computeConfigs": [
       {
         "name": "llama-vision-finetune-deploy",
-        "executionTimeout": 36000,
+        "executionTimeout": 1200,
         "runtime": {
-          "podType": "highmem-l",
+          "podType": "gpu-a100-s",
           "concurrency": 5,
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.6",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.7",
           "autoscaler": {
             "type": "rabbitmq",
-            "minReplicas": 0,
+            "minReplicas": 1,
             "maxReplicas": 2
           }
         }
       },
       {
         "name": "llama-vision-finetune-train",
-        "executionTimeout": 36000000,
+        "executionTimeout": 360000,
         "runtime": {
           "podType": "gpu-a100-s",
           "concurrency": 1,
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.6",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.7",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
@@ -57,7 +52,7 @@
         "entryPoint": "adapters/llama_3_2_vision_instruct_finetune/model_adapter.py",
         "className": "ModelAdapter",
         "computeConfig": "llama-vision-finetune-deploy",
-        "description": "Llama 3.2 Vision-Instruct model adapter for fine-tuning and inference",
+        "description": "Llama 3.2 Vision or Vision-Instruct model adapter for fine-tuning and inference",
         "integrations": ["dl-huggingface-api-key"],
         "initInputs": [
           {
@@ -136,7 +131,7 @@
     ],
     "models": [
       {
-        "name": "meta-llama/Llama-3.2-11B-Vision-Instruct",
+        "name": "llama-3.2-11B-vision-finetune",
         "moduleName": "llama-vision-finetune-module",
         "scope": "project",
         "status": "pre-trained",
@@ -181,7 +176,7 @@
           "remove_unused_columns": false,
           "dataloader_pin_memory": false
         },
-        "description": "Llama-3.2-11B-Vision-Instruct from Hugging Face, ready for fine-tuning with LoRA. Process both images and text for multimodal understanding."
+        "description": "Llama-3.2 11B Vision models from Hugging Face, ready for fine-tuning with LoRA. Process both images and text for multimodal understanding."
       }
     ]
   }
