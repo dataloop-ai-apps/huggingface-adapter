@@ -321,3 +321,4 @@ prompts
 
 **/tmp/**
 tmp/
+.cursor/
