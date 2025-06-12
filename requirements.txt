@@ -10,3 +10,6 @@ safetensors
 numpy==1.23.5
 typing-extensions
 bitsandbytes
+jinja2
+dotenv
+openai

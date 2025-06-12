@@ -6,21 +6,20 @@ import os
 import time
 import openai
 from huggingface_hub import hf_hub_download
-from dotenv import load_dotenv
-from prompt_templates import ModelAdapterPrompts
 
-# Load environment variables from .env file
-load_dotenv()
+from prompt_templates import ModelAdapterPrompts
 
 # Set the template type to use for the development process, eventually it should only be "create_hugging_adapter"
 MODEL_ADAPTER_TYPE = (
-    "convert_to_hugging_base"  # Options: "create_model_adapter", "create_hugging_adapter", "convert_to_hugging_base"
+    "create_model_adapter"  # Options: "create_model_adapter", "create_hugging_adapter", "convert_to_hugging_base"
 )
-MODEL_REPO = 'google/pegasus-xsum'
-ORIGINAL_ADAPTER_PATH = (
-    "generate/responses/basemodeladapter/pegasus-xsum_2025.03.19_15.10.00.py"  # Path to adapter to convert
-)
-
+MODEL_REPO = 'ustc-community/dfine-xlarge-obj2coco'
+if MODEL_ADAPTER_TYPE == "convert_to_hugging_base":
+    ORIGINAL_ADAPTER_PATH = (
+        "generate/responses/basemodeladapter/dfine-xlarge-coco_2025.06.04_15.10.00.py"  # Path to adapter to convert
+    )
+else:
+    ORIGINAL_ADAPTER_PATH = None
 
 # Setup OpenAI client
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -82,6 +81,28 @@ model_card_path = hf_hub_download(repo_id=MODEL_REPO, filename='README.md')
 with open(model_card_path, 'r') as f:
     model_card = f.read()
 
+# Extract model type and media type from model card
+model_type = "unknown"
+media_type = "unknown"
+
+# Try to determine model type from model card
+if "object detection" in model_card.lower():
+    model_type = "detection"
+elif "classification" in model_card.lower():
+    model_type = "classification"
+elif "segmentation" in model_card.lower():
+    model_type = "segmentation"
+elif "generation" in model_card.lower() or "generate" in model_card.lower():
+    model_type = "genai"
+
+# Try to determine media type from model card
+if "image" in model_card.lower():
+    media_type = "image"
+elif "text" in model_card.lower():
+    media_type = "text"
+elif "multimodal" in model_card.lower() or "vision-language" in model_card.lower():
+    media_type = "multimodal"
+
 # give an example of a model card -> adapter
 ex1_repo = 'Salesforce/blip2-opt-2.7b'  # image captioning, prompt item with image
 ex2_repo = 'facebook/detr-resnet-50'  # object detection, image item
@@ -129,11 +150,14 @@ response = response.replace(r"```", "")
 
 responses_dir = os.path.join(os.getcwd(), "generate", "responses")
 os.makedirs(responses_dir, exist_ok=True)
-responses_path = os.path.join(responses_dir, f"{MODEL_REPO.split('/')[1]}_{time.strftime('%Y.%m.%d_%H.%M.%S')}.py")
+model_name = MODEL_REPO.split('/')[1]
+responses_path = os.path.join(
+    responses_dir, f"{model_name}_{media_type}_{model_type}_{time.strftime('%Y.%m.%d_%H.%M.%S')}.py"
+)
 with open(responses_path, "w") as f:
     f.write(response)
 
 with open(usage_file, 'a') as f:
     f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} -- {MODEL_REPO}: {usage}\n")
 
-print("done!")
+print(f"done! model adapter saved to {responses_path}")

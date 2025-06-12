@@ -30,6 +30,17 @@ For a NLP model, the item mimetype should be `text` and include text only.  \
 For a multimodal model, include in `prepare_item_func` the `dl.PromptItem` entity, 
 with the relevant mimetype components required to run the model correctly.  \
 
+IMPORTANT: The predict function MUST follow the exact structure shown in the examples below, using the dtlpy SDK context \
+provided. This includes proper handling of input items, model inference, and output formatting according to dtlpy standards. \
+The predict function should be implemented in a way that is consistent with the example adapters, ensuring compatibility \
+with the dtlpy platform. When downloading image items, always use `buffer = item.download(save_locally=False)` to get the \
+image data in memory without saving to disk.
+
+If the model's example code or "how to use" section shows any post-processing requirements for the outputs, \
+create a customized predict function in the HuggingAdapter class that handles this post-processing. \
+The predict function should process the raw model outputs according to the model's requirements while \
+returning a dl.AnnotationCollection according to the dtlpy SDK structure shown in the code context and  examples. \
+
 Make sure you include all the relevant imports for the code to run.  \
 Don't include any imports that are not used in the code.  \
 Don't repeat this prompt and keep the response as concise as possible.  \
@@ -66,6 +77,14 @@ The script should:
 2. Create a `HuggingAdapter` class that inherits from `HuggingBase`
 3. Implement the `load_model_and_processor` method to load the specific model and processor
 4. Include a `get_cmd` method that returns the command to run the script
+5. If the model requires post-processing of outputs (as shown in example code or usage instructions), \
+   implement a customized predict method that handles this post-processing
+
+IMPORTANT: The predict function MUST strictly follow the structure shown in the example below, \
+using the dtlpy SDK context. This ensures proper integration with the dtlpy platform and \
+maintains consistency with other model adapters. The predict function should handle input items, \
+model inference, and output formatting according to dtlpy standards. When downloading image items, \
+always use `buffer = item.download(save_locally=False)` to get the image data in memory without saving to disk.
 
 Here is an example of how the script should look:
 {{ example_script }}
@@ -78,6 +97,8 @@ Make sure to:
 2. Keep the code concise and focused on the essential implementation
 3. Include all necessary imports
 4. Follow the same structure as the example
+5. Ensure the predict function matches the dtlpy SDK structure shown in the example
+6. Use `buffer = item.download(save_locally=False)` when downloading image items
 
 Don't repeat this prompt and keep the response as concise as possible.
 Do not include any text other than the code.
@@ -113,7 +134,14 @@ When converting the script:
 5. Include a `get_cmd` method if appropriate
 6. Preserve the model-specific logic and processor/model loading code
 7. Make statements as explicit as possible
+8. If the original adapter includes any post-processing logic, ensure it is properly integrated into \
+   the new HuggingBase-based implementation
 
+IMPORTANT: The predict function MUST maintain the exact structure shown in the example adapter, \
+using the dtlpy SDK context. This is crucial for proper integration with the dtlpy platform. \
+When converting the predict function, ensure it follows the same pattern as the example adapter \
+for handling input items, model inference, and output formatting. When downloading image items, \
+always use `buffer = item.download(save_locally=False)` to get the image data in memory without saving to disk.
 
 Focus on making the conversion clean and efficient, preserving all essential model-specific logic while
 leveraging the common functionality provided by `HuggingBase`.
