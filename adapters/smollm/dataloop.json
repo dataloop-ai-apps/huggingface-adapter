@@ -40,8 +40,8 @@
     "modules": [
       {
         "name": "smollm-huggingface-module",
-        "entryPoint": "model_adapter.py",
-        "className": "ModelAdapter",
+        "entryPoint": "adapters.smollm.smollm_adapter.py",
+        "className": "HuggingAdapter",
         "computeConfig": "smollm-huggingface-deploy",
         "initInputs": [
           {
