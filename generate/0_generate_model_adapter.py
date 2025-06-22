@@ -10,10 +10,13 @@ from huggingface_hub import hf_hub_download
 from prompt_templates import ModelAdapterPrompts
 
 # Set the template type to use for the development process, eventually it should only be "create_hugging_adapter"
+# Convert to HuggingBase is to use an existing HuggingAdapter (from before this generator) and convert it to use HuggingBase
+# Create Model Adapter is to create a new adapter from scratch following dl.BaseModelAdapter conventions
 MODEL_ADAPTER_TYPE = (
     "create_model_adapter"  # Options: "create_model_adapter", "create_hugging_adapter", "convert_to_hugging_base"
 )
-MODEL_REPO = 'ustc-community/dfine-xlarge-obj2coco'
+MODEL_REPO = "meta-llama/Llama-4-Scout-17B-16E-Instruct"
+
 if MODEL_ADAPTER_TYPE == "convert_to_hugging_base":
     ORIGINAL_ADAPTER_PATH = (
         "generate/responses/basemodeladapter/dfine-xlarge-coco_2025.06.04_15.10.00.py"  # Path to adapter to convert
