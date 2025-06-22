@@ -98,8 +98,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
     def get_hugging_dataset(self, data_path: str) -> tuple[Dataset, Dataset]:
         logger.info('Get hugging dataset (cached to disk)')
 
-        train_cache_dir = os.path.join(data_path, "train_preprocessed")
-        val_cache_dir = os.path.join(data_path, "valid_preprocessed")
+        train_cache_dir = os.path.join(data_path, "train_preprocessed_lazy")
+        val_cache_dir = os.path.join(data_path, "valid_preprocessed_lazy")
 
         if os.path.exists(train_cache_dir) and os.path.exists(val_cache_dir):
             logger.info("Loading preprocessed datasets from disk...")
@@ -107,7 +107,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
             val_dataset = load_from_disk(val_cache_dir)
         else:
             logger.info("Preprocessing datasets from scratch...")
-            # Load COCO as list
             train_data = HuggingAdapter.load_coco_as_list(
                 os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
             )
@@ -118,13 +117,13 @@ class HuggingAdapter(dl.BaseModelAdapter):
             train_dataset = Dataset.from_list(train_data)
             val_dataset = Dataset.from_list(val_data)
 
+            # 🧠 Don't load image or encode here — just keep paths + labels
             def preprocess(example):
-                image = Image.open(example["image"]).convert("RGB")
-                enc = self.processor(images=image, return_tensors="pt")
-                enc = {k: v.squeeze(0) for k, v in enc.items()}
-                enc["class_labels"] = torch.tensor(example["class_labels"], dtype=torch.long)
-                enc["boxes"] = torch.tensor(example["boxes"], dtype=torch.float)
-                return enc
+                return {
+                    "image_path": example["image"],
+                    "class_labels": example["class_labels"],
+                    "boxes": example["boxes"],
+                }
 
             train_dataset = train_dataset.map(
                 preprocess,
@@ -143,15 +142,10 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 keep_in_memory=False,
             )
 
-            # Save to disk
             train_dataset.save_to_disk(train_cache_dir)
             val_dataset.save_to_disk(val_cache_dir)
 
-        # Set format for training
-        cols = ["pixel_values", "class_labels", "boxes"]
-        train_dataset.set_format(type="torch", columns=cols)
-        val_dataset.set_format(type="torch", columns=cols)
-
+        # Don't set torch format yet — images will be processed later
         return train_dataset, val_dataset
 
     def load(self, local_path, **kwargs):
@@ -327,8 +321,17 @@ class HuggingAdapter(dl.BaseModelAdapter):
         # Step 5: Collate function
         # ------------------------- 3. custom collate_fn -------------------------
         def collate_fn(batch):
-            pixel_values = torch.stack([b["pixel_values"] for b in batch])
-            labels = [{"class_labels": b["class_labels"], "boxes": b["boxes"]} for b in batch]
+            images = [Image.open(example["image_path"]).convert("RGB") for example in batch]
+            encodings = [self.processor(images=img, return_tensors="pt") for img in images]
+            pixel_values = torch.stack([enc["pixel_values"].squeeze(0) for enc in encodings])
+
+            labels = [
+                {
+                    "class_labels": torch.tensor(b["class_labels"], dtype=torch.long),
+                    "boxes": torch.tensor(b["boxes"], dtype=torch.float),
+                }
+                for b in batch
+            ]
             return {"pixel_values": pixel_values, "labels": labels}
 
         trainer = Trainer(
