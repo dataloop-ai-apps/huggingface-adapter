@@ -12,7 +12,6 @@ from dtlpyconverters import services, coco_converters
 from pycocotools.coco import COCO
 from datasets import Dataset
 from PIL import Image
-from dotenv import load_dotenv
 
 # installs :
 # pip install datasets
@@ -25,6 +24,25 @@ logger = logging.getLogger("[D-FINE]")
 
 
 class HuggingAdapter(dl.BaseModelAdapter):
+    @staticmethod
+    def load_coco_as_list(annotation_path, image_dir):
+        coco = COCO(annotation_path)
+        items = []
+        for image_id in coco.imgs:
+            image_info = coco.loadImgs(image_id)[0]
+            file_path = os.path.join(image_dir, image_info["file_name"])
+            anns = coco.loadAnns(coco.getAnnIds(imgIds=image_id))
+
+            boxes = []
+            class_labels = []
+            for ann in anns:
+                x, y, w, h = ann["bbox"]
+                boxes.append([x, y, x + w, y + h])
+                class_labels.append(ann["category_id"])
+
+            items.append({"image": file_path, "class_labels": class_labels, "boxes": boxes})
+        return items
+
     @staticmethod
     def _process_coco_json(output_annotations_path: str) -> None:
         """
@@ -73,7 +91,48 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         logger.info('COCO JSON processing completed')
 
+    def get_hugging_dataset(self, data_path: str) -> tuple[Dataset, Dataset]:
+        logger.info(f'get hugging dataset')
+        # Step 2: Prepare datasets
+        train_data = HuggingAdapter.load_coco_as_list(
+            os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
+        )
+        val_data = HuggingAdapter.load_coco_as_list(
+            os.path.join(data_path, "valid", "_annotations.coco.json"), os.path.join(data_path, "valid")
+        )
+        logger.info('run from list')
+        train_dataset = Dataset.from_list(train_data)
+        val_dataset = Dataset.from_list(val_data)
+
+        # ------------------------- 1. preprocessing -------------------------
+        def preprocess(example):
+            image = Image.open(example["image"]).convert("RGB")
+
+            # returns dict: {'pixel_values': tensor([1,3,H,W]), 'pixel_mask': ...}
+            enc = self.processor(images=image, return_tensors="pt")
+            enc = {k: v.squeeze(0) for k, v in enc.items()}  # remove the batch dim
+
+            # add label tensors in the format expected by the model
+            enc["class_labels"] = torch.tensor(example["class_labels"], dtype=torch.long)
+            enc["boxes"] = torch.tensor(example["boxes"], dtype=torch.float)
+
+            return enc
+
+        logger.info('run map')
+        # Step 4: Map preprocessing
+        train_dataset = train_dataset.map(preprocess, remove_columns=train_dataset.column_names)  # drop original cols
+        val_dataset = val_dataset.map(preprocess, remove_columns=val_dataset.column_names)
+
+        logger.info('run set format')
+        # Tell the dataset to return torch tensors for the desired columns
+        cols = ["pixel_values", "class_labels", "boxes"]
+        train_dataset.set_format(type="torch", columns=cols)
+        val_dataset.set_format(type="torch", columns=cols)
+
+        return train_dataset, val_dataset
+
     def load(self, local_path, **kwargs):
+        logger.info(f"Loading model from {local_path}")
         self.model_name = self.configuration.get("model_name", "d-fine")
         self.device = self.configuration.get("device", "cpu")
         self.processor = AutoImageProcessor.from_pretrained("ustc-community/dfine-xlarge-obj2coco")
@@ -212,6 +271,18 @@ class HuggingAdapter(dl.BaseModelAdapter):
             logger.info(f'Moving directory from {tmp_dir_path} to {dst_images_path}')
             shutil.move(tmp_dir_path, dst_images_path)
 
+    def get_train_training_args(self, output_path: str):
+        train_config_dict = self.configuration.get('train_configs', {})
+        logger.info(f'train_config_dict: {train_config_dict}')
+        return TrainingArguments(
+            output_dir=output_path,
+            per_device_train_batch_size=train_config_dict.get('per_device_train_batch_size', 4),
+            num_train_epochs=train_config_dict.get('num_train_epochs', 10),
+            logging_steps=train_config_dict.get('logging_steps', 10),
+            save_strategy=train_config_dict.get('save_strategy', "epoch"),
+            remove_unused_columns=train_config_dict.get('remove_unused_columns', False),
+        )
+
     def save(self, local_path: str, **kwargs) -> None:
         """
         Save model configuration by updating the weights filename.
@@ -228,57 +299,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         print("need to implement save")
 
     def train(self, data_path: str, output_path: str, **kwargs) -> None:
-        def load_coco_as_list(annotation_path, image_dir):
-            coco = COCO(annotation_path)
-            items = []
-            for image_id in coco.imgs:
-                image_info = coco.loadImgs(image_id)[0]
-                file_path = os.path.join(image_dir, image_info["file_name"])
-                anns = coco.loadAnns(coco.getAnnIds(imgIds=image_id))
-
-                boxes = []
-                class_labels = []
-                for ann in anns:
-                    x, y, w, h = ann["bbox"]
-                    boxes.append([x, y, x + w, y + h])
-                    class_labels.append(ann["category_id"])
-
-                items.append({"image": file_path, "class_labels": class_labels, "boxes": boxes})
-            return items
-
-        # Step 2: Prepare datasets
-        train_data = load_coco_as_list(
-            os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
-        )
-        val_data = load_coco_as_list(
-            os.path.join(data_path, "valid", "_annotations.coco.json"), os.path.join(data_path, "valid")
-        )
-
-        train_dataset = Dataset.from_list(train_data)
-        val_dataset = Dataset.from_list(val_data)
-
-        # ------------------------- 1. preprocessing -------------------------
-        def preprocess(example):
-            image = Image.open(example["image"]).convert("RGB")
-
-            # returns dict: {'pixel_values': tensor([1,3,H,W]), 'pixel_mask': ...}
-            enc = self.processor(images=image, return_tensors="pt")
-            enc = {k: v.squeeze(0) for k, v in enc.items()}  # remove the batch dim
-
-            # add label tensors in the format expected by the model
-            enc["class_labels"] = torch.tensor(example["class_labels"], dtype=torch.long)
-            enc["boxes"] = torch.tensor(example["boxes"], dtype=torch.float)
-
-            return enc
-
-        # Step 4: Map preprocessing
-        train_dataset = train_dataset.map(preprocess, remove_columns=train_dataset.column_names)  # drop original cols
-        val_dataset = val_dataset.map(preprocess, remove_columns=val_dataset.column_names)
-
-        # Tell the dataset to return torch tensors for the desired columns
-        cols = ["pixel_values", "class_labels", "boxes"]
-        train_dataset.set_format(type="torch", columns=cols)
-        val_dataset.set_format(type="torch", columns=cols)
+        train_dataset, val_dataset = self.get_hugging_dataset(data_path)
 
         # Step 5: Collate function
         # ------------------------- 3. custom collate_fn -------------------------
@@ -287,27 +308,16 @@ class HuggingAdapter(dl.BaseModelAdapter):
             labels = [{"class_labels": b["class_labels"], "boxes": b["boxes"]} for b in batch]
             return {"pixel_values": pixel_values, "labels": labels}
 
-        # Step 6: TrainingArguments and Trainer
-        training_args = TrainingArguments(
-            output_dir=output_path,
-            per_device_train_batch_size=1,
-            num_train_epochs=4,
-            logging_steps=10,
-            save_strategy="epoch",
-            #  evaluation_strategy="epoch",
-            remove_unused_columns=False,
-        )
-
         trainer = Trainer(
             model=self.model,
-            args=training_args,
+            args=self.get_train_training_args(output_path),
             train_dataset=train_dataset,
             eval_dataset=val_dataset,
             data_collator=collate_fn,
         )
-        print("start real training")
+        logger.info("start real training")
         trainer.train()
-        print("training done")
+        logger.info("training done")
 
 
 if __name__ == "__main__":

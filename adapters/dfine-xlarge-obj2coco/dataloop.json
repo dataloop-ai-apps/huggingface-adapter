@@ -1,5 +1,5 @@
 {
-  "name": "dfine-xlarge-obj2coco-huggingface-app",
+  "name": "dfine-husam",
   "description": "DFine-XLarge: Object Detection model (COCO format) from ustc-community, via Hugging Face.",
   "attributes": {
     "Provider": "Hugging Face",
@@ -8,16 +8,13 @@
     "Category": "Model",
     "NLP": "",
     "Gen AI": "",
-    "Media Type": ["Image"]
+    "Media Type": [
+      "Image"
+    ]
   },
-  "displayName": "DFine XLarge Object Detection",
+  "displayName": "DFine XLarge Object Detection-Husam",
   "version": "0.1.45",
-  "scope": "public",
-  "codebase": {
-    "type": "git",
-    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.45"
-  },
+  "scope": "project",
   "components": {
     "computeConfigs": [
       {
@@ -25,7 +22,7 @@
         "secrets": [],
         "runtime": {
           "podType": "regular-s",
-          "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.5",
           "concurrency": 1,
           "autoscaler": {
             "type": "rabbitmq",
@@ -35,6 +32,21 @@
           },
           "preemptible": false
         }
+      },
+      {
+        "name": "dfine-xlarge-obj2coco-huggingface-train-evaluate",
+        "runtime": {
+          "podType": "gpu-t4",
+          "concurrency": 1,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.5",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 100
+          }
+        },
+        "executionTimeout": 432000
       }
     ],
     "modules": [
@@ -50,6 +62,63 @@
           }
         ],
         "functions": [
+          {
+            "name": "train_model",
+            "computeConfig": "dfine-xlarge-obj2coco-huggingface-train-evaluate",
+            "input": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              }
+            ],
+            "output": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              }
+            ],
+            "displayName": "Train a Model",
+            "displayIcon": "",
+            "description": "Function to train dfine-xlarge-obj2coco model"
+          },
+          {
+            "name": "evaluate_model",
+            "computeConfig": "dfine-xlarge-obj2coco-huggingface-train-evaluate",
+            "input": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              },
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "Dataloop Dataset Entity"
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "Dataloop Filter DQL"
+              }
+            ],
+            "output": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              },
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "Dataloop Dataset Entity"
+              }
+            ],
+            "displayName": "Evaluate a Model",
+            "displayIcon": "",
+            "description": "Function to evaluate dfine-xlarge-obj2coco model performance"
+          },
           {
             "name": "predict_items",
             "input": [
