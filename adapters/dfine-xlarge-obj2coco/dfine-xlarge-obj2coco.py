@@ -96,54 +96,32 @@ class HuggingAdapter(dl.BaseModelAdapter):
         logger.info('COCO JSON processing completed')
 
     def get_hugging_dataset(self, data_path: str) -> tuple[Dataset, Dataset]:
-        logger.info('Get hugging dataset (cached to disk)')
+        logger.info(f'get hugging dataset')
+        # Step 2: Prepare datasets
+        train_data = HuggingAdapter.load_coco_as_list(
+            os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
+        )
+        val_data = HuggingAdapter.load_coco_as_list(
+            os.path.join(data_path, "valid", "_annotations.coco.json"), os.path.join(data_path, "valid")
+        )
+        logger.info('run from list')
+        train_dataset = Dataset.from_list(train_data)
+        val_dataset = Dataset.from_list(val_data)
 
-        train_cache_dir = os.path.join(data_path, "train_preprocessed_lazy")
-        val_cache_dir = os.path.join(data_path, "valid_preprocessed_lazy")
+        # ------------------------- 1. preprocessing -------------------------
+        def preprocess(example):
+            return {"image_path": example["image"], "class_labels": example["class_labels"], "boxes": example["boxes"]}
 
-        if os.path.exists(train_cache_dir) and os.path.exists(val_cache_dir):
-            logger.info("Loading preprocessed datasets from disk...")
-            train_dataset = load_from_disk(train_cache_dir)
-            val_dataset = load_from_disk(val_cache_dir)
-        else:
-            logger.info("Preprocessing datasets from scratch...")
-            train_data = HuggingAdapter.load_coco_as_list(
-                os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
-            )
-            val_data = HuggingAdapter.load_coco_as_list(
-                os.path.join(data_path, "valid", "_annotations.coco.json"), os.path.join(data_path, "valid")
-            )
+        logger.info('run map')
+        # Step 4: Map preprocessing
+        train_dataset = train_dataset.map(preprocess, remove_columns=train_dataset.column_names)  # drop original cols
+        val_dataset = val_dataset.map(preprocess, remove_columns=val_dataset.column_names)
 
-            train_dataset = Dataset.from_list(train_data)
-            val_dataset = Dataset.from_list(val_data)
-
-            # 🧠 Don't load image or encode here — just keep paths + labels
-            def preprocess(example):
-                return {
-                    "image_path": example["image"],
-                    "class_labels": example["class_labels"],
-                    "boxes": example["boxes"],
-                }
-
-            train_dataset = train_dataset.map(
-                preprocess,
-                remove_columns=train_dataset.column_names,
-                batched=False,
-                num_proc=1,
-                load_from_cache_file=False,
-                keep_in_memory=False,
-            )
-            val_dataset = val_dataset.map(
-                preprocess,
-                remove_columns=val_dataset.column_names,
-                batched=False,
-                num_proc=1,
-                load_from_cache_file=False,
-                keep_in_memory=False,
-            )
-
-            train_dataset.save_to_disk(train_cache_dir)
-            val_dataset.save_to_disk(val_cache_dir)
+        # logger.info('run set format')
+        # # Tell the dataset to return torch tensors for the desired columns
+        # cols = ["pixel_values", "class_labels", "boxes"]
+        # train_dataset.set_format(type="torch", columns=cols)
+        # val_dataset.set_format(type="torch", columns=cols)
 
         # Don't set torch format yet — images will be processed later
         return train_dataset, val_dataset
