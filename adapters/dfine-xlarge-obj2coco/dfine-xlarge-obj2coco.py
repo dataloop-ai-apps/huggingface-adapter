@@ -10,8 +10,12 @@ from transformers import DFineForObjectDetection, AutoImageProcessor, TrainingAr
 import shutil
 from dtlpyconverters import services, coco_converters
 from pycocotools.coco import COCO
-from datasets import Dataset
+from datasets import Dataset, load_dataset, DatasetDict, concatenate_datasets
 from PIL import Image
+from datasets import Dataset, concatenate_datasets, load_from_disk
+from PIL import Image
+import torch
+import os
 
 # installs :
 # pip install datasets
@@ -92,39 +96,58 @@ class HuggingAdapter(dl.BaseModelAdapter):
         logger.info('COCO JSON processing completed')
 
     def get_hugging_dataset(self, data_path: str) -> tuple[Dataset, Dataset]:
-        logger.info(f'get hugging dataset')
-        # Step 2: Prepare datasets
-        train_data = HuggingAdapter.load_coco_as_list(
-            os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
-        )
-        val_data = HuggingAdapter.load_coco_as_list(
-            os.path.join(data_path, "valid", "_annotations.coco.json"), os.path.join(data_path, "valid")
-        )
-        logger.info('run from list')
-        train_dataset = Dataset.from_list(train_data)
-        val_dataset = Dataset.from_list(val_data)
+        logger.info('Get hugging dataset (cached to disk)')
 
-        # ------------------------- 1. preprocessing -------------------------
-        def preprocess(example):
-            image = Image.open(example["image"]).convert("RGB")
+        train_cache_dir = os.path.join(data_path, "train_preprocessed")
+        val_cache_dir = os.path.join(data_path, "valid_preprocessed")
 
-            # returns dict: {'pixel_values': tensor([1,3,H,W]), 'pixel_mask': ...}
-            enc = self.processor(images=image, return_tensors="pt")
-            enc = {k: v.squeeze(0) for k, v in enc.items()}  # remove the batch dim
+        if os.path.exists(train_cache_dir) and os.path.exists(val_cache_dir):
+            logger.info("Loading preprocessed datasets from disk...")
+            train_dataset = load_from_disk(train_cache_dir)
+            val_dataset = load_from_disk(val_cache_dir)
+        else:
+            logger.info("Preprocessing datasets from scratch...")
+            # Load COCO as list
+            train_data = HuggingAdapter.load_coco_as_list(
+                os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
+            )
+            val_data = HuggingAdapter.load_coco_as_list(
+                os.path.join(data_path, "valid", "_annotations.coco.json"), os.path.join(data_path, "valid")
+            )
 
-            # add label tensors in the format expected by the model
-            enc["class_labels"] = torch.tensor(example["class_labels"], dtype=torch.long)
-            enc["boxes"] = torch.tensor(example["boxes"], dtype=torch.float)
+            train_dataset = Dataset.from_list(train_data)
+            val_dataset = Dataset.from_list(val_data)
 
-            return enc
+            def preprocess(example):
+                image = Image.open(example["image"]).convert("RGB")
+                enc = self.processor(images=image, return_tensors="pt")
+                enc = {k: v.squeeze(0) for k, v in enc.items()}
+                enc["class_labels"] = torch.tensor(example["class_labels"], dtype=torch.long)
+                enc["boxes"] = torch.tensor(example["boxes"], dtype=torch.float)
+                return enc
 
-        logger.info('run map')
-        # Step 4: Map preprocessing
-        train_dataset = train_dataset.map(preprocess, remove_columns=train_dataset.column_names)  # drop original cols
-        val_dataset = val_dataset.map(preprocess, remove_columns=val_dataset.column_names)
+            train_dataset = train_dataset.map(
+                preprocess,
+                remove_columns=train_dataset.column_names,
+                batched=False,
+                num_proc=1,
+                load_from_cache_file=False,
+                keep_in_memory=False,
+            )
+            val_dataset = val_dataset.map(
+                preprocess,
+                remove_columns=val_dataset.column_names,
+                batched=False,
+                num_proc=1,
+                load_from_cache_file=False,
+                keep_in_memory=False,
+            )
 
-        logger.info('run set format')
-        # Tell the dataset to return torch tensors for the desired columns
+            # Save to disk
+            train_dataset.save_to_disk(train_cache_dir)
+            val_dataset.save_to_disk(val_cache_dir)
+
+        # Set format for training
         cols = ["pixel_values", "class_labels", "boxes"]
         train_dataset.set_format(type="torch", columns=cols)
         val_dataset.set_format(type="torch", columns=cols)
@@ -327,6 +350,7 @@ if __name__ == "__main__":
         dl.setenv('rc')
     else:
         dl.setenv('prod')
+    from dotenv import load_dotenv
 
     load_dotenv()
     api_key = os.getenv('DTLPY_API_KEY')
