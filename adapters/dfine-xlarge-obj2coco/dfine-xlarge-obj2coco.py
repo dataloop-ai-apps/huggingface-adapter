@@ -29,25 +29,6 @@ logger = logging.getLogger("[D-FINE]")
 
 class HuggingAdapter(dl.BaseModelAdapter):
     @staticmethod
-    def load_coco_as_list(annotation_path, image_dir):
-        coco = COCO(annotation_path)
-        items = []
-        for image_id in coco.imgs:
-            image_info = coco.loadImgs(image_id)[0]
-            file_path = os.path.join(image_dir, image_info["file_name"])
-            anns = coco.loadAnns(coco.getAnnIds(imgIds=image_id))
-
-            boxes = []
-            class_labels = []
-            for ann in anns:
-                x, y, w, h = ann["bbox"]
-                boxes.append([x, y, x + w, y + h])
-                class_labels.append(ann["category_id"])
-
-            items.append({"image": file_path, "class_labels": class_labels, "boxes": boxes})
-        return items
-
-    @staticmethod
     def _process_coco_json(output_annotations_path: str) -> None:
         """
         Process COCO JSON annotations file to make it compatible with RF-DETR requirements.
@@ -95,49 +76,74 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         logger.info('COCO JSON processing completed')
 
-    def get_hugging_dataset(self, data_path: str) -> tuple[Dataset, Dataset]:
-        logger.info(f'get hugging dataset')
+    def _get_hugging_dataset(self, data_path: str) -> tuple[Dataset, Dataset]:
+        logger.info('get_hugging_dataset')
+
+        def load_coco_as_list(annotation_path, image_dir):
+            coco = COCO(annotation_path)
+            items = []
+            for image_id in coco.imgs:
+                image_info = coco.loadImgs(image_id)[0]
+                file_path = os.path.join(image_dir, image_info["file_name"])
+                anns = coco.loadAnns(coco.getAnnIds(imgIds=image_id))
+
+                boxes = []
+                class_labels = []
+                for ann in anns:
+                    x, y, w, h = ann["bbox"]
+                    boxes.append([x, y, x + w, y + h])
+                    class_labels.append(ann["category_id"])
+
+                items.append({"image": file_path, "class_labels": class_labels, "boxes": boxes})
+            return items
+
         # Step 2: Prepare datasets
-        train_data = HuggingAdapter.load_coco_as_list(
-            os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
+        logger.info('load_coco_as_list train')
+        train_dataset = Dataset.from_list(
+            load_coco_as_list(
+                os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
+            )
         )
-        val_data = HuggingAdapter.load_coco_as_list(
-            os.path.join(data_path, "valid", "_annotations.coco.json"), os.path.join(data_path, "valid")
+        logger.info('load_coco_as_list val')
+        val_dataset = Dataset.from_list(
+            load_coco_as_list(
+                os.path.join(data_path, "valid", "_annotations.coco.json"), os.path.join(data_path, "valid")
+            )
         )
-        logger.info('run from list')
-        train_dataset = Dataset.from_list(train_data)
-        val_dataset = Dataset.from_list(val_data)
 
         # ------------------------- 1. preprocessing -------------------------
         def preprocess(example):
             return {"image_path": example["image"], "class_labels": example["class_labels"], "boxes": example["boxes"]}
 
-        logger.info('run map')
+        logger.info('datasets map')
         # Step 4: Map preprocessing
         train_dataset = train_dataset.map(preprocess, remove_columns=train_dataset.column_names)  # drop original cols
         val_dataset = val_dataset.map(preprocess, remove_columns=val_dataset.column_names)
-
-        # logger.info('run set format')
-        # # Tell the dataset to return torch tensors for the desired columns
-        # cols = ["pixel_values", "class_labels", "boxes"]
-        # train_dataset.set_format(type="torch", columns=cols)
-        # val_dataset.set_format(type="torch", columns=cols)
-
-        # Don't set torch format yet — images will be processed later
+        logger.info('datasets map done')
         return train_dataset, val_dataset
 
     def load(self, local_path, **kwargs):
         logger.info(f"Loading model from {local_path}")
         self.model_name = self.configuration.get("model_name", "d-fine")
-        self.device = self.configuration.get("device", "cpu")
-        self.processor = AutoImageProcessor.from_pretrained("ustc-community/dfine-xlarge-obj2coco")
-        self.model = DFineForObjectDetection.from_pretrained("ustc-community/dfine-xlarge-obj2coco")
-        self.model.to(self.device)
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        image_processor_path = self.configuration.get("image_processor_path", "ustc-community/dfine-xlarge-obj2coco")
+        self.processor = AutoImageProcessor.from_pretrained(image_processor_path)
 
-    def prepare_item_func(self, item: dl.Item):
-        if 'image/' not in item.mimetype:
-            raise ValueError("Item must be an image for object detection.")
-        return item
+        self.model = None
+        checkpoint_path = self.configuration.get("checkpoint_path", "ustc-community/dfine-xlarge-obj2coco")
+        if checkpoint_path != "" and checkpoint_path.strip() != "":
+            required_files = ['config.json', 'model.safetensors', 'training_args.bin', 'trainer_state.json']
+            has_required_files = all(os.path.exists(os.path.join(checkpoint_path, f)) for f in required_files)
+            if not has_required_files:
+                logger.warning(f"Checkpoint path {checkpoint_path} does not contain required files: {required_files}")
+            else:
+                logger.info(f"Loading model from checkpoint: {checkpoint_path}")
+                self.model = DFineForObjectDetection.from_pretrained(
+                    pretrained_model_name_or_path=checkpoint_path, local_files_only=True, use_safetensors=True
+                )
+        if self.model is None:
+            self.model = DFineForObjectDetection.from_pretrained(checkpoint_path)
+        self.model.to(self.device)
 
     def predict(self, batch: List[dl.Item], **kwargs):
         batch_annotations = []
@@ -266,16 +272,139 @@ class HuggingAdapter(dl.BaseModelAdapter):
             logger.info(f'Moving directory from {tmp_dir_path} to {dst_images_path}')
             shutil.move(tmp_dir_path, dst_images_path)
 
-    def get_train_training_args(self, output_path: str):
+    def get_training_args(self, output_path: str):
         train_config_dict = self.configuration.get('train_configs', {})
         logger.info(f'train_config_dict: {train_config_dict}')
         return TrainingArguments(
             output_dir=output_path,
-            per_device_train_batch_size=train_config_dict.get('per_device_train_batch_size', 4),
-            num_train_epochs=train_config_dict.get('num_train_epochs', 10),
-            logging_steps=train_config_dict.get('logging_steps', 10),
-            save_strategy=train_config_dict.get('save_strategy', "epoch"),
-            remove_unused_columns=train_config_dict.get('remove_unused_columns', False),
+            overwrite_output_dir=train_config_dict.get('overwrite_output_dir', False),
+            do_train=train_config_dict.get('do_train', False),
+            do_eval=train_config_dict.get('do_eval', False),
+            do_predict=train_config_dict.get('do_predict', False),
+            eval_strategy=train_config_dict.get('eval_strategy', "no"),
+            prediction_loss_only=train_config_dict.get('prediction_loss_only', False),
+            per_device_train_batch_size=train_config_dict.get('per_device_train_batch_size', 8),
+            per_device_eval_batch_size=train_config_dict.get('per_device_eval_batch_size', 8),
+            per_gpu_train_batch_size=train_config_dict.get('per_gpu_train_batch_size', None),
+            per_gpu_eval_batch_size=train_config_dict.get('per_gpu_eval_batch_size', None),
+            gradient_accumulation_steps=train_config_dict.get('gradient_accumulation_steps', 1),
+            eval_accumulation_steps=train_config_dict.get('eval_accumulation_steps', None),
+            eval_delay=train_config_dict.get('eval_delay', 0),
+            torch_empty_cache_steps=train_config_dict.get('torch_empty_cache_steps', None),
+            learning_rate=train_config_dict.get('learning_rate', 5e-5),
+            weight_decay=train_config_dict.get('weight_decay', 0.0),
+            adam_beta1=train_config_dict.get('adam_beta1', 0.9),
+            adam_beta2=train_config_dict.get('adam_beta2', 0.999),
+            adam_epsilon=train_config_dict.get('adam_epsilon', 1e-8),
+            max_grad_norm=train_config_dict.get('max_grad_norm', 1.0),
+            num_train_epochs=train_config_dict.get('num_train_epochs', 3.0),
+            max_steps=train_config_dict.get('max_steps', -1),
+            lr_scheduler_type=train_config_dict.get('lr_scheduler_type', "linear"),
+            lr_scheduler_kwargs=train_config_dict.get('lr_scheduler_kwargs', {}),
+            warmup_ratio=train_config_dict.get('warmup_ratio', 0.0),
+            warmup_steps=train_config_dict.get('warmup_steps', 0),
+            log_level=train_config_dict.get('log_level', "passive"),
+            log_level_replica=train_config_dict.get('log_level_replica', "warning"),
+            log_on_each_node=train_config_dict.get('log_on_each_node', True),
+            logging_dir=train_config_dict.get('logging_dir', None),
+            logging_strategy=train_config_dict.get('logging_strategy', "steps"),
+            logging_first_step=train_config_dict.get('logging_first_step', False),
+            logging_steps=train_config_dict.get('logging_steps', 500),
+            logging_nan_inf_filter=train_config_dict.get('logging_nan_inf_filter', True),
+            save_strategy=train_config_dict.get('save_strategy', "steps"),
+            save_steps=train_config_dict.get('save_steps', 500),
+            save_total_limit=train_config_dict.get('save_total_limit', None),
+            save_safetensors=train_config_dict.get('save_safetensors', True),
+            save_on_each_node=train_config_dict.get('save_on_each_node', False),
+            save_only_model=train_config_dict.get('save_only_model', False),
+            restore_callback_states_from_checkpoint=train_config_dict.get(
+                'restore_callback_states_from_checkpoint', False
+            ),
+            no_cuda=train_config_dict.get('no_cuda', False),
+            use_cpu=train_config_dict.get('use_cpu', False),
+            use_mps_device=train_config_dict.get('use_mps_device', False),
+            seed=train_config_dict.get('seed', 42),
+            data_seed=train_config_dict.get('data_seed', None),
+            jit_mode_eval=train_config_dict.get('jit_mode_eval', False),
+            use_ipex=train_config_dict.get('use_ipex', False),
+            bf16=train_config_dict.get('bf16', False),
+            fp16=train_config_dict.get('fp16', False),
+            fp16_opt_level=train_config_dict.get('fp16_opt_level', "O1"),
+            half_precision_backend=train_config_dict.get('half_precision_backend', "auto"),
+            bf16_full_eval=train_config_dict.get('bf16_full_eval', False),
+            fp16_full_eval=train_config_dict.get('fp16_full_eval', False),
+            tf32=train_config_dict.get('tf32', None),
+            local_rank=train_config_dict.get('local_rank', -1),
+            ddp_backend=train_config_dict.get('ddp_backend', None),
+            tpu_num_cores=train_config_dict.get('tpu_num_cores', None),
+            tpu_metrics_debug=train_config_dict.get('tpu_metrics_debug', False),
+            debug=train_config_dict.get('debug', ""),
+            dataloader_drop_last=train_config_dict.get('dataloader_drop_last', False),
+            eval_steps=train_config_dict.get('eval_steps', None),
+            dataloader_num_workers=train_config_dict.get('dataloader_num_workers', 0),
+            dataloader_prefetch_factor=train_config_dict.get('dataloader_prefetch_factor', None),
+            past_index=train_config_dict.get('past_index', -1),
+            run_name=train_config_dict.get('run_name', None),
+            disable_tqdm=train_config_dict.get('disable_tqdm', None),
+            remove_unused_columns=train_config_dict.get('remove_unused_columns', True),
+            label_names=train_config_dict.get('label_names', None),
+            load_best_model_at_end=train_config_dict.get('load_best_model_at_end', False),
+            metric_for_best_model=train_config_dict.get('metric_for_best_model', None),
+            greater_is_better=train_config_dict.get('greater_is_better', None),
+            ignore_data_skip=train_config_dict.get('ignore_data_skip', False),
+            fsdp=train_config_dict.get('fsdp', ""),
+            fsdp_min_num_params=train_config_dict.get('fsdp_min_num_params', 0),
+            fsdp_config=train_config_dict.get('fsdp_config', None),
+            fsdp_transformer_layer_cls_to_wrap=train_config_dict.get('fsdp_transformer_layer_cls_to_wrap', None),
+            accelerator_config=train_config_dict.get('accelerator_config', None),
+            deepspeed=train_config_dict.get('deepspeed', None),
+            label_smoothing_factor=train_config_dict.get('label_smoothing_factor', 0.0),
+            optim=train_config_dict.get('optim', "adamw_torch"),
+            optim_args=train_config_dict.get('optim_args', None),
+            adafactor=train_config_dict.get('adafactor', False),
+            group_by_length=train_config_dict.get('group_by_length', False),
+            length_column_name=train_config_dict.get('length_column_name', "length"),
+            report_to=train_config_dict.get('report_to', None),
+            ddp_find_unused_parameters=train_config_dict.get('ddp_find_unused_parameters', None),
+            ddp_bucket_cap_mb=train_config_dict.get('ddp_bucket_cap_mb', None),
+            ddp_broadcast_buffers=train_config_dict.get('ddp_broadcast_buffers', None),
+            dataloader_pin_memory=train_config_dict.get('dataloader_pin_memory', True),
+            dataloader_persistent_workers=train_config_dict.get('dataloader_persistent_workers', False),
+            skip_memory_metrics=train_config_dict.get('skip_memory_metrics', True),
+            use_legacy_prediction_loop=train_config_dict.get('use_legacy_prediction_loop', False),
+            push_to_hub=train_config_dict.get('push_to_hub', False),
+            resume_from_checkpoint=train_config_dict.get('resume_from_checkpoint', None),
+            hub_model_id=train_config_dict.get('hub_model_id', None),
+            hub_strategy=train_config_dict.get('hub_strategy', "every_save"),
+            hub_token=train_config_dict.get('hub_token', None),
+            hub_private_repo=train_config_dict.get('hub_private_repo', None),
+            hub_always_push=train_config_dict.get('hub_always_push', False),
+            gradient_checkpointing=train_config_dict.get('gradient_checkpointing', False),
+            gradient_checkpointing_kwargs=train_config_dict.get('gradient_checkpointing_kwargs', None),
+            include_inputs_for_metrics=train_config_dict.get('include_inputs_for_metrics', False),
+            include_for_metrics=train_config_dict.get('include_for_metrics', []),
+            eval_do_concat_batches=train_config_dict.get('eval_do_concat_batches', True),
+            fp16_backend=train_config_dict.get('fp16_backend', "auto"),
+            push_to_hub_model_id=train_config_dict.get('push_to_hub_model_id', None),
+            push_to_hub_organization=train_config_dict.get('push_to_hub_organization', None),
+            push_to_hub_token=train_config_dict.get('push_to_hub_token', None),
+            auto_find_batch_size=train_config_dict.get('auto_find_batch_size', False),
+            full_determinism=train_config_dict.get('full_determinism', False),
+            torchdynamo=train_config_dict.get('torchdynamo', None),
+            ray_scope=train_config_dict.get('ray_scope', "last"),
+            ddp_timeout=train_config_dict.get('ddp_timeout', 1800),
+            torch_compile=train_config_dict.get('torch_compile', False),
+            torch_compile_backend=train_config_dict.get('torch_compile_backend', None),
+            torch_compile_mode=train_config_dict.get('torch_compile_mode', None),
+            include_tokens_per_second=train_config_dict.get('include_tokens_per_second', False),
+            include_num_input_tokens_seen=train_config_dict.get('include_num_input_tokens_seen', False),
+            neftune_noise_alpha=train_config_dict.get('neftune_noise_alpha', None),
+            optim_target_modules=train_config_dict.get('optim_target_modules', None),
+            batch_eval_metrics=train_config_dict.get('batch_eval_metrics', False),
+            eval_on_start=train_config_dict.get('eval_on_start', False),
+            use_liger_kernel=train_config_dict.get('use_liger_kernel', False),
+            eval_use_gather_object=train_config_dict.get('eval_use_gather_object', False),
+            average_tokens_across_devices=train_config_dict.get('average_tokens_across_devices', False),
         )
 
     def save(self, local_path: str, **kwargs) -> None:
@@ -294,7 +423,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         print("need to implement save")
 
     def train(self, data_path: str, output_path: str, **kwargs) -> None:
-        train_dataset, val_dataset = self.get_hugging_dataset(data_path)
+        train_dataset, val_dataset = self._get_hugging_dataset(data_path)
 
         # Step 5: Collate function
         # ------------------------- 3. custom collate_fn -------------------------
@@ -314,7 +443,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         trainer = Trainer(
             model=self.model,
-            args=self.get_train_training_args(output_path),
+            args=self.get_training_args(output_path),
             train_dataset=train_dataset,
             eval_dataset=val_dataset,
             data_collator=collate_fn,
