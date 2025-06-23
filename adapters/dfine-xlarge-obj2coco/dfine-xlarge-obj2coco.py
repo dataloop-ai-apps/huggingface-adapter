@@ -6,7 +6,8 @@ import torch
 import logging
 import dtlpy as dl
 from typing import List
-from transformers import DFineForObjectDetection, AutoImageProcessor, TrainingArguments, Trainer
+from transformers import DFineForObjectDetection, AutoImageProcessor, TrainingArguments, Trainer, TrainerCallback
+from transformers.trainer_callback import TrainerState, TrainerControl
 import shutil
 from dtlpyconverters import services, coco_converters
 from pycocotools.coco import COCO
@@ -18,16 +19,33 @@ import torch
 import os
 
 # installs :
+# pip install dtlpy
 # pip install datasets
 # pip install git+https://github.com/dataloop-ai-apps/dtlpy-converters
 # pip install -U transformers
 # pip install python-dotenv
-
+#
+# pip install async-
 
 logger = logging.getLogger("[D-FINE]")
 
-
 class HuggingAdapter(dl.BaseModelAdapter):
+    class EpochEndCallback(TrainerCallback):
+    def __init__(self, model_adapter: HuggingAdapter,faas_callback: Optional[Callable] = None):
+        super().__init__()
+        self.model_adapter = model_adapter
+        self.faas_callback = faas_callback
+
+    def on_epoch_end(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs):
+        print("on_epoch_end")
+        print(f"✅ Epoch {state.epoch} ended")
+        print(f"state: {state}")
+        # You can add more logic here (logging, saving, eval, etc.)
+        if self.faas_callback:
+            self.faas_callback(state.epoch,self.model_adapter.configuration['train_configs']['num_train_epochs'])
+        self.configuration['start_epoch'] = state.epoch + 1
+        return control
+    
     @staticmethod
     def _process_coco_json(output_annotations_path: str) -> None:
         """
@@ -190,6 +208,21 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         return batch_annotations
 
+    def save(self, local_path: str, **kwargs) -> None:
+        """
+        Save model configuration by updating the weights filename.
+
+        This method updates the model configuration to point to the best checkpoint weights file.
+
+        Args:
+            local_path (str): Path where model files are saved (unused)
+            **kwargs: Additional keyword arguments (unused)
+
+        Returns:
+            None
+        """
+        self.configuration.update({'weights_filename': 'checkpoint_best_total.pth'})
+
     def convert_from_dtlpy(self, data_path: str, **kwargs) -> None:
         """Convert dataset from Dataloop format to COCO format.
 
@@ -281,7 +314,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             do_train=train_config_dict.get('do_train', False),
             do_eval=train_config_dict.get('do_eval', False),
             do_predict=train_config_dict.get('do_predict', False),
-            eval_strategy=train_config_dict.get('eval_strategy', "no"),
+            eval_strategy=train_config_dict.get('eval_strategy', "epoch"),
             prediction_loss_only=train_config_dict.get('prediction_loss_only', False),
             per_device_train_batch_size=train_config_dict.get('per_device_train_batch_size', 8),
             per_device_eval_batch_size=train_config_dict.get('per_device_eval_batch_size', 8),
@@ -311,7 +344,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             logging_first_step=train_config_dict.get('logging_first_step', False),
             logging_steps=train_config_dict.get('logging_steps', 500),
             logging_nan_inf_filter=train_config_dict.get('logging_nan_inf_filter', True),
-            save_strategy=train_config_dict.get('save_strategy', "steps"),
+            save_strategy=train_config_dict.get('save_strategy', "epoch"),
             save_steps=train_config_dict.get('save_steps', 500),
             save_total_limit=train_config_dict.get('save_total_limit', None),
             save_safetensors=train_config_dict.get('save_safetensors', True),
@@ -346,11 +379,11 @@ class HuggingAdapter(dl.BaseModelAdapter):
             past_index=train_config_dict.get('past_index', -1),
             run_name=train_config_dict.get('run_name', None),
             disable_tqdm=train_config_dict.get('disable_tqdm', None),
-            remove_unused_columns=train_config_dict.get('remove_unused_columns', True),
+            remove_unused_columns=False,
             label_names=train_config_dict.get('label_names', None),
-            load_best_model_at_end=train_config_dict.get('load_best_model_at_end', False),
-            metric_for_best_model=train_config_dict.get('metric_for_best_model', None),
-            greater_is_better=train_config_dict.get('greater_is_better', None),
+            load_best_model_at_end=True,
+            metric_for_best_model="loss",
+            greater_is_better=False,
             ignore_data_skip=train_config_dict.get('ignore_data_skip', False),
             fsdp=train_config_dict.get('fsdp', ""),
             fsdp_min_num_params=train_config_dict.get('fsdp_min_num_params', 0),
@@ -408,19 +441,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         )
 
     def save(self, local_path: str, **kwargs) -> None:
-        """
-        Save model configuration by updating the weights filename.
-
-        This method updates the model configuration to point to the best checkpoint weights file.
-
-        Args:
-            local_path (str): Path where model files are saved (unused)
-            **kwargs: Additional keyword arguments (unused)
-
-        Returns:
-            None
-        """
-        print("need to implement save")
+        pass
 
     def train(self, data_path: str, output_path: str, **kwargs) -> None:
         train_dataset, val_dataset = self._get_hugging_dataset(data_path)
@@ -447,6 +468,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             train_dataset=train_dataset,
             eval_dataset=val_dataset,
             data_collator=collate_fn,
+            callbacks=[EpochEndCallback()],
         )
         logger.info("start real training")
         trainer.train()
@@ -478,10 +500,11 @@ if __name__ == "__main__":
     if use_rc_env:
         project = dl.projects.get(project_name='Husam Testing')
     else:
-        # project = dl.projects.get(project_name='ShadiDemo')
-        project = dl.projects.get(project_name='IPM development')
+        project = dl.projects.get(project_name='ShadiDemo')
+        # project = dl.projects.get(project_name='IPM development')
     print("project done")
-    model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
+    # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
+    model = project.models.get(model_name='rf-detr-sdk-clone-1')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
