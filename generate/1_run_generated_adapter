@@ -4,8 +4,8 @@ import glob
 import importlib.util
 import dtlpy as dl
 
-MODEL_NAME = "ustc-community/dfine-xlarge-obj2coco"  # "facebook/detr-resnet-50"  # "dslim/bert-base-NER"
-ITEM_ID = "67bee79dcb4162a4b84e1ab5"
+MODEL_NAME = "meta-llama/Llama-4-Scout-17B-16E-Instruct"  # "facebook/detr-resnet-50"  # "dslim/bert-base-NER"
+ITEM_ID = "67c961cc084575d04c468719"
 # Available items:
 # "67c961cc084575d04c468719"  -  photo in a prompt item
 # "67da8d6da1b8775dbed524f2" - text only prompt item

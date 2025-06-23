@@ -81,7 +81,7 @@ if MODEL_ADAPTER_TYPE == "convert_to_hugging_base":
 
 # get the model card to be generated
 model_card_path = hf_hub_download(repo_id=MODEL_REPO, filename='README.md')
-with open(model_card_path, 'r') as f:
+with open(model_card_path, 'r', encoding='utf-8') as f:
     model_card = f.read()
 
 # Extract model type and media type from model card
