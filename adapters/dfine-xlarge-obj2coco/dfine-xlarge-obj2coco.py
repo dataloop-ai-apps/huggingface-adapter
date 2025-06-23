@@ -17,6 +17,8 @@ from datasets import Dataset, concatenate_datasets, load_from_disk
 from PIL import Image
 import torch
 import os
+from typing import Optional, Callable
+import numpy as np
 
 # installs :
 # pip install dtlpy
@@ -29,23 +31,56 @@ import os
 
 logger = logging.getLogger("[D-FINE]")
 
-class HuggingAdapter(dl.BaseModelAdapter):
-    class EpochEndCallback(TrainerCallback):
-    def __init__(self, model_adapter: HuggingAdapter,faas_callback: Optional[Callable] = None):
-        super().__init__()
-        self.model_adapter = model_adapter
-        self.faas_callback = faas_callback
 
-    def on_epoch_end(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs):
-        print("on_epoch_end")
-        print(f"✅ Epoch {state.epoch} ended")
-        print(f"state: {state}")
-        # You can add more logic here (logging, saving, eval, etc.)
-        if self.faas_callback:
-            self.faas_callback(state.epoch,self.model_adapter.configuration['train_configs']['num_train_epochs'])
-        self.configuration['start_epoch'] = state.epoch + 1
-        return control
-    
+class HuggingAdapter(dl.BaseModelAdapter):
+
+    class EpochEndCallback(TrainerCallback):
+        def __init__(self, model_adapter: 'HuggingAdapter', faas_callback: Optional[Callable] = None):
+            super().__init__()
+            self.model_adapter = model_adapter
+            self.faas_callback = faas_callback
+
+        def on_epoch_end(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs):
+            current_epoch = int(state.epoch)
+            total_epochs = int(args.num_train_epochs)
+            logger.info(f"✅ Epoch {current_epoch} ended")
+
+            # FaaS callback
+            if self.faas_callback:
+                self.faas_callback(current_epoch, total_epochs)
+
+            # Collect metrics (dummy example: extract loss, adapt if more are needed)
+            samples = []
+            NaN_defaults = {'loss': 1.0}
+            metrics = state.log_history[-1] if state.log_history else {}
+
+            for metric_name, value in metrics.items():
+                if not isinstance(value, (int, float)) or not np.isfinite(value):
+                    logger.warning(f"Non-finite value for {metric_name}. Replacing with default.")
+                    value = NaN_defaults.get(metric_name, 0)
+
+                samples.append(dl.PlotSample(figure=metric_name, legend='metrics', x=current_epoch, y=value))
+
+            try:
+                if samples:
+                    self.model_adapter.model_entity.metrics.create(
+                        samples=samples, dataset_id=self.model_adapter.model_entity.dataset_id
+                    )
+            except Exception as e:
+                logger.error(f"Failed to store metrics in Dataloop: {e}")
+
+            # Save model
+            logger.info("Saving model checkpoint to model entity...")
+            try:
+                self.model_adapter.save_to_model(local_path=args.output_dir, cleanup=False)
+            except Exception as e:
+                logger.error(f"Error during model saving: {e}")
+
+            # Update internal configuration
+            self.model_adapter.configuration['start_epoch'] = current_epoch + 1
+
+            return control
+
     @staticmethod
     def _process_coco_json(output_annotations_path: str) -> None:
         """
@@ -207,21 +242,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 logger.error(f"Error processing item {item.id}: {str(e)}")
 
         return batch_annotations
-
-    def save(self, local_path: str, **kwargs) -> None:
-        """
-        Save model configuration by updating the weights filename.
-
-        This method updates the model configuration to point to the best checkpoint weights file.
-
-        Args:
-            local_path (str): Path where model files are saved (unused)
-            **kwargs: Additional keyword arguments (unused)
-
-        Returns:
-            None
-        """
-        self.configuration.update({'weights_filename': 'checkpoint_best_total.pth'})
 
     def convert_from_dtlpy(self, data_path: str, **kwargs) -> None:
         """Convert dataset from Dataloop format to COCO format.
@@ -468,7 +488,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             train_dataset=train_dataset,
             eval_dataset=val_dataset,
             data_collator=collate_fn,
-            callbacks=[EpochEndCallback()],
+            callbacks=[self.EpochEndCallback(self)],
         )
         logger.info("start real training")
         trainer.train()
@@ -504,7 +524,7 @@ if __name__ == "__main__":
         # project = dl.projects.get(project_name='IPM development')
     print("project done")
     # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='rf-detr-sdk-clone-1')
+    model = project.models.get(model_name='rf-detr-sdk-clone-2')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
