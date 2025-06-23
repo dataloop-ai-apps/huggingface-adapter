@@ -78,6 +78,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
             # Update internal configuration
             self.model_adapter.configuration['start_epoch'] = current_epoch + 1
+            self.model_adapter.configuration['checkpoint_path'] = os.path.basename(state.best_model_checkpoint)
 
             return control
 
