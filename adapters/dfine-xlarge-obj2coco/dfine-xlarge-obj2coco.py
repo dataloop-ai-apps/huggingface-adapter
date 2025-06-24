@@ -118,6 +118,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             try:
                 checkpoint_dir = args.output_dir
                 checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
+                print(f"-HHH-Current directory: {checkpoint_dir}")
                 if checkpoints:
                     # Sort checkpoints by number
                     checkpoints.sort(key=lambda x: int(x.split('-')[1]))
@@ -127,22 +128,29 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     latest_src = os.path.join(checkpoint_dir, latest_checkpoint)
                     latest_dst = os.path.join(checkpoint_dir, 'last-checkpoint')
                     if os.path.exists(latest_dst):
+                        print(f"-HHH- removing {latest_dst}")
                         shutil.rmtree(latest_dst)
+                    print(f"-HHH- copying {latest_src} to {latest_dst}")
                     shutil.copytree(latest_src, latest_dst)
 
                     # Copy best checkpoint if available
                     if state.best_model_checkpoint:
                         best_checkpoint = os.path.basename(state.best_model_checkpoint)
                         best_src = os.path.join(checkpoint_dir, best_checkpoint)
-                        best_dst = os.path.join(checkpoint_dir, 'best-checkpoint')
-                        if os.path.exists(best_dst):
-                            shutil.rmtree(best_dst)
-                        shutil.copytree(best_src, best_dst)
+                        if os.path.exists(best_src):
+                            best_dst = os.path.join(checkpoint_dir, 'best-checkpoint')
+                            if os.path.exists(best_dst):
+                                print(f"-HHH- removing {best_dst}")
+                                shutil.rmtree(best_dst)
+                            print(f"-HHH- copying {best_src} to {best_dst}")
+                            shutil.copytree(best_src, best_dst)
 
                     # Remove all numbered checkpoints
                     for checkpoint in checkpoints:
                         checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
-                        shutil.rmtree(checkpoint_path)
+                        if os.path.exists(checkpoint_path):
+                            print(f"-HHH- removing {checkpoint_path}")
+                            shutil.rmtree(checkpoint_path)
 
                     logger.info("Successfully copied checkpoints and cleaned up old ones")
                     print("Successfully copied checkpoints and cleaned up old ones")
@@ -440,11 +448,12 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         return TrainingArguments(
             output_dir=output_path,
-            per_device_train_batch_size=cfg.get('per_device_train_batch_size', 8),
-            per_device_eval_batch_size=cfg.get('per_device_eval_batch_size', 8),
+            # TODO reset to 8
+            per_device_train_batch_size=cfg.get('per_device_train_batch_size', 1),
+            per_device_eval_batch_size=cfg.get('per_device_eval_batch_size', 1),
             learning_rate=cfg.get('learning_rate', 5e-5),
             weight_decay=cfg.get('weight_decay', 0.0),
-            num_train_epochs=cfg.get('num_train_epochs', 3),
+            num_train_epochs=cfg.get('num_train_epochs', 5),
             logging_strategy="epoch",
             logging_steps=50,
             save_strategy="epoch",
@@ -456,6 +465,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             resume_from_checkpoint=cfg.get('resume_from_checkpoint', None),
             remove_unused_columns=False,
             fp16=cfg.get('fp16', False),
+            disable_tqdm=True,  # Disable progress bars
         )
 
     def save(self, local_path: str, **kwargs) -> None:
@@ -588,7 +598,7 @@ if __name__ == "__main__":
         # project = dl.projects.get(project_name='IPM development')
     print("project done")
     # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='rf-detr-sdk-clone-6')
+    model = project.models.get(model_name='rf-detr-sdk-clone-9')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
