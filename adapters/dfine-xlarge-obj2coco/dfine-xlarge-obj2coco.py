@@ -1,24 +1,21 @@
 import json
+import logging
 import os
+import shutil
 from pathlib import Path
+from typing import List, Optional, Callable
+
+import numpy as np
 import PIL
 import torch
-import logging
-import dtlpy as dl
-from typing import List
+from datasets import Dataset, load_dataset, DatasetDict, concatenate_datasets, load_from_disk
+from PIL import Image
+from pycocotools.coco import COCO
 from transformers import DFineForObjectDetection, AutoImageProcessor, TrainingArguments, Trainer, TrainerCallback
 from transformers.trainer_callback import TrainerState, TrainerControl
-import shutil
+
+import dtlpy as dl
 from dtlpyconverters import services, coco_converters
-from pycocotools.coco import COCO
-from datasets import Dataset, load_dataset, DatasetDict, concatenate_datasets
-from PIL import Image
-from datasets import Dataset, concatenate_datasets, load_from_disk
-from PIL import Image
-import torch
-import os
-from typing import Optional, Callable
-import numpy as np
 from dtlpy.services import service_defaults
 
 # installs :
@@ -87,34 +84,12 @@ class HuggingAdapter(dl.BaseModelAdapter):
             logger.info(f"best_model_checkpoint: {state.best_model_checkpoint}")
             print(f"best_model_checkpoint: {state.best_model_checkpoint}")
             if state.best_model_checkpoint:
-                self.model_adapter.configuration['checkpoint_name'] = os.path.basename(state.best_model_checkpoint)
+                self.model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
             else:
                 logger.info("No best model checkpoint available yet")
                 print("No best model checkpoint available yet")
             self.model_adapter.model_entity.update()
 
-            # # Clean up old checkpoints, keeping only latest and best
-            # try:
-            #     checkpoint_dir = args.output_dir
-            #     checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
-            #     if len(checkpoints) > 2:  # Only clean if we have more than 2 checkpoints
-            #         checkpoints.sort(key=lambda x: int(x.split('-')[1]))  # Sort by checkpoint number
-            #         latest_checkpoint = checkpoints[-1]
-            #         best_checkpoint = (
-            #             os.path.basename(state.best_model_checkpoint) if state.best_model_checkpoint else None
-            #         )
-
-            #         for checkpoint in checkpoints:
-            #             checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
-            #             if checkpoint != latest_checkpoint and checkpoint != best_checkpoint:
-            #                 logger.info(f"Removing old checkpoint: {checkpoint}")
-            #                 print(f"Removing old checkpoint: {checkpoint}")
-            #                 shutil.rmtree(checkpoint_path)
-            # except Exception as e:
-            #     logger.error(f"Error cleaning up old checkpoints: {e}")
-            #     print(f"Error cleaning up old checkpoints: {e}")
-
-            # Copy latest and best checkpoints to fixed locations
             try:
                 checkpoint_dir = args.output_dir
                 checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
@@ -453,7 +428,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             per_device_eval_batch_size=cfg.get('per_device_eval_batch_size', 1),
             learning_rate=cfg.get('learning_rate', 5e-5),
             weight_decay=cfg.get('weight_decay', 0.0),
-            num_train_epochs=cfg.get('num_train_epochs', 5),
+            num_train_epochs=cfg.get('num_train_epochs', 3),
             logging_strategy="epoch",
             logging_steps=50,
             save_strategy="epoch",
@@ -504,17 +479,16 @@ class HuggingAdapter(dl.BaseModelAdapter):
         train_dataset, val_dataset = self._get_hugging_dataset(data_path)
 
         # Resume from checkpoint logic
-        start_epoch = self.configuration.get('start_epoch', 0)
-        checkpoint_name = self.configuration.get('checkpoint_name', None)
+        start_epoch = self.configuration.get('start_epoch', 1)
 
         resume_checkpoint = None
-        if start_epoch > 0 and checkpoint_name:
+        if start_epoch > 1:
             resume_checkpoint = os.path.join(
-                service_defaults.DATALOOP_PATH, "models", self.model_entity.name, checkpoint_name
+                service_defaults.DATALOOP_PATH, "models", self.model_entity.name, 'last-checkpoint'
             )
             print(f"resume_checkpoint: {resume_checkpoint}")
             # resume_checkpoint = os.path.join(output_path, f"checkpoint-{start_epoch}")
-            if not os.path.isfile(resume_checkpoint):
+            if not os.path.isdir(resume_checkpoint):
                 raise FileNotFoundError(f"Resume checkpoint not found at: {resume_checkpoint}")
             logger.info(f"Resuming training from checkpoint: {resume_checkpoint}")
             print(f"Resuming training from checkpoint: {resume_checkpoint}")
@@ -564,9 +538,14 @@ class HuggingAdapter(dl.BaseModelAdapter):
         print("Training completed")
 
         #  Check if the model (checkpoint) has already completed training for the specified number of epochs, if so, can start again without resuming
-        if 'start_epoch' in self.configuration and self.configuration['start_epoch'] == training_args.num_train_epochs:
-            self.configuration['start_epoch'] = 0
+        start_epoch = self.configuration.get('start_epoch', 1)
+        if start_epoch == training_args.num_train_epochs + 1:
+            self.configuration['start_epoch'] = 1
             self.model_entity.update()
+
+    def embed(self, batch: List[dl.Item], **kwargs):
+        """Embed items - not implemented for this adapter."""
+        raise NotImplementedError("Embed method not implemented for this adapter")
 
 
 if __name__ == "__main__":
@@ -598,12 +577,13 @@ if __name__ == "__main__":
         # project = dl.projects.get(project_name='IPM development')
     print("project done")
     # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='rf-detr-sdk-clone-9')
+    model = project.models.get(model_name='rf-detr-sdk-clone-11')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
-    # model_adapter.configuration['start_epoch'] = 3
-    # model_adapter.configuration['train_configs'] = {'num_train_epochs': 4}
+    model_adapter.configuration['start_epoch'] = 4
+    # model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
+    model_adapter.configuration['train_configs'] = {'num_train_epochs': 7}
     print("model_adapter done - start train")
     model_adapter.train_model(model=model)
     print("convert done")
