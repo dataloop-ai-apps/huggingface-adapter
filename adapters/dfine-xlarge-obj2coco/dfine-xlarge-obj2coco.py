@@ -42,6 +42,15 @@ class HuggingAdapter(dl.BaseModelAdapter):
             self.faas_callback = faas_callback
 
         def on_epoch_end(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs):
+            print(f"\nContents of output_dir {args.output_dir}:")
+            for root, dirs, files in os.walk(args.output_dir):
+                level = root.replace(args.output_dir, '').count(os.sep)
+                if level <= 2:  # Only print up to 3 levels (0, 1, 2)
+                    indent = ' ' * 4 * level
+                    print(f"{indent}{os.path.basename(root)}/")
+                    subindent = ' ' * 4 * (level + 1)
+                    for f in files:
+                        print(f"{subindent}{f}")
             current_epoch = int(state.epoch)
             total_epochs = int(args.num_train_epochs)
             logger.info(f"Epoch {current_epoch} ended")
@@ -73,7 +82,84 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 logger.error(f"Failed to store metrics in Dataloop: {e}")
                 print(f"Failed to store metrics in Dataloop: {e}")
 
+            # Update internal configuration
+            self.model_adapter.configuration['start_epoch'] = current_epoch + 1
+            logger.info(f"best_model_checkpoint: {state.best_model_checkpoint}")
+            print(f"best_model_checkpoint: {state.best_model_checkpoint}")
+            if state.best_model_checkpoint:
+                self.model_adapter.configuration['checkpoint_name'] = os.path.basename(state.best_model_checkpoint)
+            else:
+                logger.info("No best model checkpoint available yet")
+                print("No best model checkpoint available yet")
+            self.model_adapter.model_entity.update()
+
+            # # Clean up old checkpoints, keeping only latest and best
+            # try:
+            #     checkpoint_dir = args.output_dir
+            #     checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
+            #     if len(checkpoints) > 2:  # Only clean if we have more than 2 checkpoints
+            #         checkpoints.sort(key=lambda x: int(x.split('-')[1]))  # Sort by checkpoint number
+            #         latest_checkpoint = checkpoints[-1]
+            #         best_checkpoint = (
+            #             os.path.basename(state.best_model_checkpoint) if state.best_model_checkpoint else None
+            #         )
+
+            #         for checkpoint in checkpoints:
+            #             checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
+            #             if checkpoint != latest_checkpoint and checkpoint != best_checkpoint:
+            #                 logger.info(f"Removing old checkpoint: {checkpoint}")
+            #                 print(f"Removing old checkpoint: {checkpoint}")
+            #                 shutil.rmtree(checkpoint_path)
+            # except Exception as e:
+            #     logger.error(f"Error cleaning up old checkpoints: {e}")
+            #     print(f"Error cleaning up old checkpoints: {e}")
+
+            # Copy latest and best checkpoints to fixed locations
+            try:
+                checkpoint_dir = args.output_dir
+                checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
+                if checkpoints:
+                    # Sort checkpoints by number
+                    checkpoints.sort(key=lambda x: int(x.split('-')[1]))
+
+                    # Copy latest checkpoint
+                    latest_checkpoint = checkpoints[-1]
+                    latest_src = os.path.join(checkpoint_dir, latest_checkpoint)
+                    latest_dst = os.path.join(checkpoint_dir, 'last-checkpoint')
+                    if os.path.exists(latest_dst):
+                        shutil.rmtree(latest_dst)
+                    shutil.copytree(latest_src, latest_dst)
+
+                    # Copy best checkpoint if available
+                    if state.best_model_checkpoint:
+                        best_checkpoint = os.path.basename(state.best_model_checkpoint)
+                        best_src = os.path.join(checkpoint_dir, best_checkpoint)
+                        best_dst = os.path.join(checkpoint_dir, 'best-checkpoint')
+                        if os.path.exists(best_dst):
+                            shutil.rmtree(best_dst)
+                        shutil.copytree(best_src, best_dst)
+
+                    # Remove all numbered checkpoints
+                    for checkpoint in checkpoints:
+                        checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
+                        shutil.rmtree(checkpoint_path)
+
+                    logger.info("Successfully copied checkpoints and cleaned up old ones")
+                    print("Successfully copied checkpoints and cleaned up old ones")
+            except Exception as e:
+                logger.error(f"Error managing checkpoints: {e}")
+                print(f"Error managing checkpoints: {e}")
+
             # Save model
+            print(f"\nContents of output_dir before save {args.output_dir}:")
+            for root, dirs, files in os.walk(args.output_dir):
+                level = root.replace(args.output_dir, '').count(os.sep)
+                if level <= 2:  # Only print up to 3 levels (0, 1, 2)
+                    indent = ' ' * 4 * level
+                    print(f"{indent}{os.path.basename(root)}/")
+                    subindent = ' ' * 4 * (level + 1)
+                    for f in files:
+                        print(f"{subindent}{f}")
             logger.info("Saving model checkpoint to model entity...")
             print("Saving model checkpoint to model entity...")
             try:
@@ -81,38 +167,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
             except Exception as e:
                 logger.error(f"Error during model saving: {e}")
                 print(f"Error during model saving: {e}")
-
-            # Update internal configuration
-            self.model_adapter.configuration['start_epoch'] = current_epoch + 1
-            logger.info(f"best_model_checkpoint: {state.best_model_checkpoint}")
-            print(f"best_model_checkpoint: {state.best_model_checkpoint}")
-            if state.best_model_checkpoint:
-                self.model_adapter.configuration['checkpoint_path'] = os.path.basename(state.best_model_checkpoint)
-            else:
-                logger.info("No best model checkpoint available yet")
-                print("No best model checkpoint available yet")
-            self.model_adapter.model_entity.update()
-
-            # Clean up old checkpoints, keeping only latest and best
-            try:
-                checkpoint_dir = args.output_dir
-                checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
-                if len(checkpoints) > 2:  # Only clean if we have more than 2 checkpoints
-                    checkpoints.sort(key=lambda x: int(x.split('-')[1]))  # Sort by checkpoint number
-                    latest_checkpoint = checkpoints[-1]
-                    best_checkpoint = (
-                        os.path.basename(state.best_model_checkpoint) if state.best_model_checkpoint else None
-                    )
-
-                    for checkpoint in checkpoints:
-                        checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
-                        if checkpoint != latest_checkpoint and checkpoint != best_checkpoint:
-                            logger.info(f"Removing old checkpoint: {checkpoint}")
-                            print(f"Removing old checkpoint: {checkpoint}")
-                            shutil.rmtree(checkpoint_path)
-            except Exception as e:
-                logger.error(f"Error cleaning up old checkpoints: {e}")
-                print(f"Error cleaning up old checkpoints: {e}")
             return control
 
     @staticmethod
@@ -225,8 +279,9 @@ class HuggingAdapter(dl.BaseModelAdapter):
         self.processor = AutoImageProcessor.from_pretrained(image_processor_path)
 
         self.model = None
-        checkpoint_path = self.configuration.get("checkpoint_path", "ustc-community/dfine-xlarge-obj2coco")
-        checkpoint_path = os.path.join(local_path, checkpoint_path)
+        checkpoint_name = self.configuration.get("checkpoint_name", "ustc-community/dfine-xlarge-obj2coco")
+        print(f"checkpoint_name: {checkpoint_name}")
+        checkpoint_path = os.path.join(local_path, checkpoint_name)
         print(f"checkpoint_path: {checkpoint_path}")
         if checkpoint_path != "" and checkpoint_path.strip() != "":
             required_files = ['config.json', 'model.safetensors', 'training_args.bin', 'trainer_state.json']
@@ -241,7 +296,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     pretrained_model_name_or_path=checkpoint_path, local_files_only=True, use_safetensors=True
                 )
         if self.model is None:
-            self.model = DFineForObjectDetection.from_pretrained(checkpoint_path)
+            print(f"Loading model from checkpoint: {checkpoint_name}")
+            self.model = DFineForObjectDetection.from_pretrained(checkpoint_name)
         self.model.to(self.device)
 
     def predict(self, batch: List[dl.Item], **kwargs):
@@ -393,7 +449,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             logging_steps=50,
             save_strategy="epoch",
             eval_strategy="epoch",
-            save_total_limit=cfg.get('save_total_limit', 2),
+            save_total_limit=2,
             load_best_model_at_end=True,
             metric_for_best_model=cfg.get('metric_for_best_model', "loss"),
             greater_is_better=cfg.get('greater_is_better', False),
@@ -439,12 +495,12 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # Resume from checkpoint logic
         start_epoch = self.configuration.get('start_epoch', 0)
-        checkpoint_path = self.configuration.get('checkpoint_path', None)
+        checkpoint_name = self.configuration.get('checkpoint_name', None)
 
         resume_checkpoint = None
-        if start_epoch > 0 and checkpoint_path:
+        if start_epoch > 0 and checkpoint_name:
             resume_checkpoint = os.path.join(
-                service_defaults.DATALOOP_PATH, "models", self.model_entity.name, 'checkpoint-3'
+                service_defaults.DATALOOP_PATH, "models", self.model_entity.name, checkpoint_name
             )
             print(f"resume_checkpoint: {resume_checkpoint}")
             # resume_checkpoint = os.path.join(output_path, f"checkpoint-{start_epoch}")
@@ -532,12 +588,12 @@ if __name__ == "__main__":
         # project = dl.projects.get(project_name='IPM development')
     print("project done")
     # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='rf-detr-sdk-clone-3')
+    model = project.models.get(model_name='rf-detr-sdk-clone-6')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
-    model_adapter.configuration['start_epoch'] = 3
-    model_adapter.configuration['train_configs'] = {'num_train_epochs': 4}
+    # model_adapter.configuration['start_epoch'] = 3
+    # model_adapter.configuration['train_configs'] = {'num_train_epochs': 4}
     print("model_adapter done - start train")
     model_adapter.train_model(model=model)
     print("convert done")
