@@ -19,6 +19,7 @@ import torch
 import os
 from typing import Optional, Callable
 import numpy as np
+from dtlpy.services import service_defaults
 
 # installs :
 # pip install dtlpy
@@ -44,6 +45,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             current_epoch = int(state.epoch)
             total_epochs = int(args.num_train_epochs)
             logger.info(f"Epoch {current_epoch} ended")
+            print(f"Epoch {current_epoch} ended")
 
             # FaaS callback
             if self.faas_callback:
@@ -57,6 +59,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             for metric_name, value in metrics.items():
                 if not isinstance(value, (int, float)) or not np.isfinite(value):
                     logger.warning(f"Non-finite value for {metric_name}. Replacing with default.")
+                    print(f"Non-finite value for {metric_name}. Replacing with default.")
                     value = NaN_defaults.get(metric_name, 0)
 
                 samples.append(dl.PlotSample(figure=metric_name, legend='metrics', x=current_epoch, y=value))
@@ -68,21 +71,26 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     )
             except Exception as e:
                 logger.error(f"Failed to store metrics in Dataloop: {e}")
+                print(f"Failed to store metrics in Dataloop: {e}")
 
             # Save model
             logger.info("Saving model checkpoint to model entity...")
+            print("Saving model checkpoint to model entity...")
             try:
                 self.model_adapter.save_to_model(local_path=args.output_dir, cleanup=False)
             except Exception as e:
                 logger.error(f"Error during model saving: {e}")
+                print(f"Error during model saving: {e}")
 
             # Update internal configuration
             self.model_adapter.configuration['start_epoch'] = current_epoch + 1
             logger.info(f"best_model_checkpoint: {state.best_model_checkpoint}")
+            print(f"best_model_checkpoint: {state.best_model_checkpoint}")
             if state.best_model_checkpoint:
                 self.model_adapter.configuration['checkpoint_path'] = os.path.basename(state.best_model_checkpoint)
             else:
                 logger.info("No best model checkpoint available yet")
+                print("No best model checkpoint available yet")
             self.model_adapter.model_entity.update()
 
             # Clean up old checkpoints, keeping only latest and best
@@ -100,9 +108,11 @@ class HuggingAdapter(dl.BaseModelAdapter):
                         checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
                         if checkpoint != latest_checkpoint and checkpoint != best_checkpoint:
                             logger.info(f"Removing old checkpoint: {checkpoint}")
+                            print(f"Removing old checkpoint: {checkpoint}")
                             shutil.rmtree(checkpoint_path)
             except Exception as e:
                 logger.error(f"Error cleaning up old checkpoints: {e}")
+                print(f"Error cleaning up old checkpoints: {e}")
             return control
 
     @staticmethod
@@ -124,6 +134,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         dest_json_path = os.path.join(output_annotations_path, '_annotations.coco.json')
 
         logger.info(f'Processing COCO JSON file at {src_json_path}')
+        print(f'Processing COCO JSON file at {src_json_path}')
         # Load the JSON file
         with open(src_json_path, 'r') as f:
             coco_data = json.load(f)
@@ -152,9 +163,11 @@ class HuggingAdapter(dl.BaseModelAdapter):
             json.dump(coco_data, f, indent=2)
 
         logger.info('COCO JSON processing completed')
+        print('COCO JSON processing completed')
 
     def _get_hugging_dataset(self, data_path: str) -> tuple[Dataset, Dataset]:
         logger.info('get_hugging_dataset')
+        print('get_hugging_dataset')
 
         def load_coco_as_list(annotation_path, image_dir):
             coco = COCO(annotation_path)
@@ -176,12 +189,14 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # Step 2: Prepare datasets
         logger.info('load_coco_as_list train')
+        print('load_coco_as_list train')
         train_dataset = Dataset.from_list(
             load_coco_as_list(
                 os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
             )
         )
         logger.info('load_coco_as_list val')
+        print('load_coco_as_list val')
         val_dataset = Dataset.from_list(
             load_coco_as_list(
                 os.path.join(data_path, "valid", "_annotations.coco.json"), os.path.join(data_path, "valid")
@@ -193,14 +208,17 @@ class HuggingAdapter(dl.BaseModelAdapter):
             return {"image_path": example["image"], "class_labels": example["class_labels"], "boxes": example["boxes"]}
 
         logger.info('datasets map')
+        print('datasets map')
         # Step 4: Map preprocessing
         train_dataset = train_dataset.map(preprocess, remove_columns=train_dataset.column_names)  # drop original cols
         val_dataset = val_dataset.map(preprocess, remove_columns=val_dataset.column_names)
         logger.info('datasets map done')
+        print('datasets map done')
         return train_dataset, val_dataset
 
     def load(self, local_path, **kwargs):
         logger.info(f"Loading model from {local_path}")
+        print(f"Loading model from {local_path}")
         self.model_name = self.configuration.get("model_name", "d-fine")
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         image_processor_path = self.configuration.get("image_processor_path", "ustc-community/dfine-xlarge-obj2coco")
@@ -208,13 +226,17 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         self.model = None
         checkpoint_path = self.configuration.get("checkpoint_path", "ustc-community/dfine-xlarge-obj2coco")
+        checkpoint_path = os.path.join(local_path, checkpoint_path)
+        print(f"checkpoint_path: {checkpoint_path}")
         if checkpoint_path != "" and checkpoint_path.strip() != "":
             required_files = ['config.json', 'model.safetensors', 'training_args.bin', 'trainer_state.json']
             has_required_files = all(os.path.exists(os.path.join(checkpoint_path, f)) for f in required_files)
             if not has_required_files:
                 logger.warning(f"Checkpoint path {checkpoint_path} does not contain required files: {required_files}")
+                print(f"Checkpoint path {checkpoint_path} does not contain required files: {required_files}")
             else:
                 logger.info(f"Loading model from checkpoint: {checkpoint_path}")
+                print(f"Loading model from checkpoint: {checkpoint_path}")
                 self.model = DFineForObjectDetection.from_pretrained(
                     pretrained_model_name_or_path=checkpoint_path, local_files_only=True, use_safetensors=True
                 )
@@ -264,6 +286,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
             except Exception as e:
                 logger.error(f"Error processing item {item.id}: {str(e)}")
+                print(f"Error processing item {item.id}: {str(e)}")
 
         return batch_annotations
 
@@ -281,14 +304,17 @@ class HuggingAdapter(dl.BaseModelAdapter):
             ValueError: If model has no labels defined or if no box annotations are found in a subset
         """
         logger.info(f'Converting dataset from Dataloop format to COCO format at {data_path}')
+        print(f'Converting dataset from Dataloop format to COCO format at {data_path}')
 
         subsets = self.model_entity.metadata.get("system", dict()).get("subsets", None)
         if len(self.model_entity.labels) == 0:
             logger.error("Model has no labels defined")
+            print("Model has no labels defined")
             raise ValueError('model.labels is empty. Model entity must have labels')
 
         for subset_name in subsets.keys():
             logger.info(f'Converting subset: {subset_name} to COCO format')
+            print(f'Converting subset: {subset_name} to COCO format')
 
             # rf-detr expects train and valid folders
             dist_dir_name = subset_name if subset_name != 'validation' else 'valid'
@@ -342,16 +368,19 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
             # Remove the original subset directory
             logger.info(f'Removing {os.path.join(data_path, subset_name)}')
+            print(f'Removing {os.path.join(data_path, subset_name)}')
             shutil.rmtree(os.path.join(data_path, subset_name))
             if os.path.exists(dst_images_path):
                 shutil.rmtree(os.path.join(dst_images_path))
 
             logger.info(f'Moving directory from {tmp_dir_path} to {dst_images_path}')
+            print(f'Moving directory from {tmp_dir_path} to {dst_images_path}')
             shutil.move(tmp_dir_path, dst_images_path)
 
     def get_training_args(self, output_path: str) -> TrainingArguments:
         cfg = self.configuration.get('train_configs', {})
         logger.info(f'train_config_dict: {cfg}')
+        print(f'train_config_dict: {cfg}')
 
         return TrainingArguments(
             output_dir=output_path,
@@ -377,6 +406,35 @@ class HuggingAdapter(dl.BaseModelAdapter):
         pass
 
     def train(self, data_path: str, output_path: str, **kwargs) -> None:
+        # print("\nContents of data path directory:")
+        # for root, dirs, files in os.walk(data_path):
+        #     level = root.replace(data_path, '').count(os.sep)
+        #     indent = ' ' * 4 * level
+        #     print(f"{indent}{os.path.basename(root)}/")
+        #     subindent = ' ' * 4 * (level + 1)
+        #     for f in files:
+        #         print(f"{subindent}{f}")
+
+        # print("\nContents of output path directory:")
+        # for root, dirs, files in os.walk(output_path):
+        #     level = root.replace(output_path, '').count(os.sep)
+        #     indent = ' ' * 4 * level
+        #     print(f"{indent}{os.path.basename(root)}/")
+        #     subindent = ' ' * 4 * (level + 1)
+        #     for f in files:
+        #         print(f"{subindent}{f}")
+        # print("\nCurrent working directory:")
+        # print(os.getcwd())
+
+        # print("\nContents of current directory:")
+        # for root, dirs, files in os.walk(os.getcwd()):
+        #     level = root.replace(os.getcwd(), '').count(os.sep)
+        #     indent = ' ' * 4 * level
+        #     print(f"{indent}{os.path.basename(root)}/")
+        #     subindent = ' ' * 4 * (level + 1)
+        #     for f in files:
+        #         print(f"{subindent}{f}")
+
         train_dataset, val_dataset = self._get_hugging_dataset(data_path)
 
         # Resume from checkpoint logic
@@ -385,10 +443,26 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         resume_checkpoint = None
         if start_epoch > 0 and checkpoint_path:
-            resume_checkpoint = os.path.join(output_path, f"checkpoint-{start_epoch}")
+            resume_checkpoint = os.path.join(
+                service_defaults.DATALOOP_PATH, "models", self.model_entity.name, 'checkpoint-3'
+            )
+            print(f"resume_checkpoint: {resume_checkpoint}")
+            # resume_checkpoint = os.path.join(output_path, f"checkpoint-{start_epoch}")
             if not os.path.isfile(resume_checkpoint):
                 raise FileNotFoundError(f"Resume checkpoint not found at: {resume_checkpoint}")
             logger.info(f"Resuming training from checkpoint: {resume_checkpoint}")
+            print(f"Resuming training from checkpoint: {resume_checkpoint}")
+            resume_checkpoint = os.path.abspath(resume_checkpoint)
+            print("\nContents of resume checkpoint directory:")
+            for root, dirs, files in os.walk(resume_checkpoint):
+                level = root.replace(resume_checkpoint, '').count(os.sep)
+                indent = ' ' * 4 * level
+                print(f"{indent}{os.path.basename(root)}/")
+                subindent = ' ' * 4 * (level + 1)
+                for f in files:
+                    print(f"{subindent}{f}")
+            print(f"Resuming training from checkpoint: {resume_checkpoint}")
+            print(f"start_epoch: {start_epoch}")
 
         # Collate function
         def collate_fn(batch):
@@ -417,8 +491,11 @@ class HuggingAdapter(dl.BaseModelAdapter):
         )
 
         logger.info("Starting training")
+        print("Starting training")
+        print(f"resume_checkpoint: {resume_checkpoint}")
         trainer.train(resume_from_checkpoint=resume_checkpoint)
         logger.info("Training completed")
+        print("Training completed")
 
         #  Check if the model (checkpoint) has already completed training for the specified number of epochs, if so, can start again without resuming
         if 'start_epoch' in self.configuration and self.configuration['start_epoch'] == training_args.num_train_epochs:
@@ -459,8 +536,8 @@ if __name__ == "__main__":
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
-    # model_adapter.configuration['start_epoch'] = 3
-    # model_adapter.configuration['train_configs'] = {'num_train_epochs': 4}
+    model_adapter.configuration['start_epoch'] = 3
+    model_adapter.configuration['train_configs'] = {'num_train_epochs': 4}
     print("model_adapter done - start train")
     model_adapter.train_model(model=model)
     print("convert done")
