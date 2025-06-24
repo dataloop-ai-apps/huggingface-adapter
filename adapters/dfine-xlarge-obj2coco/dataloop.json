@@ -13,7 +13,7 @@
     ]
   },
   "displayName": "DFine XLarge Object Detection-Husam",
-  "version": "0.1.47",
+  "version": "0.1.48",
   "scope": "project",
   "components": {
     "computeConfigs": [
