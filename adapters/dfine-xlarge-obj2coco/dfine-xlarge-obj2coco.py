@@ -423,9 +423,9 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         return TrainingArguments(
             output_dir=output_path,
-            # TODO reset to 8
-            per_device_train_batch_size=cfg.get('per_device_train_batch_size', 1),
-            per_device_eval_batch_size=cfg.get('per_device_eval_batch_size', 1),
+            per_device_train_batch_size=cfg.get('per_device_train_batch_size', 8),
+            per_device_eval_batch_size=cfg.get('per_device_eval_batch_size', 8),
+            gradient_accumulation_steps=cfg.get('gradient_accumulation_steps', 1),
             learning_rate=cfg.get('learning_rate', 5e-5),
             weight_decay=cfg.get('weight_decay', 0.0),
             num_train_epochs=cfg.get('num_train_epochs', 3),
