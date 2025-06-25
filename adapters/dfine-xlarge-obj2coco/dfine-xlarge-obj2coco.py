@@ -8,7 +8,7 @@ from typing import List, Optional, Callable
 import numpy as np
 import PIL
 import torch
-from datasets import Dataset, load_dataset, DatasetDict, concatenate_datasets, load_from_disk
+from datasets import Dataset
 from PIL import Image
 from pycocotools.coco import COCO
 from transformers import DFineForObjectDetection, AutoImageProcessor, TrainingArguments, Trainer, TrainerCallback
@@ -33,25 +33,54 @@ logger = logging.getLogger("[D-FINE]")
 class HuggingAdapter(dl.BaseModelAdapter):
 
     class EpochEndCallback(TrainerCallback):
-        def __init__(self, model_adapter: 'HuggingAdapter', faas_callback: Optional[Callable] = None):
+        def __init__(self, model_adapter_instance: 'HuggingAdapter', faas_callback: Optional[Callable] = None):
             super().__init__()
-            self.model_adapter = model_adapter
+            self.model_adapter = model_adapter_instance
             self.faas_callback = faas_callback
 
+        def _manage_checkpoints(self, args: TrainingArguments, state: TrainerState):
+            """Manage checkpoint copying and cleanup."""
+            try:
+                checkpoint_dir = args.output_dir
+                checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
+                if not checkpoints:
+                    return
+
+                # Sort checkpoints by number
+                checkpoints.sort(key=lambda x: int(x.split('-')[1]))
+
+                # Copy latest checkpoint
+                latest_checkpoint = checkpoints[-1]
+                latest_src = os.path.join(checkpoint_dir, latest_checkpoint)
+                latest_dst = os.path.join(checkpoint_dir, 'last-checkpoint')
+                if os.path.exists(latest_dst):
+                    shutil.rmtree(latest_dst)
+                shutil.copytree(latest_src, latest_dst)
+
+                # Copy best checkpoint if available
+                if state.best_model_checkpoint:
+                    best_checkpoint = os.path.basename(state.best_model_checkpoint)
+                    best_src = os.path.join(checkpoint_dir, best_checkpoint)
+                    if os.path.exists(best_src):
+                        best_dst = os.path.join(checkpoint_dir, 'best-checkpoint')
+                        if os.path.exists(best_dst):
+                            shutil.rmtree(best_dst)
+                        shutil.copytree(best_src, best_dst)
+
+                # Remove all numbered checkpoints
+                for checkpoint in checkpoints:
+                    checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
+                    if os.path.exists(checkpoint_path):
+                        shutil.rmtree(checkpoint_path)
+
+                logger.info("Successfully copied checkpoints and cleaned up old ones")
+            except Exception as e:
+                logger.error(f"Error managing checkpoints: {e}")
+
         def on_epoch_end(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs):
-            print(f"\nContents of output_dir {args.output_dir}:")
-            for root, dirs, files in os.walk(args.output_dir):
-                level = root.replace(args.output_dir, '').count(os.sep)
-                if level <= 2:  # Only print up to 3 levels (0, 1, 2)
-                    indent = ' ' * 4 * level
-                    print(f"{indent}{os.path.basename(root)}/")
-                    subindent = ' ' * 4 * (level + 1)
-                    for f in files:
-                        print(f"{subindent}{f}")
             current_epoch = int(state.epoch)
             total_epochs = int(args.num_train_epochs)
             logger.info(f"Epoch {current_epoch} ended")
-            print(f"Epoch {current_epoch} ended")
 
             # FaaS callback
             if self.faas_callback:
@@ -65,7 +94,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
             for metric_name, value in metrics.items():
                 if not isinstance(value, (int, float)) or not np.isfinite(value):
                     logger.warning(f"Non-finite value for {metric_name}. Replacing with default.")
-                    print(f"Non-finite value for {metric_name}. Replacing with default.")
                     value = NaN_defaults.get(metric_name, 0)
 
                 samples.append(dl.PlotSample(figure=metric_name, legend='metrics', x=current_epoch, y=value))
@@ -77,79 +105,25 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     )
             except Exception as e:
                 logger.error(f"Failed to store metrics in Dataloop: {e}")
-                print(f"Failed to store metrics in Dataloop: {e}")
 
             # Update internal configuration
             self.model_adapter.configuration['start_epoch'] = current_epoch + 1
             logger.info(f"best_model_checkpoint: {state.best_model_checkpoint}")
-            print(f"best_model_checkpoint: {state.best_model_checkpoint}")
             if state.best_model_checkpoint:
                 self.model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
             else:
                 logger.info("No best model checkpoint available yet")
-                print("No best model checkpoint available yet")
             self.model_adapter.model_entity.update()
 
-            try:
-                checkpoint_dir = args.output_dir
-                checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
-                print(f"-HHH-Current directory: {checkpoint_dir}")
-                if checkpoints:
-                    # Sort checkpoints by number
-                    checkpoints.sort(key=lambda x: int(x.split('-')[1]))
-
-                    # Copy latest checkpoint
-                    latest_checkpoint = checkpoints[-1]
-                    latest_src = os.path.join(checkpoint_dir, latest_checkpoint)
-                    latest_dst = os.path.join(checkpoint_dir, 'last-checkpoint')
-                    if os.path.exists(latest_dst):
-                        print(f"-HHH- removing {latest_dst}")
-                        shutil.rmtree(latest_dst)
-                    print(f"-HHH- copying {latest_src} to {latest_dst}")
-                    shutil.copytree(latest_src, latest_dst)
-
-                    # Copy best checkpoint if available
-                    if state.best_model_checkpoint:
-                        best_checkpoint = os.path.basename(state.best_model_checkpoint)
-                        best_src = os.path.join(checkpoint_dir, best_checkpoint)
-                        if os.path.exists(best_src):
-                            best_dst = os.path.join(checkpoint_dir, 'best-checkpoint')
-                            if os.path.exists(best_dst):
-                                print(f"-HHH- removing {best_dst}")
-                                shutil.rmtree(best_dst)
-                            print(f"-HHH- copying {best_src} to {best_dst}")
-                            shutil.copytree(best_src, best_dst)
-
-                    # Remove all numbered checkpoints
-                    for checkpoint in checkpoints:
-                        checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
-                        if os.path.exists(checkpoint_path):
-                            print(f"-HHH- removing {checkpoint_path}")
-                            shutil.rmtree(checkpoint_path)
-
-                    logger.info("Successfully copied checkpoints and cleaned up old ones")
-                    print("Successfully copied checkpoints and cleaned up old ones")
-            except Exception as e:
-                logger.error(f"Error managing checkpoints: {e}")
-                print(f"Error managing checkpoints: {e}")
+            # Manage checkpoints
+            self._manage_checkpoints(args, state)
 
             # Save model
-            print(f"\nContents of output_dir before save {args.output_dir}:")
-            for root, dirs, files in os.walk(args.output_dir):
-                level = root.replace(args.output_dir, '').count(os.sep)
-                if level <= 2:  # Only print up to 3 levels (0, 1, 2)
-                    indent = ' ' * 4 * level
-                    print(f"{indent}{os.path.basename(root)}/")
-                    subindent = ' ' * 4 * (level + 1)
-                    for f in files:
-                        print(f"{subindent}{f}")
             logger.info("Saving model checkpoint to model entity...")
-            print("Saving model checkpoint to model entity...")
             try:
                 self.model_adapter.save_to_model(local_path=args.output_dir, cleanup=False)
             except Exception as e:
                 logger.error(f"Error during model saving: {e}")
-                print(f"Error during model saving: {e}")
             return control
 
     @staticmethod
@@ -171,7 +145,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
         dest_json_path = os.path.join(output_annotations_path, '_annotations.coco.json')
 
         logger.info(f'Processing COCO JSON file at {src_json_path}')
-        print(f'Processing COCO JSON file at {src_json_path}')
         # Load the JSON file
         with open(src_json_path, 'r') as f:
             coco_data = json.load(f)
@@ -200,11 +173,9 @@ class HuggingAdapter(dl.BaseModelAdapter):
             json.dump(coco_data, f, indent=2)
 
         logger.info('COCO JSON processing completed')
-        print('COCO JSON processing completed')
 
     def _get_hugging_dataset(self, data_path: str) -> tuple[Dataset, Dataset]:
         logger.info('get_hugging_dataset')
-        print('get_hugging_dataset')
 
         def load_coco_as_list(annotation_path, image_dir):
             coco = COCO(annotation_path)
@@ -226,14 +197,12 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # Step 2: Prepare datasets
         logger.info('load_coco_as_list train')
-        print('load_coco_as_list train')
         train_dataset = Dataset.from_list(
             load_coco_as_list(
                 os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
             )
         )
         logger.info('load_coco_as_list val')
-        print('load_coco_as_list val')
         val_dataset = Dataset.from_list(
             load_coco_as_list(
                 os.path.join(data_path, "valid", "_annotations.coco.json"), os.path.join(data_path, "valid")
@@ -245,17 +214,14 @@ class HuggingAdapter(dl.BaseModelAdapter):
             return {"image_path": example["image"], "class_labels": example["class_labels"], "boxes": example["boxes"]}
 
         logger.info('datasets map')
-        print('datasets map')
         # Step 4: Map preprocessing
         train_dataset = train_dataset.map(preprocess, remove_columns=train_dataset.column_names)  # drop original cols
         val_dataset = val_dataset.map(preprocess, remove_columns=val_dataset.column_names)
         logger.info('datasets map done')
-        print('datasets map done')
         return train_dataset, val_dataset
 
     def load(self, local_path, **kwargs):
         logger.info(f"Loading model from {local_path}")
-        print(f"Loading model from {local_path}")
         self.model_name = self.configuration.get("model_name", "d-fine")
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         image_processor_path = self.configuration.get("image_processor_path", "ustc-community/dfine-xlarge-obj2coco")
@@ -263,23 +229,18 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         self.model = None
         checkpoint_name = self.configuration.get("checkpoint_name", "ustc-community/dfine-xlarge-obj2coco")
-        print(f"checkpoint_name: {checkpoint_name}")
         checkpoint_path = os.path.join(local_path, checkpoint_name)
-        print(f"checkpoint_path: {checkpoint_path}")
         if checkpoint_path != "" and checkpoint_path.strip() != "":
             required_files = ['config.json', 'model.safetensors', 'training_args.bin', 'trainer_state.json']
             has_required_files = all(os.path.exists(os.path.join(checkpoint_path, f)) for f in required_files)
             if not has_required_files:
                 logger.warning(f"Checkpoint path {checkpoint_path} does not contain required files: {required_files}")
-                print(f"Checkpoint path {checkpoint_path} does not contain required files: {required_files}")
             else:
                 logger.info(f"Loading model from checkpoint: {checkpoint_path}")
-                print(f"Loading model from checkpoint: {checkpoint_path}")
                 self.model = DFineForObjectDetection.from_pretrained(
                     pretrained_model_name_or_path=checkpoint_path, local_files_only=True, use_safetensors=True
                 )
         if self.model is None:
-            print(f"Loading model from checkpoint: {checkpoint_name}")
             self.model = DFineForObjectDetection.from_pretrained(checkpoint_name)
         self.model.to(self.device)
 
@@ -288,9 +249,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         for item in batch:
             try:
-                # Download and process image
-                image_buffer = item.download(save_locally=False)
-                image = PIL.Image.open(image_buffer).convert('RGB')
+                # Process numpy array image
+                image = PIL.Image.fromarray(item).convert('RGB')
                 inputs = self.processor(images=image, return_tensors="pt").to(self.device)
 
                 # Perform inference
@@ -324,8 +284,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 batch_annotations.append(item_annotations)
 
             except Exception as e:
-                logger.error(f"Error processing item {item.id}: {str(e)}")
-                print(f"Error processing item {item.id}: {str(e)}")
+                logger.error(f"Error processing item : {str(e)}")
 
         return batch_annotations
 
@@ -343,17 +302,14 @@ class HuggingAdapter(dl.BaseModelAdapter):
             ValueError: If model has no labels defined or if no box annotations are found in a subset
         """
         logger.info(f'Converting dataset from Dataloop format to COCO format at {data_path}')
-        print(f'Converting dataset from Dataloop format to COCO format at {data_path}')
 
         subsets = self.model_entity.metadata.get("system", dict()).get("subsets", None)
         if len(self.model_entity.labels) == 0:
             logger.error("Model has no labels defined")
-            print("Model has no labels defined")
             raise ValueError('model.labels is empty. Model entity must have labels')
 
         for subset_name in subsets.keys():
             logger.info(f'Converting subset: {subset_name} to COCO format')
-            print(f'Converting subset: {subset_name} to COCO format')
 
             # rf-detr expects train and valid folders
             dist_dir_name = subset_name if subset_name != 'validation' else 'valid'
@@ -407,19 +363,16 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
             # Remove the original subset directory
             logger.info(f'Removing {os.path.join(data_path, subset_name)}')
-            print(f'Removing {os.path.join(data_path, subset_name)}')
             shutil.rmtree(os.path.join(data_path, subset_name))
             if os.path.exists(dst_images_path):
                 shutil.rmtree(os.path.join(dst_images_path))
 
             logger.info(f'Moving directory from {tmp_dir_path} to {dst_images_path}')
-            print(f'Moving directory from {tmp_dir_path} to {dst_images_path}')
             shutil.move(tmp_dir_path, dst_images_path)
 
     def get_training_args(self, output_path: str) -> TrainingArguments:
         cfg = self.configuration.get('train_configs', {})
         logger.info(f'train_config_dict: {cfg}')
-        print(f'train_config_dict: {cfg}')
 
         return TrainingArguments(
             output_dir=output_path,
@@ -447,35 +400,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
         pass
 
     def train(self, data_path: str, output_path: str, **kwargs) -> None:
-        # print("\nContents of data path directory:")
-        # for root, dirs, files in os.walk(data_path):
-        #     level = root.replace(data_path, '').count(os.sep)
-        #     indent = ' ' * 4 * level
-        #     print(f"{indent}{os.path.basename(root)}/")
-        #     subindent = ' ' * 4 * (level + 1)
-        #     for f in files:
-        #         print(f"{subindent}{f}")
-
-        # print("\nContents of output path directory:")
-        # for root, dirs, files in os.walk(output_path):
-        #     level = root.replace(output_path, '').count(os.sep)
-        #     indent = ' ' * 4 * level
-        #     print(f"{indent}{os.path.basename(root)}/")
-        #     subindent = ' ' * 4 * (level + 1)
-        #     for f in files:
-        #         print(f"{subindent}{f}")
-        # print("\nCurrent working directory:")
-        # print(os.getcwd())
-
-        # print("\nContents of current directory:")
-        # for root, dirs, files in os.walk(os.getcwd()):
-        #     level = root.replace(os.getcwd(), '').count(os.sep)
-        #     indent = ' ' * 4 * level
-        #     print(f"{indent}{os.path.basename(root)}/")
-        #     subindent = ' ' * 4 * (level + 1)
-        #     for f in files:
-        #         print(f"{subindent}{f}")
-
         train_dataset, val_dataset = self._get_hugging_dataset(data_path)
 
         # Resume from checkpoint logic
@@ -486,23 +410,10 @@ class HuggingAdapter(dl.BaseModelAdapter):
             resume_checkpoint = os.path.join(
                 service_defaults.DATALOOP_PATH, "models", self.model_entity.name, 'last-checkpoint'
             )
-            print(f"resume_checkpoint: {resume_checkpoint}")
-            # resume_checkpoint = os.path.join(output_path, f"checkpoint-{start_epoch}")
             if not os.path.isdir(resume_checkpoint):
                 raise FileNotFoundError(f"Resume checkpoint not found at: {resume_checkpoint}")
             logger.info(f"Resuming training from checkpoint: {resume_checkpoint}")
-            print(f"Resuming training from checkpoint: {resume_checkpoint}")
             resume_checkpoint = os.path.abspath(resume_checkpoint)
-            print("\nContents of resume checkpoint directory:")
-            for root, dirs, files in os.walk(resume_checkpoint):
-                level = root.replace(resume_checkpoint, '').count(os.sep)
-                indent = ' ' * 4 * level
-                print(f"{indent}{os.path.basename(root)}/")
-                subindent = ' ' * 4 * (level + 1)
-                for f in files:
-                    print(f"{subindent}{f}")
-            print(f"Resuming training from checkpoint: {resume_checkpoint}")
-            print(f"start_epoch: {start_epoch}")
 
         # Collate function
         def collate_fn(batch):
@@ -531,11 +442,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
         )
 
         logger.info("Starting training")
-        print("Starting training")
-        print(f"resume_checkpoint: {resume_checkpoint}")
         trainer.train(resume_from_checkpoint=resume_checkpoint)
         logger.info("Training completed")
-        print("Training completed")
 
         #  Check if the model (checkpoint) has already completed training for the specified number of epochs, if so, can start again without resuming
         start_epoch = self.configuration.get('start_epoch', 1)
@@ -546,44 +454,3 @@ class HuggingAdapter(dl.BaseModelAdapter):
     def embed(self, batch: List[dl.Item], **kwargs):
         """Embed items - not implemented for this adapter."""
         raise NotImplementedError("Embed method not implemented for this adapter")
-
-
-if __name__ == "__main__":
-    print("start")
-    use_rc_env = False
-    if use_rc_env:
-        dl.setenv('rc')
-    else:
-        dl.setenv('prod')
-    from dotenv import load_dotenv
-
-    load_dotenv()
-    api_key = os.getenv('DTLPY_API_KEY')
-    print(f"api_key: {api_key}")
-    if api_key:
-        print("DTLPY_API_KEY found in environment variables")
-        dl.login_api_key(api_key=api_key)
-    else:
-        print("ERROR: DTLPY_API_KEY not found in environment variables")
-        raise ValueError("Missing required DTLPY_API_KEY environment variable")
-
-    if dl.token_expired():
-        dl.login()
-    print("login done")
-    if use_rc_env:
-        project = dl.projects.get(project_name='Husam Testing')
-    else:
-        project = dl.projects.get(project_name='ShadiDemo')
-        # project = dl.projects.get(project_name='IPM development')
-    print("project done")
-    # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='rf-detr-sdk-clone-11')
-    print("model done")
-    model.status = 'pre-trained'
-    model_adapter = HuggingAdapter(model)
-    model_adapter.configuration['start_epoch'] = 4
-    # model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
-    model_adapter.configuration['train_configs'] = {'num_train_epochs': 7}
-    print("model_adapter done - start train")
-    model_adapter.train_model(model=model)
-    print("convert done")
