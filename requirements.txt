@@ -14,3 +14,4 @@ bitsandbytes
 # SmolLM
 datasets
 peft
+jinja2
