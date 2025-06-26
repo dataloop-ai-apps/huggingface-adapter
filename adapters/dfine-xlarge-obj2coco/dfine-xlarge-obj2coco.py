@@ -3,7 +3,7 @@ import logging
 import os
 import shutil
 from pathlib import Path
-from typing import List, Optional, Callable
+from typing import List, Optional, Callable, Tuple, Dict, Any
 
 import numpy as np
 import PIL
@@ -18,66 +18,74 @@ import dtlpy as dl
 from dtlpyconverters import services, coco_converters
 from dtlpy.services import service_defaults
 
-# installs :
-# pip install dtlpy
-# pip install datasets
-# pip install git+https://github.com/dataloop-ai-apps/dtlpy-converters
-# pip install -U transformers
-# pip install python-dotenv
-#
-# pip install async-
-
 logger = logging.getLogger("[D-FINE]")
 
 
 class HuggingAdapter(dl.BaseModelAdapter):
 
     class EpochEndCallback(TrainerCallback):
-        def __init__(self, model_adapter_instance: 'HuggingAdapter', faas_callback: Optional[Callable] = None):
+        """Custom callback for managing model checkpoints during training.
+
+        This callback handles checkpoint management at the end of each epoch. By default, Hugging Face creates
+        numbered checkpoints (e.g. checkpoint-1000, checkpoint-2000). This callback simplifies checkpoint
+        management by:
+        1. Keeping only 'best-checkpoint' - Copy of the checkpoint with best metrics
+        2. Keeping only 'last-checkpoint' - Copy of the most recent checkpoint
+        3. Removing all numbered checkpoints to save disk space
+
+        Args:
+            model_adapter_instance: Instance of the HuggingAdapter class
+            faas_callback: Optional callback function for FaaS integration
+        """
+
+        def __init__(
+            self, model_adapter_instance: 'HuggingAdapter', faas_callback: Optional[Callable[[int, int], None]] = None
+        ) -> None:
             super().__init__()
             self.model_adapter = model_adapter_instance
             self.faas_callback = faas_callback
 
-        def _manage_checkpoints(self, args: TrainingArguments, state: TrainerState):
+        def _manage_checkpoints(self, args: TrainingArguments, state: TrainerState) -> None:
             """Manage checkpoint copying and cleanup."""
-            try:
-                checkpoint_dir = args.output_dir
-                checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
-                if not checkpoints:
-                    return
+            checkpoint_dir = args.output_dir
+            checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
+            if not checkpoints:
+                return
 
-                # Sort checkpoints by number
-                checkpoints.sort(key=lambda x: int(x.split('-')[1]))
+            # Sort checkpoints by number
+            checkpoints.sort(key=lambda x: int(x.split('-')[1]))
 
-                # Copy latest checkpoint
-                latest_checkpoint = checkpoints[-1]
-                latest_src = os.path.join(checkpoint_dir, latest_checkpoint)
-                latest_dst = os.path.join(checkpoint_dir, 'last-checkpoint')
-                if os.path.exists(latest_dst):
-                    shutil.rmtree(latest_dst)
-                shutil.copytree(latest_src, latest_dst)
+            # Copy latest checkpoint
+            latest_checkpoint = checkpoints[-1]
+            latest_src = os.path.join(checkpoint_dir, latest_checkpoint)
+            latest_dst = os.path.join(checkpoint_dir, 'last-checkpoint')
+            if os.path.exists(latest_dst):
+                shutil.rmtree(latest_dst)
+            shutil.copytree(latest_src, latest_dst)
 
-                # Copy best checkpoint if available
-                if state.best_model_checkpoint:
-                    best_checkpoint = os.path.basename(state.best_model_checkpoint)
-                    best_src = os.path.join(checkpoint_dir, best_checkpoint)
-                    if os.path.exists(best_src):
-                        best_dst = os.path.join(checkpoint_dir, 'best-checkpoint')
-                        if os.path.exists(best_dst):
-                            shutil.rmtree(best_dst)
-                        shutil.copytree(best_src, best_dst)
+            # Copy best checkpoint if available
+            if state.best_model_checkpoint:
+                best_checkpoint = os.path.basename(state.best_model_checkpoint)
+                best_src = os.path.join(checkpoint_dir, best_checkpoint)
+                if os.path.exists(best_src):
+                    best_dst = os.path.join(checkpoint_dir, 'best-checkpoint')
+                    if os.path.exists(best_dst):
+                        shutil.rmtree(best_dst)
+                    shutil.copytree(best_src, best_dst)
 
-                # Remove all numbered checkpoints
-                for checkpoint in checkpoints:
-                    checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
-                    if os.path.exists(checkpoint_path):
-                        shutil.rmtree(checkpoint_path)
+            # Remove all numbered checkpoints
+            for checkpoint in checkpoints:
+                checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
+                if os.path.exists(checkpoint_path):
+                    shutil.rmtree(checkpoint_path)
 
-                logger.info("Successfully copied checkpoints and cleaned up old ones")
-            except Exception as e:
-                logger.error(f"Error managing checkpoints: {e}")
+            logger.info("Successfully copied checkpoints and cleaned up old ones")
 
-        def on_epoch_end(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs):
+        def on_epoch_end(
+            self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs: Any
+        ) -> TrainerControl:
+            # state.epoch is a float where integer part = epoch number, decimal part = progress within epoch
+            # Convert to int to get just the epoch number for logging and metrics
             current_epoch = int(state.epoch)
             total_epochs = int(args.num_train_epochs)
             logger.info(f"Epoch {current_epoch} ended")
@@ -86,25 +94,23 @@ class HuggingAdapter(dl.BaseModelAdapter):
             if self.faas_callback:
                 self.faas_callback(current_epoch, total_epochs)
 
-            # Collect metrics (dummy example: extract loss, adapt if more are needed)
             samples = []
-            NaN_defaults = {'loss': 1.0}
-            metrics = state.log_history[-1] if state.log_history else {}
-
-            for metric_name, value in metrics.items():
+            NaN_defaults = {'loss': 1.0, 'eval_loss': 1.0}
+            # the only metrics that model is creating is loss and eval_loss
+            loss_value = state.log_history[0]['loss'] if state.log_history else NaN_defaults['loss']
+            eval_loss_value = (
+                state.log_history[1]['eval_loss'] if len(state.log_history) > 1 else NaN_defaults['eval_loss']
+            )
+            for metric_name, value in [('loss', loss_value), ('eval_loss', eval_loss_value)]:
                 if not isinstance(value, (int, float)) or not np.isfinite(value):
                     logger.warning(f"Non-finite value for {metric_name}. Replacing with default.")
                     value = NaN_defaults.get(metric_name, 0)
-
                 samples.append(dl.PlotSample(figure=metric_name, legend='metrics', x=current_epoch, y=value))
 
-            try:
-                if samples:
-                    self.model_adapter.model_entity.metrics.create(
-                        samples=samples, dataset_id=self.model_adapter.model_entity.dataset_id
-                    )
-            except Exception as e:
-                logger.error(f"Failed to store metrics in Dataloop: {e}")
+            if samples:
+                self.model_adapter.model_entity.metrics.create(
+                    samples=samples, dataset_id=self.model_adapter.model_entity.dataset_id
+                )
 
             # Update internal configuration
             self.model_adapter.configuration['start_epoch'] = current_epoch + 1
@@ -120,10 +126,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
             # Save model
             logger.info("Saving model checkpoint to model entity...")
-            try:
-                self.model_adapter.save_to_model(local_path=args.output_dir, cleanup=False)
-            except Exception as e:
-                logger.error(f"Error during model saving: {e}")
+            self.model_adapter.save_to_model(local_path=args.output_dir, cleanup=False)
             return control
 
     @staticmethod
@@ -174,10 +177,22 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         logger.info('COCO JSON processing completed')
 
-    def _get_hugging_dataset(self, data_path: str) -> tuple[Dataset, Dataset]:
+    def _get_hugging_dataset(self, data_path: str) -> Tuple[Dataset, Dataset]:
+        """Get Hugging Face datasets for training and validation.
+
+        Args:
+            data_path (str): Path to data directory containing train and valid subdirectories
+
+        Returns:
+            tuple[Dataset, Dataset]: Training and validation datasets
+        """
         logger.info('get_hugging_dataset')
 
-        def load_coco_as_list(annotation_path, image_dir):
+        def load_coco_as_list(subset: str) -> List[Dict[str, Any]]:
+            # Calculate paths based on subset
+            annotation_path = os.path.join(data_path, subset, "_annotations.coco.json")
+            image_dir = os.path.join(data_path, subset)
+
             coco = COCO(annotation_path)
             items = []
             for image_id in coco.imgs:
@@ -197,30 +212,21 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # Step 2: Prepare datasets
         logger.info('load_coco_as_list train')
-        train_dataset = Dataset.from_list(
-            load_coco_as_list(
-                os.path.join(data_path, "train", "_annotations.coco.json"), os.path.join(data_path, "train")
-            )
-        )
+        train_dataset = Dataset.from_list(load_coco_as_list("train"))
         logger.info('load_coco_as_list val')
-        val_dataset = Dataset.from_list(
-            load_coco_as_list(
-                os.path.join(data_path, "valid", "_annotations.coco.json"), os.path.join(data_path, "valid")
-            )
-        )
+        val_dataset = Dataset.from_list(load_coco_as_list("valid"))
 
-        # ------------------------- 1. preprocessing -------------------------
-        def preprocess(example):
-            return {"image_path": example["image"], "class_labels": example["class_labels"], "boxes": example["boxes"]}
-
-        logger.info('datasets map')
-        # Step 4: Map preprocessing
-        train_dataset = train_dataset.map(preprocess, remove_columns=train_dataset.column_names)  # drop original cols
-        val_dataset = val_dataset.map(preprocess, remove_columns=val_dataset.column_names)
         logger.info('datasets map done')
         return train_dataset, val_dataset
 
-    def load(self, local_path, **kwargs):
+    def load(self, local_path: str, **kwargs: Any) -> None:
+        """Load model from local path.
+
+        Args:
+            local_path: Path to model checkpoint directory
+            **kwargs: Additional keyword arguments
+
+        """
         logger.info(f"Loading model from {local_path}")
         self.model_name = self.configuration.get("model_name", "d-fine")
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -244,51 +250,50 @@ class HuggingAdapter(dl.BaseModelAdapter):
             self.model = DFineForObjectDetection.from_pretrained(checkpoint_name)
         self.model.to(self.device)
 
-    def predict(self, batch: List[dl.Item], **kwargs):
+    def predict(self, batch: List[np.ndarray], **kwargs: Any) -> List[dl.AnnotationCollection]:
+        """Predict on a batch of images.
+
+        Args:
+            batch (List[np.ndarray]): List of images as numpy arrays
+            **kwargs: Additional keyword arguments
+
+        Returns:
+            List[dl.AnnotationCollection]: List of annotations for each image
+        """
         batch_annotations = []
 
         for item in batch:
-            try:
-                # Process numpy array image
-                image = PIL.Image.fromarray(item).convert('RGB')
-                inputs = self.processor(images=image, return_tensors="pt").to(self.device)
+            # Process numpy array image
+            image = PIL.Image.fromarray(item).convert('RGB')
+            inputs = self.processor(images=image, return_tensors="pt").to(self.device)
 
-                # Perform inference
-                with torch.no_grad():
-                    outputs = self.model(**inputs)
+            # Perform inference
+            with torch.no_grad():
+                outputs = self.model(**inputs)
 
-                # Post-process results
-                target_sizes = torch.tensor([image.size[::-1]])
-                results = self.processor.post_process_object_detection(
-                    outputs, target_sizes=target_sizes, threshold=0.3
-                )[0]
+            # Post-process results
+            target_sizes = torch.tensor([image.size[::-1]])
+            results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.3)[0]
 
-                # Create box annotations for each detection
-                item_annotations = dl.AnnotationCollection()
-                for score, label_id, box in zip(results["scores"], results["labels"], results["boxes"]):
-                    score, label = score.item(), label_id.item()
-                    box = [round(i, 2) for i in box.tolist()]
-                    left, top, right, bottom = box
+            # Create box annotations for each detection
+            item_annotations = dl.AnnotationCollection()
+            for score, label_id, box in zip(results["scores"], results["labels"], results["boxes"]):
+                score, label = score.item(), label_id.item()
+                box = [round(i, 2) for i in box.tolist()]
+                left, top, right, bottom = box
 
-                    # Create box annotation
-                    item_annotations.add(
-                        annotation_definition=dl.Box(
-                            label=self.model.config.id2label[label], top=top, left=left, bottom=bottom, right=right
-                        ),
-                        model_info={
-                            "name": self.model_name,
-                            "model_id": self.model_name,
-                            "confidence": round(score, 3),
-                        },
-                    )
-                batch_annotations.append(item_annotations)
-
-            except Exception as e:
-                logger.error(f"Error processing item : {str(e)}")
+                # Create box annotation
+                item_annotations.add(
+                    annotation_definition=dl.Box(
+                        label=self.model.config.id2label[label], top=top, left=left, bottom=bottom, right=right
+                    ),
+                    model_info={"name": self.model_name, "model_id": self.model_name, "confidence": round(score, 3)},
+                )
+            batch_annotations.append(item_annotations)
 
         return batch_annotations
 
-    def convert_from_dtlpy(self, data_path: str, **kwargs) -> None:
+    def convert_from_dtlpy(self, data_path: str, **kwargs: Any) -> None:
         """Convert dataset from Dataloop format to COCO format.
 
         This method converts a Dataloop dataset to COCO format required by RF-DETR. It validates box annotations
@@ -371,6 +376,18 @@ class HuggingAdapter(dl.BaseModelAdapter):
             shutil.move(tmp_dir_path, dst_images_path)
 
     def get_training_args(self, output_path: str) -> TrainingArguments:
+        """Get training arguments for the model.
+
+        This method creates and returns a TrainingArguments object with training hyperparameters
+        configured based on the model's configuration dictionary.
+
+        Args:
+            output_path (str): Directory path where model outputs and checkpoints will be saved
+
+        Returns:
+            TrainingArguments: Hugging Face TrainingArguments object configured with training parameters
+                including batch sizes, learning rate, epochs, logging/saving strategies etc.
+        """
         cfg = self.configuration.get('train_configs', {})
         logger.info(f'train_config_dict: {cfg}')
 
@@ -396,10 +413,42 @@ class HuggingAdapter(dl.BaseModelAdapter):
             disable_tqdm=True,  # Disable progress bars
         )
 
-    def save(self, local_path: str, **kwargs) -> None:
-        pass
+    def save(self, local_path: str, **kwargs: Any) -> None:
+        """Save model checkpoint to local path.
 
-    def train(self, data_path: str, output_path: str, **kwargs) -> None:
+        This method saves the model checkpoint to the specified local path. It saves both the model
+        weights and the image processor configuration.
+
+        Args:
+            local_path (str): Directory path where model checkpoint will be saved
+            **kwargs: Additional keyword arguments (unused)
+
+        Returns:
+            None
+        """
+        self.configuration.update({'checkpoint_name': 'best-checkpoint'})
+
+    def train(self, data_path: str, output_path: str, **kwargs: Any) -> None:
+        """Train the model on the provided dataset.
+
+        This method handles the complete training process including:
+        1. Loading and preparing training/validation datasets
+        2. Setting up checkpointing and resuming from previous checkpoints
+        3. Configuring the training arguments and trainer
+        4. Running the training loop with evaluation
+        5. Managing training state and model checkpoints
+
+        Args:
+            data_path (str): Path to directory containing training data in COCO format
+            output_path (str): Directory path where model outputs and checkpoints will be saved
+            **kwargs: Additional keyword arguments (unused)
+
+        Returns:
+            None
+
+        Raises:
+            FileNotFoundError: If resume checkpoint is not found when resuming training
+        """
         train_dataset, val_dataset = self._get_hugging_dataset(data_path)
 
         # Resume from checkpoint logic
@@ -416,8 +465,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
             resume_checkpoint = os.path.abspath(resume_checkpoint)
 
         # Collate function
-        def collate_fn(batch):
-            images = [Image.open(example["image_path"]).convert("RGB") for example in batch]
+        def collate_fn(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
+            images = [Image.open(example["image"]).convert("RGB") for example in batch]
             encodings = [self.processor(images=img, return_tensors="pt") for img in images]
             pixel_values = torch.stack([enc["pixel_values"].squeeze(0) for enc in encodings])
 
@@ -451,6 +500,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
             self.configuration['start_epoch'] = 1
             self.model_entity.update()
 
-    def embed(self, batch: List[dl.Item], **kwargs):
+    def embed(self, batch: List[dl.Item], **kwargs: Any) -> None:
         """Embed items - not implemented for this adapter."""
         raise NotImplementedError("Embed method not implemented for this adapter")
