@@ -14,4 +14,4 @@ bitsandbytes
 # SmolLM
 datasets
 peft
-jinja2
+jinja2==3.1.6
