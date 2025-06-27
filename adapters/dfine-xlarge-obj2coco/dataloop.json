@@ -1,5 +1,5 @@
 {
-  "name": "dfine-husam",
+  "name": "dfine-xlarge-obj2coco-huggingface-app",
   "description": "DFine-XLarge: Object Detection model (COCO format) from ustc-community, via Hugging Face.",
   "attributes": {
     "Provider": "Hugging Face",
@@ -10,9 +10,14 @@
       "Image"
     ]
   },
-  "displayName": "DFine XLarge Object Detection-Husam",
-  "version": "0.1.51",
-  "scope": "project",
+  "displayName": "DFine XLarge Object Detection",
+  "version": "0.1.48",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+    "gitTag": "0.1.48"
+  },
+  "scope": "public",
   "components": {
     "computeConfigs": [
       {
