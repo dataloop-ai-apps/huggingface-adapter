@@ -123,7 +123,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             self.model_adapter.model_entity.update()
 
             # Manage checkpoints
-            self._manage_checkpoints(args, state)
+            # self._manage_checkpoints(args, state)
 
             # Save model
             logger.info("Saving model checkpoint to model entity...")
@@ -237,9 +237,11 @@ class HuggingAdapter(dl.BaseModelAdapter):
         self.model = None
         # but all this as hardcoded for now
         checkpoint_name = "ustc-community/dfine-xlarge-obj2coco"
+        self.model_entity.labels = ["beetle", "cockroach", "fly", "moth", "other", "small fly"]
+        print(f"-HHH- self.model_entity.labels {self.model_entity.labels}")
         id2label = {
             0: "beetle",
-            1: "cockroach",
+            1: "cockroach", 
             2: "fly",
             3: "moth",
             4: "other",
@@ -445,7 +447,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             resume_from_checkpoint=cfg.get('resume_from_checkpoint', None),
             remove_unused_columns=False,
             fp16=cfg.get('fp16', False),
-            disable_tqdm=True,  # Disable progress bars
+            disable_tqdm=False,  # Disable progress bars
         )
 
     def save(self, local_path: str, **kwargs: Any) -> None:
@@ -571,12 +573,12 @@ if __name__ == "__main__":
         project = dl.projects.get(project_name='IPM development')
     print("project done")
     # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='dfine-sdk-clone-full-helios-4')
+    model = project.models.get(model_name='dfine-sdk-clone-husam-test-5')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
     model_adapter.configuration['start_epoch'] = 1
-    model_adapter.configuration['train_configs'] = {'num_train_epochs': 3 ,'per_device_train_batch_size': 1,'per_device_eval_batch_size': 1,'gradient_accumulation_steps': 4, "learning_rate" : 0.1}
+    model_adapter.configuration['train_configs'] = {'num_train_epochs': 5 ,'per_device_train_batch_size': 1,'per_device_eval_batch_size': 1,'gradient_accumulation_steps': 4, "learning_rate" : 0.0001}
     # print("run predict")
     model_adapter.train_model(model=model)
     #_, annotations = model_adapter.predict_items(items=[project.items.get(item_id='6825a3e5b970668ac00c6817')])
