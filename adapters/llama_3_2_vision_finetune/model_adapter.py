@@ -5,6 +5,7 @@ import torch
 import base64
 import logging
 import dtlpy as dl
+import gc
 
 from PIL import Image
 from io import BytesIO
@@ -33,18 +34,15 @@ class ModelAdapter(dl.BaseModelAdapter):
 
         hf_model_name = self.model_entity.configuration.get("model_name", "meta-llama/Llama-3.2-11B-Vision")
         logger.info(f"Model name: {hf_model_name}")
-        self.device = self.model_entity.configuration.get(
-            "device", torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        )
-        if self.device == "cuda":
-            logger.info(f'GPU available: {torch.cuda.is_available()}')
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        logger.info(f'Using device: {self.device}')
 
         # load base model
         logger.info(f"Downloading model from HuggingFace {hf_model_name}")
         base_model, self.processor = self._prepare_model_and_tokenizer(ckpt=hf_model_name)
 
         # check if lora adapter weights exist
-        lora_dir = os.path.join(local_path)
+        lora_dir = os.path.join(local_path, "lora_weights")  # TODO check saving works
         if os.path.exists(lora_dir) is True:
             logger.info(f"Loading LoRA weights from {lora_dir}")
             model_to_merge = PeftModel.from_pretrained(base_model, lora_dir, device_map=self.device)
@@ -55,9 +53,10 @@ class ModelAdapter(dl.BaseModelAdapter):
 
     def save(self, local_path, **kwargs):
         """Save the model and processor to Dataloop"""
-        self.model.save_pretrained(save_directory=local_path)
-        self.processor.save_pretrained(save_directory=local_path)
-        logger.info(f"Successfully saved trained LoRA weights to {local_path}")
+        save_dir = os.path.join(local_path, "lora_weights")
+        self.model.save_pretrained(save_directory=save_dir)
+        self.processor.save_pretrained(save_directory=save_dir)
+        logger.info(f"Successfully saved trained LoRA weights to {save_dir}")
 
     def prepare_item_func(self, item: dl.Item):
         """Prepare item for prediction"""
@@ -84,7 +83,7 @@ class ModelAdapter(dl.BaseModelAdapter):
                 for prompt_item in batch:
                     try:
                         _messages = prompt_item.to_messages()
-                        prompt_txt, image = ModelAdapter._reformat_messages(_messages, system_prompt)
+                        prompt_txt, image = self._reformat_messages(_messages, system_prompt)
 
                         logger.info(f"Prompt text: {prompt_txt}")
                         logger.info(f"Processing image of size: {image.size}")
@@ -100,7 +99,7 @@ class ModelAdapter(dl.BaseModelAdapter):
                             self.device
                         )
                         logger.info("Generating response...")
-                        start_time = time.time()
+                        # start_time = time.time()
                         outputs = self.model.generate(
                             **inputs,
                             max_new_tokens=max_new_tokens,
@@ -109,7 +108,7 @@ class ModelAdapter(dl.BaseModelAdapter):
                             use_cache=use_cache,
                             top_p=top_p,
                         ).to(self.device)
-                        end_time = time.time()
+                        # end_time = time.time()
 
                         # response = self.processor.batch_decode(outputs[0], skip_special_tokens=True)
                         response = self.processor.decode(outputs[0][inputs["input_ids"].shape[-1] :])
@@ -133,6 +132,7 @@ class ModelAdapter(dl.BaseModelAdapter):
                             del outputs
                             del inputs
                             torch.cuda.synchronize()
+                            gc.collect()  # TODO test this by loading images and deleting
                     except Exception as e:
                         logger.error(f"Error processing item {prompt_item.id}: {str(e)}")
                         continue
@@ -163,6 +163,8 @@ class ModelAdapter(dl.BaseModelAdapter):
         output_dir = output_path
         dataloader_pin_memory = configs.get("dataloader_pin_memory", False)
 
+        progress = kwargs.get("progress", None)
+
         # Configure training arguments
         training_args = TrainingArguments(
             num_train_epochs=num_train_epochs,
@@ -184,7 +186,11 @@ class ModelAdapter(dl.BaseModelAdapter):
 
         # Create save callback
         save_callback = SaveEpochCallback(
-            save_path=output_path, tokenizer=self.processor, model_entity=self.model_entity
+            save_path=output_path,
+            tokenizer=self.processor,
+            model_entity=self.model_entity,
+            progress=progress,
+            num_epochs=num_train_epochs,
         )
 
         # Get training data
@@ -517,6 +523,10 @@ class SaveEpochCallback(TrainerCallback):
             #     logger.info(f"New best model based on eval loss: {eval_loss:.4f}")
 
     def on_epoch_end(self, args, state, control, **kwargs):
+        progress = kwargs.get("progress", None)
+        faas_callback = kwargs.get("faas_callback", None)
+        num_epochs = kwargs.get("num_epochs", None)
+
         model = kwargs.get("model", None)
         if model is None:
             raise ValueError("Cannot save model. Model is None.")
@@ -535,3 +545,7 @@ class SaveEpochCallback(TrainerCallback):
                 logger.info(
                     f"Skipping save for epoch {self.current_epoch} (Current loss: {self.current_loss:.4f}, Best loss: {self.best_loss:.4f})"
                 )
+
+        if progress is not None:
+            if faas_callback is not None:
+                faas_callback(self.current_epoch, num_epochs)
