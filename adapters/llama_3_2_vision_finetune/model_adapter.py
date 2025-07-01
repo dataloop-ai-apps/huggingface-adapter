@@ -36,6 +36,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         logger.info(f"Model name: {hf_model_name}")
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f'Using device: {self.device}')
+        self.device_map = self.configuration.get("device_map", "auto")
 
         # load base model
         logger.info(f"Downloading model from HuggingFace {hf_model_name}")
@@ -45,7 +46,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         lora_dir = os.path.join(local_path, "lora_weights")  # TODO check saving works
         if os.path.exists(lora_dir) is True:
             logger.info(f"Loading LoRA weights from {lora_dir}")
-            model_to_merge = PeftModel.from_pretrained(base_model, lora_dir, device_map=self.device)
+            model_to_merge = PeftModel.from_pretrained(base_model, lora_dir, device_map=self.device_map)
             merged_model = model_to_merge.merge_and_unload()
             self.model = merged_model
         else:
@@ -279,7 +280,7 @@ class ModelAdapter(dl.BaseModelAdapter):
             model = MllamaForConditionalGeneration.from_pretrained(
                 ckpt,
                 torch_dtype=torch.bfloat16,
-                device_map=self.device,
+                device_map=self.device_map,
                 low_cpu_mem_usage=True,  # Enable low CPU memory usage
             )
 
@@ -291,7 +292,7 @@ class ModelAdapter(dl.BaseModelAdapter):
             if freeze_llm is True:
                 raise ValueError("You cannot freeze image encoder and text decoder at the same time.")
             model = MllamaForConditionalGeneration.from_pretrained(
-                ckpt, torch_dtype=torch.bfloat16, device_map=self.device
+                ckpt, torch_dtype=torch.bfloat16, device_map=self.device_map
             )
             # freeze vision model to save up on compute
             for param in model.vision_model.parameters():
@@ -301,7 +302,7 @@ class ModelAdapter(dl.BaseModelAdapter):
             if freeze_image is True:
                 raise ValueError("You cannot freeze image encoder and text decoder at the same time.")
             model = MllamaForConditionalGeneration.from_pretrained(
-                ckpt, torch_dtype=torch.bfloat16, device_map=self.device
+                ckpt, torch_dtype=torch.bfloat16, device_map=self.device_map
             )
             # freeze text model, this is encouraged in paper
             for param in model.language_model.parameters():
@@ -309,7 +310,7 @@ class ModelAdapter(dl.BaseModelAdapter):
 
         else:  # full ft
             model = MllamaForConditionalGeneration.from_pretrained(
-                ckpt, torch_dtype=torch.bfloat16, device_map=self.device
+                ckpt, torch_dtype=torch.bfloat16, device_map=self.device_map
             )
 
         processor = AutoProcessor.from_pretrained(ckpt)
