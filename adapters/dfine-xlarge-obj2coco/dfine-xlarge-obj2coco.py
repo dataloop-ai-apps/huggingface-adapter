@@ -11,8 +11,8 @@ import torch
 from datasets import Dataset
 from PIL import Image
 from pycocotools.coco import COCO
-from transformers import DFineForObjectDetection, AutoImageProcessor, TrainingArguments, Trainer, TrainerCallback
-from transformers.trainer_callback import TrainerState, TrainerControl
+from transformers import DFineForObjectDetection, AutoImageProcessor, TrainingArguments, Trainer
+from transformers.trainer_callback import TrainerCallback, TrainerState, TrainerControl
 
 import dtlpy as dl
 from dtlpyconverters import services, coco_converters
@@ -101,6 +101,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             eval_loss_value = (
                 state.log_history[1]['eval_loss'] if len(state.log_history) > 1 else NaN_defaults['eval_loss']
             )
+            print(f"-HHH- state.log_history {state.log_history}")
             for metric_name, value in [('loss', loss_value), ('eval_loss', eval_loss_value)]:
                 if not isinstance(value, (int, float)) or not np.isfinite(value):
                     logger.warning(f"Non-finite value for {metric_name}. Replacing with default.")
@@ -234,8 +235,27 @@ class HuggingAdapter(dl.BaseModelAdapter):
         self.processor = AutoImageProcessor.from_pretrained(image_processor_path)
 
         self.model = None
-        checkpoint_name = self.configuration.get("checkpoint_name", "ustc-community/dfine-xlarge-obj2coco")
+        # but all this as hardcoded for now
+        checkpoint_name = "ustc-community/dfine-xlarge-obj2coco"
+        id2label = {
+            0: "beetle",
+            1: "cockroach",
+            2: "fly",
+            3: "moth",
+            4: "other",
+            5: "small fly",
+        }
+        label2id = {
+            "beetle": 0,
+            "cockroach": 1,
+            "fly": 2,
+            "moth": 3,
+            "other": 4,
+            "small fly": 5,
+        }
+        self.model_entity.dataset.instance_map  = label2id
         checkpoint_path = os.path.join(local_path, checkpoint_name)
+        #labels = sorted(self.model_entity.labels)
         if checkpoint_path != "" and checkpoint_path.strip() != "":
             required_files = ['config.json', 'model.safetensors', 'training_args.bin', 'trainer_state.json']
             has_required_files = all(os.path.exists(os.path.join(checkpoint_path, f)) for f in required_files)
@@ -244,11 +264,15 @@ class HuggingAdapter(dl.BaseModelAdapter):
             else:
                 logger.info(f"Loading model from checkpoint: {checkpoint_path}")
                 self.model = DFineForObjectDetection.from_pretrained(
-                    pretrained_model_name_or_path=checkpoint_path, local_files_only=True, use_safetensors=True
+                    pretrained_model_name_or_path=checkpoint_path, local_files_only=True, use_safetensors=True, num_labels=len(self.model_entity.labels),
                 )
         if self.model is None:
-            self.model = DFineForObjectDetection.from_pretrained(checkpoint_name)
+            self.model = DFineForObjectDetection.from_pretrained(checkpoint_name,num_labels=len(self.model_entity.labels),ignore_mismatched_sizes=True,id2label=id2label,label2id=label2id)
         self.model.to(self.device)
+        print(f"-HHH- self.model.config.id2label {self.model.config.id2label}")
+        print(f"-HHH- self.model.config.label2id {self.model.config.label2id}")
+        print(f"-HHH- self.model_entity.labels {self.model_entity.labels}")
+
 
     def predict(self, batch: List[np.ndarray], **kwargs: Any) -> List[dl.AnnotationCollection]:
         """Predict on a batch of images.
@@ -273,16 +297,22 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
             # Post-process results
             target_sizes = torch.tensor([image.size[::-1]])
-            results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.3)[0]
+            results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.29)[0]
 
             # Create box annotations for each detection
             item_annotations = dl.AnnotationCollection()
             for score, label_id, box in zip(results["scores"], results["labels"], results["boxes"]):
+
                 score, label = score.item(), label_id.item()
+                print(f"score: {score}, label: {label}, box: {box}")
+
+                if score < 0.29:
+                    print("skipping")
+                    continue
                 box = [round(i, 2) for i in box.tolist()]
                 left, top, right, bottom = box
-
                 # Create box annotation
+                print(f"-HHH- top: {top}, left: {left}, bottom: {bottom}, right: {right}")
                 item_annotations.add(
                     annotation_definition=dl.Box(
                         label=self.model.config.id2label[label], top=top, left=left, bottom=bottom, right=right
@@ -321,11 +351,16 @@ class HuggingAdapter(dl.BaseModelAdapter):
             input_annotations_path = os.path.join(data_path, subset_name, 'json')
             output_annotations_path = os.path.join(data_path, dist_dir_name)
 
-            # Ensure instance map IDs start from 1 not 0
-            if 0 in self.model_entity.dataset.instance_map.values():
-                self.model_entity.dataset.instance_map = {
-                    label: label_id + 1 for label, label_id in self.model_entity.dataset.instance_map.items()
-                }
+            # # Ensure instance map IDs start from 1 not 0
+            # if 0 in self.model_entity.dataset.instance_map.values():
+            #     self.model_entity.dataset.instance_map = {
+            #         label: label_id - 1 for label, label_id in self.model_entity.dataset.instance_map.items()
+            #     }
+
+            #if 0 not in self.model_entity.dataset.instance_map.values():
+            #    self.model_entity.dataset.instance_map = {
+            #        label: label_id - 1 for label, label_id in self.model_entity.dataset.instance_map.items()
+            #    }
 
             converter = coco_converters.DataloopToCoco(
                 output_annotations_path=output_annotations_path,
@@ -451,6 +486,9 @@ class HuggingAdapter(dl.BaseModelAdapter):
         """
         train_dataset, val_dataset = self._get_hugging_dataset(data_path)
 
+        print(f"Example train sample: {train_dataset[0]}")
+        print(f"Example val sample: {val_dataset[0]}")
+
         # Resume from checkpoint logic
         start_epoch = self.configuration.get('start_epoch', 1)
 
@@ -491,7 +529,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
         )
 
         logger.info("Starting training")
-        trainer.train(resume_from_checkpoint=resume_checkpoint)
+        # trainer.train(resume_from_checkpoint=resume_checkpoint)
+        trainer.train()
         logger.info("Training completed")
 
         #  Check if the model (checkpoint) has already completed training for the specified number of epochs, if so, can start again without resuming
@@ -503,3 +542,48 @@ class HuggingAdapter(dl.BaseModelAdapter):
     def embed(self, batch: List[dl.Item], **kwargs: Any) -> None:
         """Embed items - not implemented for this adapter."""
         raise NotImplementedError("Embed method not implemented for this adapter")
+if __name__ == "__main__":
+    print("start")
+    use_rc_env = False
+    if use_rc_env:
+        dl.setenv('rc')
+    else:
+        dl.setenv('prod')
+    # from dotenv import load_dotenv
+
+    # load_dotenv()
+    # api_key = os.getenv('DTLPY_API_KEY')
+    # print(f"api_key: {api_key}")
+    # if api_key:
+    #     print("DTLPY_API_KEY found in environment variables")
+    #     dl.login_api_key(api_key=api_key)
+    # else:
+    #     print("ERROR: DTLPY_API_KEY not found in environment variables")
+    #     raise ValueError("Missing required DTLPY_API_KEY environment variable")
+
+    # if dl.token_expired():
+    #     dl.login()
+    # print("login done")
+    if use_rc_env:
+        project = dl.projects.get(project_name='Husam Testing')
+    else:
+        # project = dl.projects.get(project_name='ShadiDemo')
+        project = dl.projects.get(project_name='IPM development')
+    print("project done")
+    # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
+    model = project.models.get(model_name='dfine-sdk-clone-full-helios-4')
+    print("model done")
+    model.status = 'pre-trained'
+    model_adapter = HuggingAdapter(model)
+    model_adapter.configuration['start_epoch'] = 1
+    model_adapter.configuration['train_configs'] = {'num_train_epochs': 3 ,'per_device_train_batch_size': 1,'per_device_eval_batch_size': 1,'gradient_accumulation_steps': 4, "learning_rate" : 0.1}
+    # print("run predict")
+    model_adapter.train_model(model=model)
+    #_, annotations = model_adapter.predict_items(items=[project.items.get(item_id='6825a3e5b970668ac00c6817')])
+# print(annotations)
+# model_adapter.configuration['start_epoch'] = 4
+# # model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
+# model_adapter.configuration['train_configs'] = {'num_train_epochs': 7}
+# print("model_adapter done - start train")
+# model_adapter.train_model(model=model)
+# print("convert done")
