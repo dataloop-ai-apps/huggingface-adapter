@@ -102,32 +102,33 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 state.log_history[1]['eval_loss'] if len(state.log_history) > 1 else NaN_defaults['eval_loss']
             )
             print(f"-HHH- state.log_history {state.log_history}")
-            for metric_name, value in [('loss', loss_value), ('eval_loss', eval_loss_value)]:
-                if not isinstance(value, (int, float)) or not np.isfinite(value):
-                    logger.warning(f"Non-finite value for {metric_name}. Replacing with default.")
-                    value = NaN_defaults.get(metric_name, 0)
-                samples.append(dl.PlotSample(figure=metric_name, legend='metrics', x=current_epoch, y=value))
+            # logger.info(f"-HHH- state.log_history {state.log_history}")
+            # for metric_name, value in [('loss', loss_value), ('eval_loss', eval_loss_value)]:
+            #     if not isinstance(value, (int, float)) or not np.isfinite(value):
+            #         logger.warning(f"Non-finite value for {metric_name}. Replacing with default.")
+            #         value = NaN_defaults.get(metric_name, 0)
+            #     samples.append(dl.PlotSample(figure=metric_name, legend='metrics', x=current_epoch, y=value))
 
-            if samples:
-                self.model_adapter.model_entity.metrics.create(
-                    samples=samples, dataset_id=self.model_adapter.model_entity.dataset_id
-                )
+            # if samples:
+            #     self.model_adapter.model_entity.metrics.create(
+            #         samples=samples, dataset_id=self.model_adapter.model_entity.dataset_id
+            #     )
 
-            # Update internal configuration
-            self.model_adapter.configuration['start_epoch'] = current_epoch + 1
-            logger.info(f"best_model_checkpoint: {state.best_model_checkpoint}")
-            if state.best_model_checkpoint:
-                self.model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
-            else:
-                logger.info("No best model checkpoint available yet")
-            self.model_adapter.model_entity.update()
+            # # Update internal configuration
+            # self.model_adapter.configuration['start_epoch'] = current_epoch + 1
+            # logger.info(f"best_model_checkpoint: {state.best_model_checkpoint}")
+            # if state.best_model_checkpoint:
+            #     self.model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
+            # else:
+            #     logger.info("No best model checkpoint available yet")
+            # self.model_adapter.model_entity.update()
 
             # Manage checkpoints
             # self._manage_checkpoints(args, state)
 
             # Save model
-            logger.info("Saving model checkpoint to model entity...")
-            self.model_adapter.save_to_model(local_path=args.output_dir, cleanup=False)
+            # logger.info("Saving model checkpoint to model entity...")
+            # self.model_adapter.save_to_model(local_path=args.output_dir, cleanup=False)
             return control
 
     @staticmethod
@@ -447,7 +448,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             resume_from_checkpoint=cfg.get('resume_from_checkpoint', None),
             remove_unused_columns=False,
             fp16=cfg.get('fp16', False),
-            disable_tqdm=False,  # Disable progress bars
+            disable_tqdm=True,  # Disable progress bars
         )
 
     def save(self, local_path: str, **kwargs: Any) -> None:
@@ -573,12 +574,12 @@ if __name__ == "__main__":
         project = dl.projects.get(project_name='IPM development')
     print("project done")
     # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='dfine-sdk-clone-husam-test-5')
+    model = project.models.get(model_name='dfine-sdk-clone-small-1-5')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
     model_adapter.configuration['start_epoch'] = 1
-    model_adapter.configuration['train_configs'] = {'num_train_epochs': 5 ,'per_device_train_batch_size': 1,'per_device_eval_batch_size': 1,'gradient_accumulation_steps': 4, "learning_rate" : 0.0001}
+    model_adapter.configuration['train_configs'] = {'num_train_epochs': 8 ,'per_device_train_batch_size': 1,'per_device_eval_batch_size': 1,'gradient_accumulation_steps': 4, "learning_rate" : 0.0001}
     # print("run predict")
     model_adapter.train_model(model=model)
     #_, annotations = model_adapter.predict_items(items=[project.items.get(item_id='6825a3e5b970668ac00c6817')])
