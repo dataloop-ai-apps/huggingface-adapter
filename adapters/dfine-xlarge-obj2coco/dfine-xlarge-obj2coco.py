@@ -217,8 +217,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
             pixel_values.append(processed["pixel_values"])
             labels.append(processed["labels"])
-        print(f"-HHH- labels: {labels}")
-        print(f"-HHH- pixel_values shape: {pixel_values[0].shape}")
+        # print(f"-HHH- labels: {labels}")
+        # print(f"-HHH- pixel_values shape: {pixel_values[0].shape}")
         return {"pixel_values": torch.stack(pixel_values), "labels": labels}
 
     def _get_hugging_dataset(self, data_path: str) -> Tuple[Dataset, Dataset]:
@@ -292,8 +292,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
         self.model_name = self.configuration.get("model_name", "d-fine")
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         image_processor_path = self.configuration.get("image_processor_path", "ustc-community/dfine-xlarge-obj2coco")
-        checkpoint_name = self.configuration.get("checkpoint_name", "ustc-community/dfine-xlarge-obj2coco")
-        checkpoint_path = os.path.join(local_path, checkpoint_name)
+        checkpoint = self.configuration.get("checkpoint_name", "ustc-community/dfine-xlarge-obj2coco")
+        checkpoint_path = os.path.join(local_path, checkpoint)
 
         # Initialize image processor
         self.processor = AutoImageProcessor.from_pretrained(
@@ -303,9 +303,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         # Initialize transforms
         self.transform = A.Compose(
             [A.NoOp()],
-            bbox_params=A.BboxParams(
-                format="coco", label_fields=["category"], clip=True, min_area=1, min_width=1, min_height=1
-            ),
+            bbox_params=A.BboxParams(format="coco", label_fields=["category"], min_area=1, min_width=1, min_height=1),
         )
 
         # Prepare label mappings
@@ -316,24 +314,33 @@ class HuggingAdapter(dl.BaseModelAdapter):
         id2label = {label_id: label for label, label_id in self.model_entity.dataset.instance_map.items()}
 
         # Check if loading from checkpoint
-        use_safetensors = False
         if checkpoint_path != "" and checkpoint_path.strip() != "":
             required_files = ['config.json', 'model.safetensors', 'training_args.bin', 'trainer_state.json']
             has_required_files = all(os.path.exists(os.path.join(checkpoint_path, f)) for f in required_files)
             if not has_required_files:
                 logger.warning(f"Checkpoint path {checkpoint_path} does not contain required files: {required_files}")
             else:
-                use_safetensors = True
+                checkpoint = checkpoint_path
 
         # Load and initialize model
         self.model = DFineForObjectDetection.from_pretrained(
-            checkpoint_name,
+            checkpoint,
             num_labels=len(self.model_entity.dataset.instance_map),
-            use_safetensors=use_safetensors,
+            use_safetensors=True,
             ignore_mismatched_sizes=True,
             id2label=id2label,
             label2id=self.model_entity.dataset.instance_map,
-        ).to(self.device)
+        )
+        print(f"-HHH- id2label: {id2label}")
+        print(f"-HHH- self.model_entity.dataset.instance_map: {self.model_entity.dataset.instance_map}")
+        # self.model = DFineForObjectDetection.from_pretrained(
+        #     checkpoint_name,
+        #     num_labels=6,
+        #     ignore_mismatched_sizes=True,
+        #     id2label={0: "beetle", 1: "cockroach", 2: "fly", 3: "moth", 4: "other", 5: "small fly"},
+        #     label2id={"beetle": 0, "cockroach": 1, "fly": 2, "moth": 3, "other": 4, "small fly": 5},
+        # )
+        # self.model.to(self.device)
 
         # Debug prints
         print(f"-HHH- self.model.config.id2label {self.model.config.id2label}")
@@ -606,16 +613,17 @@ if __name__ == "__main__":
         project = dl.projects.get(project_name='IPM development')
     print("project done")
     # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='dfine-sdk-clone-small-25-1')
+    model = project.models.get(model_name='dfine-sdk-clone-small-150-1')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
     model_adapter.configuration['start_epoch'] = 1
+    model_adapter.configuration['checkpoint_name'] = "ustc-community/dfine-xlarge-obj2coco"
     model_adapter.configuration['train_configs'] = {
         'num_train_epochs': 20,
         'per_device_train_batch_size': 1,
         'per_device_eval_batch_size': 1,
-        'gradient_accumulation_steps': 4,
+        'gradient_accumulation_steps': 8,
     }
     # print("run predict")
     model_adapter.train_model(model=model)
