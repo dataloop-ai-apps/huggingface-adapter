@@ -17,6 +17,7 @@ from transformers.trainer_callback import TrainerCallback, TrainerState, Trainer
 import dtlpy as dl
 from dtlpyconverters import services, coco_converters
 from dtlpy.services import service_defaults
+import albumentations as A
 
 logger = logging.getLogger("[D-FINE]")
 
@@ -197,19 +198,31 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
             coco = COCO(annotation_path)
             items = []
+
             for image_id in coco.imgs:
+
+                #######################################
                 image_info = coco.loadImgs(image_id)[0]
-                file_path = os.path.join(image_dir, image_info["file_name"])
-                anns = coco.loadAnns(coco.getAnnIds(imgIds=image_id))
+                print(f"-HHH- image_info: {image_info}")
+                new_img_item = {
+                    'image_id': image_id,
+                    'image': os.path.join(image_dir, image_info['file_name']),
+                    'width': image_info['width'],
+                    'height': image_info['height'],
+                }
 
-                boxes = []
-                class_labels = []
-                for ann in anns:
-                    x, y, w, h = ann["bbox"]
-                    boxes.append([x, y, x + w, y + h])
-                    class_labels.append(ann["category_id"])
+                id = []
+                area = []
+                bbox = []
+                category = []
+                for ann in coco.loadAnns(coco.getAnnIds(imgIds=image_id)):
+                    id.append(ann["id"])
+                    bbox.append(ann["bbox"])
+                    category.append(ann["category_id"])
+                    area.append(ann["area"])
 
-                items.append({"image": file_path, "class_labels": class_labels, "boxes": boxes})
+                new_img_item['objects'] = {"id": id, "bbox": bbox, "category": category, "area": area}
+                items.append(new_img_item)
             return items
 
         # Step 2: Prepare datasets
@@ -230,35 +243,29 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         """
         logger.info(f"Loading model from {local_path}")
+        image_size = self.configuration.get("image_size", 640)
         self.model_name = self.configuration.get("model_name", "d-fine")
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         image_processor_path = self.configuration.get("image_processor_path", "ustc-community/dfine-xlarge-obj2coco")
-        self.processor = AutoImageProcessor.from_pretrained(image_processor_path)
-
+        self.processor = AutoImageProcessor.from_pretrained(
+            image_processor_path, do_resize=True, size={"width": image_size, "height": image_size}, use_fast=True
+        )
+        self.transform = A.Compose(
+            [A.NoOp()],
+            bbox_params=A.BboxParams(
+                format="coco", label_fields=["category"], clip=True, min_area=1, min_width=1, min_height=1
+            ),
+        )
         self.model = None
         # but all this as hardcoded for now
         checkpoint_name = "ustc-community/dfine-xlarge-obj2coco"
         self.model_entity.labels = ["beetle", "cockroach", "fly", "moth", "other", "small fly"]
         print(f"-HHH- self.model_entity.labels {self.model_entity.labels}")
-        id2label = {
-            0: "beetle",
-            1: "cockroach", 
-            2: "fly",
-            3: "moth",
-            4: "other",
-            5: "small fly",
-        }
-        label2id = {
-            "beetle": 0,
-            "cockroach": 1,
-            "fly": 2,
-            "moth": 3,
-            "other": 4,
-            "small fly": 5,
-        }
-        self.model_entity.dataset.instance_map  = label2id
+        id2label = {0: "beetle", 1: "cockroach", 2: "fly", 3: "moth", 4: "other", 5: "small fly"}
+        label2id = {"beetle": 0, "cockroach": 1, "fly": 2, "moth": 3, "other": 4, "small fly": 5}
+        self.model_entity.dataset.instance_map = label2id
         checkpoint_path = os.path.join(local_path, checkpoint_name)
-        #labels = sorted(self.model_entity.labels)
+        # labels = sorted(self.model_entity.labels)
         if checkpoint_path != "" and checkpoint_path.strip() != "":
             required_files = ['config.json', 'model.safetensors', 'training_args.bin', 'trainer_state.json']
             has_required_files = all(os.path.exists(os.path.join(checkpoint_path, f)) for f in required_files)
@@ -267,15 +274,23 @@ class HuggingAdapter(dl.BaseModelAdapter):
             else:
                 logger.info(f"Loading model from checkpoint: {checkpoint_path}")
                 self.model = DFineForObjectDetection.from_pretrained(
-                    pretrained_model_name_or_path=checkpoint_path, local_files_only=True, use_safetensors=True, num_labels=len(self.model_entity.labels),
+                    pretrained_model_name_or_path=checkpoint_path,
+                    local_files_only=True,
+                    use_safetensors=True,
+                    num_labels=len(self.model_entity.labels),
                 )
         if self.model is None:
-            self.model = DFineForObjectDetection.from_pretrained(checkpoint_name,num_labels=len(self.model_entity.labels),ignore_mismatched_sizes=True,id2label=id2label,label2id=label2id)
+            self.model = DFineForObjectDetection.from_pretrained(
+                checkpoint_name,
+                num_labels=len(self.model_entity.labels),
+                ignore_mismatched_sizes=True,
+                id2label=id2label,
+                label2id=label2id,
+            )
         self.model.to(self.device)
         print(f"-HHH- self.model.config.id2label {self.model.config.id2label}")
         print(f"-HHH- self.model.config.label2id {self.model.config.label2id}")
         print(f"-HHH- self.model_entity.labels {self.model_entity.labels}")
-
 
     def predict(self, batch: List[np.ndarray], **kwargs: Any) -> List[dl.AnnotationCollection]:
         """Predict on a batch of images.
@@ -300,7 +315,9 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
             # Post-process results
             target_sizes = torch.tensor([image.size[::-1]])
-            results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.29)[0]
+            results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.29)[
+                0
+            ]
 
             # Create box annotations for each detection
             item_annotations = dl.AnnotationCollection()
@@ -360,7 +377,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             #         label: label_id - 1 for label, label_id in self.model_entity.dataset.instance_map.items()
             #     }
 
-            #if 0 not in self.model_entity.dataset.instance_map.values():
+            # if 0 not in self.model_entity.dataset.instance_map.values():
             #    self.model_entity.dataset.instance_map = {
             #        label: label_id - 1 for label, label_id in self.model_entity.dataset.instance_map.items()
             #    }
@@ -506,19 +523,83 @@ class HuggingAdapter(dl.BaseModelAdapter):
             resume_checkpoint = os.path.abspath(resume_checkpoint)
 
         # Collate function
-        def collate_fn(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
-            images = [Image.open(example["image"]).convert("RGB") for example in batch]
-            encodings = [self.processor(images=img, return_tensors="pt") for img in images]
-            pixel_values = torch.stack([enc["pixel_values"].squeeze(0) for enc in encodings])
+        # def collate_fn(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
+        #     print(f"-HHH- batch: {batch}")
+        #     # for b in batch:
+        #     #     image = np.array(Image.open(b["image"]).convert("RGB"))
 
-            labels = [
-                {
-                    "class_labels": torch.tensor(b["class_labels"], dtype=torch.long),
-                    "boxes": torch.tensor(b["boxes"], dtype=torch.float),
-                }
-                for b in batch
-            ]
-            return {"pixel_values": pixel_values, "labels": labels}
+        #     ##################################################################
+        #     # -HHH- batch: [{'image_id': 2002179214553960035, 'image': 'tmp\\6864d10b35fc9e45358fdc72\\datasets\\6810bd3e580c595e961b4dcd\\train\\1.jpg', 'width': 640, 'height': 640, 'objects': {'area': [1518.0], 'bbox': [[501.0, 0.0, 46.0, 33.0]], 'category': [2], 'id': [7373832803455561089]}}]
+
+        #     ##################################################################
+        #     for b in batch:
+        #         image = np.array(Image.open(b["image"]).convert("RGB"))
+
+        #     images = [Image.open(example["image"]).convert("RGB") for example in batch]
+        #     encodings = [self.processor(images=img, return_tensors="pt") for img in images]
+        #     pixel_values = torch.stack([enc["pixel_values"].squeeze(0) for enc in encodings])
+
+        #     labels = [
+        #         {
+        #             "class_labels": torch.tensor(b["class_labels"], dtype=torch.long),
+        #             "boxes": torch.tensor(b["boxes"], dtype=torch.float),
+        #         }
+        #         for b in batch
+        #     ]
+        #     return {"pixel_values": pixel_values, "labels": labels}
+        def collate_fn(batch):
+            pixel_values = []
+            labels = []
+
+            for sample in batch:
+                # Load image from disk as RGB numpy array
+                np_img = np.array(Image.open(sample["image"]).convert("RGB"))
+
+                bboxes = sample["objects"]["bbox"]
+                categories = sample["objects"]["category"]
+                print(f"-HHH- bboxes: before transform {bboxes}")
+                # Apply Albumentations transform if available
+                transformed = self.transform(image=np_img, bboxes=bboxes, category=categories)
+                np_img = transformed["image"]
+                bboxes = transformed["bboxes"]
+                categories = transformed["category"]
+
+                annotations = []
+                for category, bbox in zip(categories, bboxes):
+                    formatted_annotation = {
+                        "image_id": sample["image_id"],
+                        "category_id": category,
+                        "bbox": list(bbox),
+                        "iscrowd": 0,
+                        "area": bbox[2] * bbox[3],
+                    }
+                    annotations.append(formatted_annotation)
+
+                formatted_annotations = {"image_id": sample["image_id"], "annotations": annotations}
+
+                print(f"-HHH- bboxes: after transform {bboxes}")
+                # Process the image with the processor
+                processed = self.processor(images=np_img, annotations=formatted_annotations, return_tensors="pt")
+
+                processed = {k: v[0] for k, v in processed.items()}
+
+                pixel_values.append(processed["pixel_values"])
+                labels.append(processed["labels"])
+                # pixel_values.append(processed["pixel_values"].squeeze(0))
+
+                # # Prepare labels in the expected format: class_labels & boxes as tensors
+                # if len(bboxes) > 0:
+                #     boxes_tensor = torch.tensor(bboxes, dtype=torch.float)
+                #     class_labels_tensor = torch.tensor(categories, dtype=torch.long)
+                # else:
+                #     # Ensure empty tensors if no boxes in image
+                #     boxes_tensor = torch.zeros((0, 4), dtype=torch.float)
+                #     class_labels_tensor = torch.zeros((0,), dtype=torch.long)
+
+                # labels.append({"class_labels": class_labels_tensor, "boxes": boxes_tensor})
+
+            print(f"-HHH- labels: {labels}")
+            return {"pixel_values": torch.stack(pixel_values), "labels": labels}
 
         training_args = self.get_training_args(output_path)
         # Trainer
@@ -545,6 +626,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
     def embed(self, batch: List[dl.Item], **kwargs: Any) -> None:
         """Embed items - not implemented for this adapter."""
         raise NotImplementedError("Embed method not implemented for this adapter")
+
+
 if __name__ == "__main__":
     print("start")
     use_rc_env = False
@@ -574,15 +657,21 @@ if __name__ == "__main__":
         project = dl.projects.get(project_name='IPM development')
     print("project done")
     # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='dfine-sdk-clone-small-1-5')
+    model = project.models.get(model_name='dfine-sdk-clone-small-1-7')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
     model_adapter.configuration['start_epoch'] = 1
-    model_adapter.configuration['train_configs'] = {'num_train_epochs': 8 ,'per_device_train_batch_size': 1,'per_device_eval_batch_size': 1,'gradient_accumulation_steps': 4, "learning_rate" : 0.0001}
+    model_adapter.configuration['train_configs'] = {
+        'num_train_epochs': 8,
+        'per_device_train_batch_size': 1,
+        'per_device_eval_batch_size': 1,
+        'gradient_accumulation_steps': 4,
+        "learning_rate": 0.0001,
+    }
     # print("run predict")
     model_adapter.train_model(model=model)
-    #_, annotations = model_adapter.predict_items(items=[project.items.get(item_id='6825a3e5b970668ac00c6817')])
+    # _, annotations = model_adapter.predict_items(items=[project.items.get(item_id='6825a3e5b970668ac00c6817')])
 # print(annotations)
 # model_adapter.configuration['start_epoch'] = 4
 # # model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
