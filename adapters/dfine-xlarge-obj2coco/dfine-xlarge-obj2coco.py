@@ -203,7 +203,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
                 #######################################
                 image_info = coco.loadImgs(image_id)[0]
-                print(f"-HHH- image_info: {image_info}")
                 new_img_item = {
                     'image_id': image_id,
                     'image': os.path.join(image_dir, image_info['file_name']),
@@ -260,7 +259,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
         # but all this as hardcoded for now
         checkpoint_name = "ustc-community/dfine-xlarge-obj2coco"
         self.model_entity.labels = ["beetle", "cockroach", "fly", "moth", "other", "small fly"]
-        print(f"-HHH- self.model_entity.labels {self.model_entity.labels}")
         id2label = {0: "beetle", 1: "cockroach", 2: "fly", 3: "moth", 4: "other", 5: "small fly"}
         label2id = {"beetle": 0, "cockroach": 1, "fly": 2, "moth": 3, "other": 4, "small fly": 5}
         self.model_entity.dataset.instance_map = label2id
@@ -557,7 +555,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
                 bboxes = sample["objects"]["bbox"]
                 categories = sample["objects"]["category"]
-                print(f"-HHH- bboxes: before transform {bboxes}")
                 # Apply Albumentations transform if available
                 transformed = self.transform(image=np_img, bboxes=bboxes, category=categories)
                 np_img = transformed["image"]
@@ -577,7 +574,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
                 formatted_annotations = {"image_id": sample["image_id"], "annotations": annotations}
 
-                print(f"-HHH- bboxes: after transform {bboxes}")
                 # Process the image with the processor
                 processed = self.processor(images=np_img, annotations=formatted_annotations, return_tensors="pt")
 
@@ -599,6 +595,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 # labels.append({"class_labels": class_labels_tensor, "boxes": boxes_tensor})
 
             print(f"-HHH- labels: {labels}")
+            print(f"-HHH- pixel_values shape: {pixel_values[0].shape}")
             return {"pixel_values": torch.stack(pixel_values), "labels": labels}
 
         training_args = self.get_training_args(output_path)
@@ -657,17 +654,16 @@ if __name__ == "__main__":
         project = dl.projects.get(project_name='IPM development')
     print("project done")
     # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='dfine-sdk-clone-small-1-7')
+    model = project.models.get(model_name='dfine-sdk-clone-small-25-1')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
     model_adapter.configuration['start_epoch'] = 1
     model_adapter.configuration['train_configs'] = {
-        'num_train_epochs': 8,
+        'num_train_epochs': 20,
         'per_device_train_batch_size': 1,
         'per_device_eval_batch_size': 1,
         'gradient_accumulation_steps': 4,
-        "learning_rate": 0.0001,
     }
     # print("run predict")
     model_adapter.train_model(model=model)
