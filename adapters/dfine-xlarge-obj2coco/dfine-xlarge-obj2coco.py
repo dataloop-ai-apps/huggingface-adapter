@@ -11,13 +11,14 @@ import torch
 from datasets import Dataset
 from PIL import Image
 from pycocotools.coco import COCO
+import albumentations as A
 from transformers import DFineForObjectDetection, AutoImageProcessor, TrainingArguments, Trainer
 from transformers.trainer_callback import TrainerCallback, TrainerState, TrainerControl
 
 import dtlpy as dl
 from dtlpyconverters import services, coco_converters
 from dtlpy.services import service_defaults
-import albumentations as A
+
 
 logger = logging.getLogger("[D-FINE]")
 
@@ -103,33 +104,33 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 state.log_history[1]['eval_loss'] if len(state.log_history) > 1 else NaN_defaults['eval_loss']
             )
             print(f"-HHH- state.log_history {state.log_history}")
-            # logger.info(f"-HHH- state.log_history {state.log_history}")
-            # for metric_name, value in [('loss', loss_value), ('eval_loss', eval_loss_value)]:
-            #     if not isinstance(value, (int, float)) or not np.isfinite(value):
-            #         logger.warning(f"Non-finite value for {metric_name}. Replacing with default.")
-            #         value = NaN_defaults.get(metric_name, 0)
-            #     samples.append(dl.PlotSample(figure=metric_name, legend='metrics', x=current_epoch, y=value))
+            logger.info(f"-HHH- state.log_history {state.log_history}")
+            for metric_name, value in [('loss', loss_value), ('eval_loss', eval_loss_value)]:
+                if not isinstance(value, (int, float)) or not np.isfinite(value):
+                    logger.warning(f"Non-finite value for {metric_name}. Replacing with default.")
+                    value = NaN_defaults.get(metric_name, 0)
+                samples.append(dl.PlotSample(figure=metric_name, legend='metrics', x=current_epoch, y=value))
 
-            # if samples:
-            #     self.model_adapter.model_entity.metrics.create(
-            #         samples=samples, dataset_id=self.model_adapter.model_entity.dataset_id
-            #     )
+            if samples:
+                self.model_adapter.model_entity.metrics.create(
+                    samples=samples, dataset_id=self.model_adapter.model_entity.dataset_id
+                )
 
-            # # Update internal configuration
-            # self.model_adapter.configuration['start_epoch'] = current_epoch + 1
-            # logger.info(f"best_model_checkpoint: {state.best_model_checkpoint}")
-            # if state.best_model_checkpoint:
-            #     self.model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
-            # else:
-            #     logger.info("No best model checkpoint available yet")
-            # self.model_adapter.model_entity.update()
+            # Update internal configuration
+            self.model_adapter.configuration['start_epoch'] = current_epoch + 1
+            logger.info(f"best_model_checkpoint: {state.best_model_checkpoint}")
+            if state.best_model_checkpoint:
+                self.model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
+            else:
+                logger.info("No best model checkpoint available yet")
+            self.model_adapter.model_entity.update()
 
             # Manage checkpoints
-            # self._manage_checkpoints(args, state)
+            self._manage_checkpoints(args, state)
 
             # Save model
-            # logger.info("Saving model checkpoint to model entity...")
-            # self.model_adapter.save_to_model(local_path=args.output_dir, cleanup=False)
+            logger.info("Saving model checkpoint to model entity...")
+            self.model_adapter.save_to_model(local_path=args.output_dir, cleanup=False)
             return control
 
     @staticmethod
@@ -180,6 +181,46 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         logger.info('COCO JSON processing completed')
 
+    def collate_fn(self, batch):
+        pixel_values = []
+        labels = []
+
+        for sample in batch:
+            # Load image from disk as RGB numpy array
+            np_img = np.array(Image.open(sample["image"]).convert("RGB"))
+
+            bboxes = sample["objects"]["bbox"]
+            categories = sample["objects"]["category"]
+            # Apply Albumentations transform if available
+            transformed = self.transform(image=np_img, bboxes=bboxes, category=categories)
+            np_img = transformed["image"]
+            bboxes = transformed["bboxes"]
+            categories = transformed["category"]
+
+            annotations = []
+            for category, bbox in zip(categories, bboxes):
+                formatted_annotation = {
+                    "image_id": sample["image_id"],
+                    "category_id": category,
+                    "bbox": list(bbox),
+                    "iscrowd": 0,
+                    "area": bbox[2] * bbox[3],
+                }
+                annotations.append(formatted_annotation)
+
+            formatted_annotations = {"image_id": sample["image_id"], "annotations": annotations}
+
+            # Process the image with the processor
+            processed = self.processor(images=np_img, annotations=formatted_annotations, return_tensors="pt")
+
+            processed = {k: v[0] for k, v in processed.items()}
+
+            pixel_values.append(processed["pixel_values"])
+            labels.append(processed["labels"])
+        print(f"-HHH- labels: {labels}")
+        print(f"-HHH- pixel_values shape: {pixel_values[0].shape}")
+        return {"pixel_values": torch.stack(pixel_values), "labels": labels}
+
     def _get_hugging_dataset(self, data_path: str) -> Tuple[Dataset, Dataset]:
         """Get Hugging Face datasets for training and validation.
 
@@ -200,8 +241,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
             items = []
 
             for image_id in coco.imgs:
-
-                #######################################
                 image_info = coco.loadImgs(image_id)[0]
                 new_img_item = {
                     'image_id': image_id,
@@ -210,17 +249,22 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     'height': image_info['height'],
                 }
 
-                id = []
-                area = []
-                bbox = []
-                category = []
+                id_list = []
+                area_list = []
+                bbox_list = []
+                category_list = []
                 for ann in coco.loadAnns(coco.getAnnIds(imgIds=image_id)):
-                    id.append(ann["id"])
-                    bbox.append(ann["bbox"])
-                    category.append(ann["category_id"])
-                    area.append(ann["area"])
+                    id_list.append(ann["id"])
+                    bbox_list.append(ann["bbox"])
+                    category_list.append(ann["category_id"])
+                    area_list.append(ann["area"])
 
-                new_img_item['objects'] = {"id": id, "bbox": bbox, "category": category, "area": area}
+                new_img_item['objects'] = {
+                    "id": id_list,
+                    "bbox": bbox_list,
+                    "category": category_list,
+                    "area": area_list,
+                }
                 items.append(new_img_item)
             return items
 
@@ -242,50 +286,56 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         """
         logger.info(f"Loading model from {local_path}")
+
+        # Get configuration parameters
         image_size = self.configuration.get("image_size", 640)
         self.model_name = self.configuration.get("model_name", "d-fine")
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         image_processor_path = self.configuration.get("image_processor_path", "ustc-community/dfine-xlarge-obj2coco")
+        checkpoint_name = self.configuration.get("checkpoint_name", "ustc-community/dfine-xlarge-obj2coco")
+        checkpoint_path = os.path.join(local_path, checkpoint_name)
+
+        # Initialize image processor
         self.processor = AutoImageProcessor.from_pretrained(
             image_processor_path, do_resize=True, size={"width": image_size, "height": image_size}, use_fast=True
         )
+
+        # Initialize transforms
         self.transform = A.Compose(
             [A.NoOp()],
             bbox_params=A.BboxParams(
                 format="coco", label_fields=["category"], clip=True, min_area=1, min_width=1, min_height=1
             ),
         )
-        self.model = None
-        # but all this as hardcoded for now
-        checkpoint_name = "ustc-community/dfine-xlarge-obj2coco"
-        self.model_entity.labels = ["beetle", "cockroach", "fly", "moth", "other", "small fly"]
-        id2label = {0: "beetle", 1: "cockroach", 2: "fly", 3: "moth", 4: "other", 5: "small fly"}
-        label2id = {"beetle": 0, "cockroach": 1, "fly": 2, "moth": 3, "other": 4, "small fly": 5}
-        self.model_entity.dataset.instance_map = label2id
-        checkpoint_path = os.path.join(local_path, checkpoint_name)
-        # labels = sorted(self.model_entity.labels)
+
+        # Prepare label mappings
+        if 0 not in self.model_entity.dataset.instance_map.values():
+            self.model_entity.dataset.instance_map = {
+                label: label_id - 1 for label, label_id in self.model_entity.dataset.instance_map.items()
+            }
+        id2label = {label_id: label for label, label_id in self.model_entity.dataset.instance_map.items()}
+
+        # Check if loading from checkpoint
+        use_safetensors = False
         if checkpoint_path != "" and checkpoint_path.strip() != "":
             required_files = ['config.json', 'model.safetensors', 'training_args.bin', 'trainer_state.json']
             has_required_files = all(os.path.exists(os.path.join(checkpoint_path, f)) for f in required_files)
             if not has_required_files:
                 logger.warning(f"Checkpoint path {checkpoint_path} does not contain required files: {required_files}")
             else:
-                logger.info(f"Loading model from checkpoint: {checkpoint_path}")
-                self.model = DFineForObjectDetection.from_pretrained(
-                    pretrained_model_name_or_path=checkpoint_path,
-                    local_files_only=True,
-                    use_safetensors=True,
-                    num_labels=len(self.model_entity.labels),
-                )
-        if self.model is None:
-            self.model = DFineForObjectDetection.from_pretrained(
-                checkpoint_name,
-                num_labels=len(self.model_entity.labels),
-                ignore_mismatched_sizes=True,
-                id2label=id2label,
-                label2id=label2id,
-            )
-        self.model.to(self.device)
+                use_safetensors = True
+
+        # Load and initialize model
+        self.model = DFineForObjectDetection.from_pretrained(
+            checkpoint_name,
+            num_labels=len(self.model_entity.dataset.instance_map),
+            use_safetensors=use_safetensors,
+            ignore_mismatched_sizes=True,
+            id2label=id2label,
+            label2id=self.model_entity.dataset.instance_map,
+        ).to(self.device)
+
+        # Debug prints
         print(f"-HHH- self.model.config.id2label {self.model.config.id2label}")
         print(f"-HHH- self.model.config.label2id {self.model.config.label2id}")
         print(f"-HHH- self.model_entity.labels {self.model_entity.labels}")
@@ -342,18 +392,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
         return batch_annotations
 
     def convert_from_dtlpy(self, data_path: str, **kwargs: Any) -> None:
-        """Convert dataset from Dataloop format to COCO format.
-
-        This method converts a Dataloop dataset to COCO format required by RF-DETR. It validates box annotations
-        in each subset (train/validation) and converts them to match RF-DETR's train/valid directory structure.
-
-        Args:
-            data_path (str): Path to the directory where the dataset will be converted
-            **kwargs: Additional keyword arguments (unused)
-
-        Raises:
-            ValueError: If model has no labels defined or if no box annotations are found in a subset
-        """
         logger.info(f'Converting dataset from Dataloop format to COCO format at {data_path}')
 
         subsets = self.model_entity.metadata.get("system", dict()).get("subsets", None)
@@ -368,17 +406,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
             dist_dir_name = subset_name if subset_name != 'validation' else 'valid'
             input_annotations_path = os.path.join(data_path, subset_name, 'json')
             output_annotations_path = os.path.join(data_path, dist_dir_name)
-
-            # # Ensure instance map IDs start from 1 not 0
-            # if 0 in self.model_entity.dataset.instance_map.values():
-            #     self.model_entity.dataset.instance_map = {
-            #         label: label_id - 1 for label, label_id in self.model_entity.dataset.instance_map.items()
-            #     }
-
-            # if 0 not in self.model_entity.dataset.instance_map.values():
-            #    self.model_entity.dataset.instance_map = {
-            #        label: label_id - 1 for label, label_id in self.model_entity.dataset.instance_map.items()
-            #    }
 
             converter = coco_converters.DataloopToCoco(
                 output_annotations_path=output_annotations_path,
@@ -452,6 +479,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
             learning_rate=cfg.get('learning_rate', 5e-5),
             weight_decay=cfg.get('weight_decay', 0.0),
             num_train_epochs=cfg.get('num_train_epochs', 3),
+            warmup_steps=cfg.get('warmup_steps', 300),
+            max_grad_norm=cfg.get('max_grad_norm', 0.1),
             logging_strategy="epoch",
             logging_steps=50,
             save_strategy="epoch",
@@ -520,84 +549,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
             logger.info(f"Resuming training from checkpoint: {resume_checkpoint}")
             resume_checkpoint = os.path.abspath(resume_checkpoint)
 
-        # Collate function
-        # def collate_fn(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
-        #     print(f"-HHH- batch: {batch}")
-        #     # for b in batch:
-        #     #     image = np.array(Image.open(b["image"]).convert("RGB"))
-
-        #     ##################################################################
-        #     # -HHH- batch: [{'image_id': 2002179214553960035, 'image': 'tmp\\6864d10b35fc9e45358fdc72\\datasets\\6810bd3e580c595e961b4dcd\\train\\1.jpg', 'width': 640, 'height': 640, 'objects': {'area': [1518.0], 'bbox': [[501.0, 0.0, 46.0, 33.0]], 'category': [2], 'id': [7373832803455561089]}}]
-
-        #     ##################################################################
-        #     for b in batch:
-        #         image = np.array(Image.open(b["image"]).convert("RGB"))
-
-        #     images = [Image.open(example["image"]).convert("RGB") for example in batch]
-        #     encodings = [self.processor(images=img, return_tensors="pt") for img in images]
-        #     pixel_values = torch.stack([enc["pixel_values"].squeeze(0) for enc in encodings])
-
-        #     labels = [
-        #         {
-        #             "class_labels": torch.tensor(b["class_labels"], dtype=torch.long),
-        #             "boxes": torch.tensor(b["boxes"], dtype=torch.float),
-        #         }
-        #         for b in batch
-        #     ]
-        #     return {"pixel_values": pixel_values, "labels": labels}
-        def collate_fn(batch):
-            pixel_values = []
-            labels = []
-
-            for sample in batch:
-                # Load image from disk as RGB numpy array
-                np_img = np.array(Image.open(sample["image"]).convert("RGB"))
-
-                bboxes = sample["objects"]["bbox"]
-                categories = sample["objects"]["category"]
-                # Apply Albumentations transform if available
-                transformed = self.transform(image=np_img, bboxes=bboxes, category=categories)
-                np_img = transformed["image"]
-                bboxes = transformed["bboxes"]
-                categories = transformed["category"]
-
-                annotations = []
-                for category, bbox in zip(categories, bboxes):
-                    formatted_annotation = {
-                        "image_id": sample["image_id"],
-                        "category_id": category,
-                        "bbox": list(bbox),
-                        "iscrowd": 0,
-                        "area": bbox[2] * bbox[3],
-                    }
-                    annotations.append(formatted_annotation)
-
-                formatted_annotations = {"image_id": sample["image_id"], "annotations": annotations}
-
-                # Process the image with the processor
-                processed = self.processor(images=np_img, annotations=formatted_annotations, return_tensors="pt")
-
-                processed = {k: v[0] for k, v in processed.items()}
-
-                pixel_values.append(processed["pixel_values"])
-                labels.append(processed["labels"])
-                # pixel_values.append(processed["pixel_values"].squeeze(0))
-
-                # # Prepare labels in the expected format: class_labels & boxes as tensors
-                # if len(bboxes) > 0:
-                #     boxes_tensor = torch.tensor(bboxes, dtype=torch.float)
-                #     class_labels_tensor = torch.tensor(categories, dtype=torch.long)
-                # else:
-                #     # Ensure empty tensors if no boxes in image
-                #     boxes_tensor = torch.zeros((0, 4), dtype=torch.float)
-                #     class_labels_tensor = torch.zeros((0,), dtype=torch.long)
-
-                # labels.append({"class_labels": class_labels_tensor, "boxes": boxes_tensor})
-
-            print(f"-HHH- labels: {labels}")
-            print(f"-HHH- pixel_values shape: {pixel_values[0].shape}")
-            return {"pixel_values": torch.stack(pixel_values), "labels": labels}
-
         training_args = self.get_training_args(output_path)
         # Trainer
         trainer = Trainer(
@@ -605,13 +556,14 @@ class HuggingAdapter(dl.BaseModelAdapter):
             args=training_args,
             train_dataset=train_dataset,
             eval_dataset=val_dataset,
-            data_collator=collate_fn,
+            processing_class=self.processor,
+            data_collator=lambda batch: self.collate_fn(batch),
             callbacks=[self.EpochEndCallback(self)],
         )
 
         logger.info("Starting training")
-        # trainer.train(resume_from_checkpoint=resume_checkpoint)
-        trainer.train()
+        trainer.train(resume_from_checkpoint=resume_checkpoint)
+        # trainer.train()
         logger.info("Training completed")
 
         #  Check if the model (checkpoint) has already completed training for the specified number of epochs, if so, can start again without resuming
