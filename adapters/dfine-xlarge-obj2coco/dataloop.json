@@ -20,7 +20,7 @@
         "secrets": [],
         "runtime": {
           "podType": "regular-s",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.5",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.6",
           "concurrency": 1,
           "autoscaler": {
             "type": "rabbitmq",
@@ -36,7 +36,7 @@
         "runtime": {
           "podType": "gpu-t4",
           "concurrency": 1,
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.5",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.6",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,

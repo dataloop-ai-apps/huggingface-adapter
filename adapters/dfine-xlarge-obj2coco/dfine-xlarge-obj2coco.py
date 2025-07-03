@@ -47,42 +47,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
             self.model_adapter = model_adapter_instance
             self.faas_callback = faas_callback
 
-        def _manage_checkpoints(self, args: TrainingArguments, state: TrainerState) -> None:
-            """Manage checkpoint copying and cleanup."""
-            checkpoint_dir = args.output_dir
-            checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
-            if not checkpoints:
-                return
-
-            # Sort checkpoints by number
-            checkpoints.sort(key=lambda x: int(x.split('-')[1]))
-
-            # Copy latest checkpoint
-            latest_checkpoint = checkpoints[-1]
-            latest_src = os.path.join(checkpoint_dir, latest_checkpoint)
-            latest_dst = os.path.join(checkpoint_dir, 'last-checkpoint')
-            if os.path.exists(latest_dst):
-                shutil.rmtree(latest_dst)
-            shutil.copytree(latest_src, latest_dst)
-
-            # Copy best checkpoint if available
-            if state.best_model_checkpoint:
-                best_checkpoint = os.path.basename(state.best_model_checkpoint)
-                best_src = os.path.join(checkpoint_dir, best_checkpoint)
-                if os.path.exists(best_src):
-                    best_dst = os.path.join(checkpoint_dir, 'best-checkpoint')
-                    if os.path.exists(best_dst):
-                        shutil.rmtree(best_dst)
-                    shutil.copytree(best_src, best_dst)
-
-            # Remove all numbered checkpoints
-            for checkpoint in checkpoints:
-                checkpoint_path = os.path.join(checkpoint_dir, checkpoint)
-                if os.path.exists(checkpoint_path):
-                    shutil.rmtree(checkpoint_path)
-
-            logger.info("Successfully copied checkpoints and cleaned up old ones")
-
         def on_epoch_end(
             self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs: Any
         ) -> TrainerControl:
@@ -125,12 +89,9 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 logger.info("No best model checkpoint available yet")
             self.model_adapter.model_entity.update()
 
-            # Manage checkpoints
-            self._manage_checkpoints(args, state)
-
             # Save model
             logger.info("Saving model checkpoint to model entity...")
-            self.model_adapter.save_to_model(local_path=args.output_dir, cleanup=False)
+            self.model_adapter.save_to_model(local_path=None, cleanup=False, replace=True, state=state)
             return control
 
     @staticmethod
@@ -277,6 +238,47 @@ class HuggingAdapter(dl.BaseModelAdapter):
         logger.info('datasets map done')
         return train_dataset, val_dataset
 
+    def save(self, local_path: str, **kwargs: Any) -> None:
+        """Save model checkpoint to local path.
+
+        Args:
+            local_path: Path to model checkpoint directory
+            **kwargs: Additional keyword arguments
+
+        """
+        if self.training_args is None or os.path.abspath(self.training_args.output_dir) == os.path.abspath(local_path):
+            logger.error("Cannot save model - training args not initialized or output directory matches save path")
+            return
+
+        checkpoint_dir = self.training_args.output_dir
+        checkpoints = [d for d in os.listdir(checkpoint_dir) if d.startswith('checkpoint-')]
+        logger.info(f"save : checkpoints list : {checkpoints}")
+        if not checkpoints:
+            return
+
+        # Sort checkpoints by number
+        checkpoints.sort(key=lambda x: int(x.split('-')[1]))
+
+        # Copy latest checkpoint
+        latest_checkpoint = checkpoints[-1]
+        latest_src = os.path.join(checkpoint_dir, latest_checkpoint)
+        latest_dst = os.path.join(local_path, 'last-checkpoint')
+        if os.path.exists(latest_dst):
+            shutil.rmtree(latest_dst)
+        shutil.copytree(latest_src, latest_dst)
+
+        # Copy best checkpoint if available
+        state = kwargs.get('state')
+        if state and state.best_model_checkpoint:
+            best_checkpoint = os.path.basename(state.best_model_checkpoint)
+            best_src = os.path.join(checkpoint_dir, best_checkpoint)
+            if os.path.exists(best_src):
+                best_dst = os.path.join(local_path, 'best-checkpoint')
+                if os.path.exists(best_dst):
+                    shutil.rmtree(best_dst)
+                shutil.copytree(best_src, best_dst)
+                self.configuration.update({'checkpoint_name': 'best-checkpoint'})
+
     def load(self, local_path: str, **kwargs: Any) -> None:
         """Load model from local path.
 
@@ -297,7 +299,10 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # Initialize image processor
         self.processor = AutoImageProcessor.from_pretrained(
-            image_processor_path, do_resize=True, size={"width": image_size, "height": image_size}, use_fast=True
+            "ustc-community/dfine-xlarge-obj2coco",
+            do_resize=True,
+            size={"width": image_size, "height": image_size},
+            use_fast=True,
         )
 
         # Initialize transforms
@@ -367,16 +372,20 @@ class HuggingAdapter(dl.BaseModelAdapter):
             # Perform inference
             with torch.no_grad():
                 outputs = self.model(**inputs)
-
             # Post-process results
             target_sizes = torch.tensor([image.size[::-1]])
-            results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.29)[
-                0
-            ]
+            print(f"-HHH- target_sizes: {target_sizes}")
+
+            results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.2)[0]
 
             # Create box annotations for each detection
             item_annotations = dl.AnnotationCollection()
-            for score, label_id, box in zip(results["scores"], results["labels"], results["boxes"]):
+            # Get top 5 detections by score
+            scores = results["scores"].tolist()
+            top_n = 5  # Number of top detections to keep
+            top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_n]
+            for idx in top_indices:
+                score, label_id, box = results["scores"][idx], results["labels"][idx], results["boxes"][idx]
 
                 score, label = score.item(), label_id.item()
                 print(f"score: {score}, label: {label}, box: {box}")
@@ -502,21 +511,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
             disable_tqdm=True,  # Disable progress bars
         )
 
-    def save(self, local_path: str, **kwargs: Any) -> None:
-        """Save model checkpoint to local path.
-
-        This method saves the model checkpoint to the specified local path. It saves both the model
-        weights and the image processor configuration.
-
-        Args:
-            local_path (str): Directory path where model checkpoint will be saved
-            **kwargs: Additional keyword arguments (unused)
-
-        Returns:
-            None
-        """
-        self.configuration.update({'checkpoint_name': 'best-checkpoint'})
-
     def train(self, data_path: str, output_path: str, **kwargs: Any) -> None:
         """Train the model on the provided dataset.
 
@@ -556,11 +550,11 @@ class HuggingAdapter(dl.BaseModelAdapter):
             logger.info(f"Resuming training from checkpoint: {resume_checkpoint}")
             resume_checkpoint = os.path.abspath(resume_checkpoint)
 
-        training_args = self.get_training_args(output_path)
+        self.training_args = self.get_training_args(output_path)
         # Trainer
         trainer = Trainer(
             model=self.model,
-            args=training_args,
+            args=self.training_args,
             train_dataset=train_dataset,
             eval_dataset=val_dataset,
             processing_class=self.processor,
@@ -575,7 +569,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         #  Check if the model (checkpoint) has already completed training for the specified number of epochs, if so, can start again without resuming
         start_epoch = self.configuration.get('start_epoch', 1)
-        if start_epoch == training_args.num_train_epochs + 1:
+        if start_epoch == self.training_args.num_train_epochs + 1:
             self.configuration['start_epoch'] = 1
             self.model_entity.update()
 
@@ -613,21 +607,21 @@ if __name__ == "__main__":
         project = dl.projects.get(project_name='IPM development')
     print("project done")
     # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='dfine-sdk-clone-small-150-1')
+    model = project.models.get(model_name='dfine-sdk-helios-small-1-2')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
     model_adapter.configuration['start_epoch'] = 1
     model_adapter.configuration['checkpoint_name'] = "ustc-community/dfine-xlarge-obj2coco"
     model_adapter.configuration['train_configs'] = {
-        'num_train_epochs': 20,
+        'num_train_epochs': 1,
         'per_device_train_batch_size': 1,
         'per_device_eval_batch_size': 1,
         'gradient_accumulation_steps': 8,
     }
     # print("run predict")
     model_adapter.train_model(model=model)
-    # _, annotations = model_adapter.predict_items(items=[project.items.get(item_id='6825a3e5b970668ac00c6817')])
+    # _, annotations = model_adapter.predict_items(items=[project.items.get(item_id='68663838d1c962555c310091')])
 # print(annotations)
 # model_adapter.configuration['start_epoch'] = 4
 # # model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
