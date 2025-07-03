@@ -1,3 +1,4 @@
+import gc
 import os
 import json
 import time
@@ -5,7 +6,6 @@ import torch
 import base64
 import logging
 import dtlpy as dl
-import gc
 
 from PIL import Image
 from io import BytesIO
@@ -112,13 +112,13 @@ class ModelAdapter(dl.BaseModelAdapter):
                         # logger.info(f"Time taken: {end_time - start_time} seconds")
                         # response = self.processor.batch_decode(outputs[0], skip_special_tokens=True)
                         response = self.processor.decode(outputs[0][inputs["input_ids"].shape[-1] :])
-
+                        response = response.replace("<|eot_id|>", "")
                         logger.info(f"Response: {response}")
                         prompt_item.add(
                             message={
                                 "role": "assistant",
                                 "content": [{"mimetype": dl.PromptType.TEXT, "value": response}],
-                            },
+                            },  
                             model_info={
                                 "name": self.model_entity.name,
                                 "confidence": 1.0,
@@ -260,7 +260,7 @@ class ModelAdapter(dl.BaseModelAdapter):
     def convert_from_dtlpy(self, data_path, prompt_items_dir):
         """Convert Dataloop data to format suitable for training."""
         dataset = self.model_entity.dataset
-        
+
         # Download all items (images and prompt items)
         dataset.items.download(
             local_path=data_path, annotation_options=dl.ViewAnnotationOptions.JSON, include_annotations_in_output=True
@@ -585,4 +585,3 @@ class SaveEpochCallback(TrainerCallback):
         if self.progress is not None:
             if self.faas_callback is not None:
                 self.faas_callback(self.current_epoch, self.num_epochs)
-                
