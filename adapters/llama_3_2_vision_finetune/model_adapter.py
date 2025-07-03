@@ -37,16 +37,16 @@ class ModelAdapter(dl.BaseModelAdapter):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f'Using device: {self.device}')
         self.device_map = self.configuration.get("device_map", "auto")
+        self.prompt_items_dir = self.configuration.get("prompt_items_dir", "/prompt_items")
 
         # load base model
         logger.info(f"Downloading model from HuggingFace {hf_model_name}")
         base_model, self.processor = self._prepare_model_and_tokenizer(ckpt=hf_model_name)
 
         # check if lora adapter weights exist
-        lora_dir = os.path.join(local_path, "lora_weights")  # TODO check saving works
-        if os.path.exists(lora_dir) is True:
-            logger.info(f"Loading LoRA weights from {lora_dir}")
-            model_to_merge = PeftModel.from_pretrained(base_model, lora_dir, device_map=self.device_map)
+        if os.path.exists(local_path) is True:
+            logger.info(f"Loading LoRA weights from {local_path}")
+            model_to_merge = PeftModel.from_pretrained(base_model, local_path, device_map=self.device_map)
             merged_model = model_to_merge.merge_and_unload()
             self.model = merged_model
         else:
@@ -54,10 +54,9 @@ class ModelAdapter(dl.BaseModelAdapter):
 
     def save(self, local_path, **kwargs):
         """Save the model and processor to Dataloop"""
-        save_dir = os.path.join(local_path, "lora_weights")
-        self.model.save_pretrained(save_directory=save_dir)
-        self.processor.save_pretrained(save_directory=save_dir)
-        logger.info(f"Successfully saved trained LoRA weights to {save_dir}")
+        self.model.save_pretrained(save_directory=local_path)
+        self.processor.save_pretrained(save_directory=local_path)
+        logger.info(f"Successfully saved trained LoRA weights to {local_path}")
 
     def prepare_item_func(self, item: dl.Item):
         """Prepare item for prediction"""
@@ -110,7 +109,7 @@ class ModelAdapter(dl.BaseModelAdapter):
                             top_p=top_p,
                         ).to(self.device)
                         # end_time = time.time()
-
+                        # logger.info(f"Time taken: {end_time - start_time} seconds")
                         # response = self.processor.batch_decode(outputs[0], skip_special_tokens=True)
                         response = self.processor.decode(outputs[0][inputs["input_ids"].shape[-1] :])
 
@@ -149,6 +148,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         configs = self.model_entity.configuration
         # Configure training arguments
         num_train_epochs = configs.get("num_train_epochs", 10)
+        save_every_n_epochs = configs.get("save_every_n_epochs", 1)
         per_device_train_batch_size = configs.get("per_device_train_batch_size", 5)
         gradient_accumulation_steps = configs.get("gradient_accumulation_steps", 16)
         warmup_steps = configs.get("warmup_steps", 2)
@@ -165,6 +165,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         dataloader_pin_memory = configs.get("dataloader_pin_memory", False)
 
         progress = kwargs.get("progress", None)
+        faas_callback = kwargs.get("faas_callback", None)
 
         # Configure training arguments
         training_args = TrainingArguments(
@@ -190,18 +191,17 @@ class ModelAdapter(dl.BaseModelAdapter):
             save_path=output_path,
             tokenizer=self.processor,
             model_entity=self.model_entity,
+            save_every_n_epochs=save_every_n_epochs,
             progress=progress,
             num_epochs=num_train_epochs,
+            faas_callback=faas_callback,
         )
-
-        # Get training data
-        train_dataset, val_dataset = self.convert_from_dtlpy(data_path)
 
         # Initialize trainer
         trainer = Trainer(
             model=self.model,
-            train_dataset=train_dataset,
-            eval_dataset=val_dataset,
+            train_dataset=self.train_dataset,
+            eval_dataset=self.val_dataset,
             args=training_args,
             data_collator=self._process_inputs,
             callbacks=[save_callback],
@@ -211,52 +211,160 @@ class ModelAdapter(dl.BaseModelAdapter):
         # Train
         trainer.train()
 
-    def convert_from_dtlpy(self, data_path, **kwargs):
+    def prepare_data(
+        self,
+        dataset: dl.Dataset,
+        # paths
+        root_path=None,
+        data_path=None,
+        output_path=None,
+        #
+        overwrite=False,
+        **kwargs,
+    ):
+        """
+        Prepares paths for downloading dataset.
+
+        :param dataset: dl.Dataset
+        :param root_path: `str` root directory for training. default is "tmp". Can be set using self.adapter_defaults.root_path
+        :param data_path: `str` dataset directory. default <root_path>/"data". Can be set using self.adapter_defaults.data_path
+        :param output_path: `str` save everything to this folder. default <root_path>/"output". Can be set using self.adapter_defaults.output_path
+
+        :param bool overwrite: overwrite the data path (download again). default is False
+        """
+        # define paths
+        dataloop_path = dl.service_defaults.DATALOOP_PATH
+        root_path = self.adapter_defaults.resolve("root_path", root_path)
+        data_path = self.adapter_defaults.resolve("data_path", data_path)
+        output_path = self.adapter_defaults.resolve("output_path", output_path)
+
+        if root_path is None:
+            now = datetime.now()
+            root_path = os.path.join(
+                dataloop_path,
+                'model_data',
+                "{s_id}_{s_n}".format(s_id=self.model_entity.id, s_n=self.model_entity.name),
+                now.strftime('%Y-%m-%d-%H%M%S'),
+            )
+        if data_path is None:
+            data_path = os.path.join(root_path, 'datasets', self.model_entity.dataset.id)
+            os.makedirs(data_path, exist_ok=True)
+        if output_path is None:
+            output_path = os.path.join(root_path, 'output')
+            os.makedirs(output_path, exist_ok=True)
+
+        self.convert_from_dtlpy(data_path, self.prompt_items_dir)
+
+        return root_path, data_path, output_path
+
+    def convert_from_dtlpy(self, data_path, prompt_items_dir):
         """Convert Dataloop data to format suitable for training."""
-        # Subsets validation
-        subsets = self.model_entity.metadata.get("system", {}).get("subsets", None)
-        if "train" not in subsets:
-            raise ValueError(
-                "Could not find train set. Llama Vision requires train and validation set for training. "
-                "Add a train set DQL filter in the dl.Model metadata"
-            )
-        if "validation" not in subsets:
-            raise ValueError(
-                "Could not find validation set. Llama Vision requires train and validation set for training. "
-                "Add a validation set DQL filter in the dl.Model metadata"
-            )
-
-        for subset, filters_dict in subsets.items():
-            data_subset_base_path = os.path.join(data_path, subset)
-            # Add json type validation
-            new_condition = {"metadata.system.mimetype": {"$eq": "application/json"}}
-            if new_condition not in filters_dict["filter"]["$and"]:
-                filters_dict["filter"]["$and"].append(new_condition)
-
-            filters = dl.Filters(custom_filter=filters_dict)
-            pages = self.model_entity.dataset.items.list(filters=filters)
-            if pages.items_count == 0:
-                raise ValueError(
-                    f"Finetune Datasets expects only json files in the subset {subset}. Found 0 jsons files in subset {subset}."
-                )
-
-            # Items are not downloaded in prepare_data() because of the annotations filters
-            self.model_entity.dataset.items.download(filters=filters, local_path=data_subset_base_path)
-
-        # Get image-text pairs for training and validation
-        train_items, train_captions = self._get_img_txt_pairs(os.path.join(data_path, "train"), overwrite=False)
-        val_items, val_captions = self._get_img_txt_pairs(os.path.join(data_path, "validation"), overwrite=False)
-
-        logger.info(f"number of train items: {len(train_items)}")
-        logger.info(f"number of val items: {len(val_items)}")
-
-        # Convert to Dataset objects
-        train_dataset = Dataset.from_list(
-            [{"image": img, "caption": cap} for img, cap in zip(train_items, train_captions)]
+        dataset = self.model_entity.dataset
+        
+        # Download all items (images and prompt items)
+        dataset.items.download(
+            local_path=data_path, annotation_options=dl.ViewAnnotationOptions.JSON, include_annotations_in_output=True
         )
-        val_dataset = Dataset.from_list([{"image": img, "caption": cap} for img, cap in zip(val_items, val_captions)])
+        # Export metadata/annotations
+        dataset.export(local_path=data_path, include_annotations=True)
 
-        return train_dataset, val_dataset
+        # Inline get_entities_from_json
+        entities = []
+        for json_file in Path(data_path).glob("*.json"):
+            with open(json_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                entities.extend(data)
+
+        # Inline split_entities
+        split_entities_ids = {"train": [], "validation": []}
+        prompt_lookup = {}
+        image_lookup = {}
+
+        # sort through downloaded data
+        for entity in entities:
+            entity_filepath = entity.get("filename").split('/')[1:]
+            entity_id = entity.get("id", None)
+            dir_path = entity.get("dir", "")
+            subset_tags = entity.get("metadata", {}).get("system", {}).get("tags", None)
+            mimetype = entity.get("metadata", {}).get("system", {}).get("mimetype", "")
+
+            # create a master lookup for prompt items and images
+            if mimetype == "application/json" and dir_path.endswith(prompt_items_dir):
+                prompt_path = os.path.join(data_path, "items", *entity_filepath)
+                annotation_path = os.path.join(data_path, "json", *entity_filepath)
+                prompt_lookup[entity_id] = {
+                    "id": entity_id,
+                    "prompt_path": prompt_path,
+                    "annotation_path": annotation_path,
+                }
+
+                # split train and validations based on prompt items only
+                if "train" in subset_tags.keys():
+                    split_entities_ids["train"].append(entity_id)
+                elif "validation" in subset_tags.keys():
+                    split_entities_ids["validation"].append(entity_id)
+
+            elif mimetype.startswith("image/"):  # and dir_path.endswith(ORIGINALS_DIR):
+                image_path = os.path.join(data_path, "items", *entity_filepath)
+                image_lookup[entity_id] = {"id": entity_id, "image_path": image_path}
+
+        train_images, train_captions = self._get_subset_pairs(split_entities_ids["train"], prompt_lookup, image_lookup)
+        validation_images, validation_captions = self._get_subset_pairs(
+            split_entities_ids["validation"], prompt_lookup, image_lookup
+        )
+
+        logger.info(f"Total: {len(train_images)} images and {len(train_captions)} captions loaded")
+        logger.info(f"Total: {len(validation_images)} images and {len(validation_captions)} captions loaded")
+
+        if len(train_images) == 0 or len(validation_images) == 0:
+            raise ValueError(
+                f"Missing subset for training. Please check that the dataset has training and validation subsets defined on items."
+            )
+
+        self.train_dataset = Dataset.from_list(
+            [{"image": img, "caption": cap} for img, cap in zip(train_images, train_captions)]
+        )
+        self.val_dataset = Dataset.from_list(
+            [{"image": img, "caption": cap} for img, cap in zip(validation_images, validation_captions)]
+        )
+
+        return self.train_dataset, self.val_dataset
+
+    @staticmethod
+    def _get_subset_pairs(entities_ids, prompt_lookup, image_lookup):
+        """Get subset pairs for all prompt items"""
+        images = []
+        captions = []
+        for entity_id in entities_ids:
+            prompt_file_path = prompt_lookup.get(entity_id).get("prompt_path")
+            with open(prompt_file_path, "r", encoding="utf-8") as f:
+                prompt_data = json.load(f)
+            stream_url = prompt_data.get("prompts", {"1": [{"value": None}]}).get("1")[0].get("value")
+            original_item_id = None
+            if stream_url:
+                parts = stream_url.split("/")
+                for i, part in enumerate(parts):
+                    if part == "items" and i + 1 < len(parts):
+                        original_item_id = parts[i + 1]
+                        break
+            image = None
+            item_image_path = image_lookup.get(original_item_id, {}).get("image_path")
+            if item_image_path and os.path.exists(item_image_path):
+                image = Image.open(item_image_path)
+            if image is not None:
+                annotation_file_path = prompt_lookup.get(entity_id).get("annotation_path")
+                caption = ""
+                if os.path.exists(annotation_file_path):
+                    with open(annotation_file_path, "r", encoding="utf-8") as f:
+                        annotation_data = json.load(f)
+                        annotations = annotation_data.get("annotations", [])
+                        for ann in annotations:
+                            if ann.get("coordinates"):
+                                caption = ann.get("coordinates")
+                                break
+                images.append(image)
+                captions.append(caption)
+        return images, captions
 
     def _prepare_model_and_tokenizer(self, ckpt=None):
         """Prepare the vision-language model and tokenizer for predicting or training LoRA."""
@@ -330,7 +438,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         labels[labels == self.processor.tokenizer.pad_token_id] = -100
         labels[labels == 128256] = -100  # image token index
         batch["labels"] = labels
-        batch = batch.to(torch.bfloat16).to("cuda")
+        batch = batch.to(torch.bfloat16).to(self.device)
 
         return batch
 
@@ -397,88 +505,19 @@ class ModelAdapter(dl.BaseModelAdapter):
             logger.error(f"Error getting last message from messages: {e}. Skipping...")
         return text
 
-    @staticmethod
-    def _get_img_txt_pairs(data_path, overwrite=False):
-        """Get image-text pairs from downloaded Dataloop items."""
-        logger.debug(f"Data path: {data_path}")
-        path = Path(data_path)
-
-        # List all downloaded prompt item jsons and download images from link
-        item_jsons = (path / "items").rglob("*.json")
-        with ThreadPoolExecutor() as executor:
-            images = list(executor.map(lambda item_file: ModelAdapter._load_stream(item_file, overwrite), item_jsons))
-        # image_paths = []  # DEBUG
-        # for item_file in item_jsons:
-        #     image_paths.append(_download_stream(item_file, overwrite))
-
-        item_captions = []
-        annots_files = (path / "json").rglob("*.json")
-        for src_file in annots_files:
-            with open(src_file, "r") as f:
-                data = json.load(f)
-            if len(data["annotations"]) > 0:
-                annot = data["annotations"][0]
-                if annot["label"] == "free-text":
-                    item_captions.append(annot.get("coordinates", ""))
-                else:
-                    raise TypeError(
-                        f"No free-text annotation found in json file {src_file}. Please check annotation type."
-                    )
-            else:
-                raise ValueError(f"No annotations found in json file {src_file} to use as image caption.")
-
-        # Clean up empty directories
-        for root, dirs, files in os.walk(data_path, topdown=False):
-            for dir_name in dirs:
-                dir_path = os.path.join(root, dir_name)
-                if not os.listdir(dir_path):
-                    os.rmdir(dir_path)
-
-        return images, item_captions
-
-    @staticmethod
-    def _load_stream(item_file, overwrite=False):
-        """Download image from Dataloop item."""
-        with open(item_file) as json_data:
-            d = json.load(json_data)
-        img_prompt = next(iter(d["prompts"].values()))
-
-        item_url = None
-        for dictionary in img_prompt:
-            if dictionary.get("mimetype") == "image/*":
-                item_url = dictionary.get("value")
-                break
-        if item_url is None:
-            raise ValueError(f"Image URL not found in prompt item {Path(item_file).name}.")
-
-        item_id = item_url.split("/")[-2]
-        item = dl.items.get(item_id=item_id)
-        download_path = item.download(local_path=Path(item_file).parents[0])
-        image_name = Path(item_file).stem + Path(download_path).suffix
-        new_path = Path(item_file).parents[0] / image_name
-
-        try:
-            os.rename(Path(download_path), new_path)
-        except FileExistsError:
-            if overwrite is True:
-                logger.debug(f"Overwriting file {new_path}.")
-                os.remove(new_path)
-                os.rename(Path(download_path), new_path)
-            else:
-                logger.debug(f"File {new_path} already exists. Skipping.")
-
-        new_image = Image.open(new_path).convert("RGB")
-        return new_image
-
 
 class SaveEpochCallback(TrainerCallback):
     """Custom callback to save model after each epoch and track eval loss."""
 
-    def __init__(self, save_path, tokenizer, model_entity, save_every_n_epochs=1):
+    def __init__(self, save_path, tokenizer, model_entity, progress, num_epochs, faas_callback, save_every_n_epochs):
         self.save_path = save_path
         self.tokenizer = tokenizer
         self.model_entity = model_entity
         self.save_every_n_epochs = save_every_n_epochs
+        self.progress = progress
+        self.num_epochs = num_epochs
+        self.faas_callback = faas_callback
+
         self.best_loss = float("inf")
         self.best_epoch = 0
         self.current_loss = None
@@ -524,10 +563,6 @@ class SaveEpochCallback(TrainerCallback):
             #     logger.info(f"New best model based on eval loss: {eval_loss:.4f}")
 
     def on_epoch_end(self, args, state, control, **kwargs):
-        progress = kwargs.get("progress", None)
-        faas_callback = kwargs.get("faas_callback", None)
-        num_epochs = kwargs.get("num_epochs", None)
-
         model = kwargs.get("model", None)
         if model is None:
             raise ValueError("Cannot save model. Model is None.")
@@ -547,6 +582,7 @@ class SaveEpochCallback(TrainerCallback):
                     f"Skipping save for epoch {self.current_epoch} (Current loss: {self.current_loss:.4f}, Best loss: {self.best_loss:.4f})"
                 )
 
-        if progress is not None:
-            if faas_callback is not None:
-                faas_callback(self.current_epoch, num_epochs)
+        if self.progress is not None:
+            if self.faas_callback is not None:
+                self.faas_callback(self.current_epoch, self.num_epochs)
+                
