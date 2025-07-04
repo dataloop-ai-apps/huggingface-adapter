@@ -201,6 +201,37 @@ class HuggingAdapter(dl.BaseModelAdapter):
             coco = COCO(annotation_path)
             items = []
 
+            def fix_dimensions(bbox, width, height):
+                # Unpack bbox coordinates
+                x, y, w, h = bbox
+
+                # Ensure x and width stay within image bounds
+                # Check x coordinate
+                if x < 0:
+                    print(f"Fixing x coordinate from {x} to 0")
+                if x + w > width:
+                    print(f"Fixing width from {w} to {width - x} due to x={x} exceeding image width={width}")
+                # Check y coordinate
+                if y < 0:
+                    print(f"Fixing y coordinate from {y} to 0")
+                if y + h > height:
+                    print(f"Fixing height from {h} to {height - y} due to y={y} exceeding image height={height}")
+                # Initial check
+                if x < 0:
+                    print(f"Fixing x coordinate from {x} to 0")
+                    x = 0
+                if x + w > width:
+                    print(f"Fixing width from {w} to {width - x} due to x={x} exceeding image width={width}")
+                    w = width - x
+
+                # Ensure y and height stay within image bounds
+                if y < 0:
+                    y = 0
+                if y + h > height:
+                    h = height - y
+
+                return [x, y, w, h]
+
             for image_id in coco.imgs:
                 image_info = coco.loadImgs(image_id)[0]
                 new_img_item = {
@@ -216,7 +247,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 category_list = []
                 for ann in coco.loadAnns(coco.getAnnIds(imgIds=image_id)):
                     id_list.append(ann["id"])
-                    bbox_list.append(ann["bbox"])
+                    bbox_list.append(fix_dimensions(ann["bbox"], image_info['width'], image_info['height']))
                     category_list.append(ann["category_id"])
                     area_list.append(ann["area"])
 
@@ -606,8 +637,8 @@ if __name__ == "__main__":
         # project = dl.projects.get(project_name='ShadiDemo')
         project = dl.projects.get(project_name='IPM development')
     print("project done")
-    # model = project.models.get(model_name='rd-dert-used-for-dfine-train-hfg')
-    model = project.models.get(model_name='dfine-sdk-helios-small-1-2')
+    # model = project.models.get(model_name='dfine-sdk-helios-1-4')
+    model = project.models.get(model_name='dfine-sdk-rodents-full-2')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
