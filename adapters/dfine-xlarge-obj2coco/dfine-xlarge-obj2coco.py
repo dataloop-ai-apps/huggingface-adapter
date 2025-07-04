@@ -153,7 +153,10 @@ class HuggingAdapter(dl.BaseModelAdapter):
             bboxes = sample["objects"]["bbox"]
             categories = sample["objects"]["category"]
             # Apply Albumentations transform if available
-            transformed = self.transform(image=np_img, bboxes=bboxes, category=categories)
+            if sample['image_id'] in self.train_images_id:
+                transformed = self.train_transform(image=np_img, bboxes=bboxes, category=categories)
+            else:
+                transformed = self.eval_transform(image=np_img, bboxes=bboxes, category=categories)
             np_img = transformed["image"]
             bboxes = transformed["bboxes"]
             categories = transformed["category"]
@@ -204,27 +207,10 @@ class HuggingAdapter(dl.BaseModelAdapter):
             def fix_dimensions(bbox, width, height):
                 # Unpack bbox coordinates
                 x, y, w, h = bbox
-
-                # Ensure x and width stay within image bounds
-                # Check x coordinate
                 if x < 0:
-                    print(f"Fixing x coordinate from {x} to 0")
-                if x + w > width:
-                    print(f"Fixing width from {w} to {width - x} due to x={x} exceeding image width={width}")
-                # Check y coordinate
-                if y < 0:
-                    print(f"Fixing y coordinate from {y} to 0")
-                if y + h > height:
-                    print(f"Fixing height from {h} to {height - y} due to y={y} exceeding image height={height}")
-                # Initial check
-                if x < 0:
-                    print(f"Fixing x coordinate from {x} to 0")
                     x = 0
                 if x + w > width:
-                    print(f"Fixing width from {w} to {width - x} due to x={x} exceeding image width={width}")
                     w = width - x
-
-                # Ensure y and height stay within image bounds
                 if y < 0:
                     y = 0
                 if y + h > height:
@@ -337,9 +323,21 @@ class HuggingAdapter(dl.BaseModelAdapter):
         )
 
         # Initialize transforms
-        self.transform = A.Compose(
+        self.eval_transform = A.Compose(
             [A.NoOp()],
             bbox_params=A.BboxParams(format="coco", label_fields=["category"], min_area=1, min_width=1, min_height=1),
+        )
+        augmentation_config = self.configuration.get('augmentation_config', {})
+        logger.info(f"augmentation_config: {augmentation_config}")
+        self.train_transform = A.Compose(
+            [
+                A.Rotate(limit=augmentation_config.get('rotate_limit', 15), p=augmentation_config.get('rotate_p', 0.5)),
+                A.Perspective(p=augmentation_config.get('perspective_p', 0.1)),
+                A.HorizontalFlip(p=augmentation_config.get('horizontal_flip_p', 0.5)),
+                A.RandomBrightnessContrast(p=augmentation_config.get('brightness_contrast_p', 0.5)),
+                A.HueSaturationValue(p=augmentation_config.get('hue_saturation_p', 0.1)),
+            ],
+            bbox_params=A.BboxParams(format="coco", label_fields=["category"], min_area=25, min_width=1, min_height=1),
         )
 
         # Prepare label mappings
@@ -564,6 +562,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             FileNotFoundError: If resume checkpoint is not found when resuming training
         """
         train_dataset, val_dataset = self._get_hugging_dataset(data_path)
+        self.train_images_id = [sample['image_id'] for sample in train_dataset]
 
         print(f"Example train sample: {train_dataset[0]}")
         print(f"Example val sample: {val_dataset[0]}")
@@ -638,7 +637,7 @@ if __name__ == "__main__":
         project = dl.projects.get(project_name='IPM development')
     print("project done")
     # model = project.models.get(model_name='dfine-sdk-helios-1-4')
-    model = project.models.get(model_name='dfine-sdk-rodents-full-2')
+    model = project.models.get(model_name='dfine-sdk-rodents-full-4')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
