@@ -405,23 +405,15 @@ class HuggingAdapter(dl.BaseModelAdapter):
             target_sizes = torch.tensor([image.size[::-1]])
             print(f"-HHH- target_sizes: {target_sizes}")
 
-            results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.2)[0]
+            results = self.processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.4)[0]
 
             # Create box annotations for each detection
             item_annotations = dl.AnnotationCollection()
-            # Get top 5 detections by score
-            scores = results["scores"].tolist()
-            top_n = 5  # Number of top detections to keep
-            top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_n]
-            for idx in top_indices:
-                score, label_id, box = results["scores"][idx], results["labels"][idx], results["boxes"][idx]
 
-                score, label = score.item(), label_id.item()
+            for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+                score, label = score.item(), label.item()
                 print(f"score: {score}, label: {label}, box: {box}")
 
-                if score < 0.29:
-                    print("skipping")
-                    continue
                 box = [round(i, 2) for i in box.tolist()]
                 left, top, right, bottom = box
                 # Create box annotation
@@ -532,12 +524,13 @@ class HuggingAdapter(dl.BaseModelAdapter):
             eval_strategy="epoch",
             save_total_limit=2,
             load_best_model_at_end=True,
-            metric_for_best_model=cfg.get('metric_for_best_model', "loss"),
+            metric_for_best_model=cfg.get('metric_for_best_model', "eval_loss"),
             greater_is_better=cfg.get('greater_is_better', False),
             resume_from_checkpoint=cfg.get('resume_from_checkpoint', None),
             remove_unused_columns=False,
             fp16=cfg.get('fp16', False),
             disable_tqdm=True,  # Disable progress bars
+            eval_do_concat_batches=False,
         )
 
     def train(self, data_path: str, output_path: str, **kwargs: Any) -> None:
@@ -636,8 +629,8 @@ if __name__ == "__main__":
         # project = dl.projects.get(project_name='ShadiDemo')
         project = dl.projects.get(project_name='IPM development')
     print("project done")
-    # model = project.models.get(model_name='dfine-sdk-helios-1-4')
-    model = project.models.get(model_name='dfine-sdk-rodents-full-4')
+    model = project.models.get(model_name='dfine-sdk-helios-1-6')
+    # model = project.models.get(model_name='dfine-sdk-for-prediction')
     print("model done")
     model.status = 'pre-trained'
     model_adapter = HuggingAdapter(model)
@@ -651,7 +644,23 @@ if __name__ == "__main__":
     }
     # print("run predict")
     model_adapter.train_model(model=model)
-    # _, annotations = model_adapter.predict_items(items=[project.items.get(item_id='68663838d1c962555c310091')])
+    # items_ids = [
+    #     '6867fd93ab591740a21660b1',
+    #     '6867fd93ab59172faa1660ab',
+    #     '6867fd93ab591700731660ad',
+    #     '6867fd93ab5917003b1660b2',
+    # ]
+    # for item_id in items_ids:
+    #     print(f"item_id: {item_id}")
+    #     _, annotations = model_adapter.predict_items(items=[project.items.get(item_id=item_id)])
+    #     print(f"annotations: {annotations}")
+
+    # dataset = project.datasets.get(dataset_id='66bded71c556f9814b6ebf10')
+    # filters = dl.Filters(resource=dl.FiltersResource.ITEM, field='dir', values='/D-FINE')
+    # items = list(dataset.items.list(filters=filters).all())
+    # _, annotations = model_adapter.predict_items(items=items)
+    # print(f"annotations: {annotations}")
+
 # print(annotations)
 # model_adapter.configuration['start_epoch'] = 4
 # # model_adapter.configuration['checkpoint_name'] = 'best-checkpoint'
