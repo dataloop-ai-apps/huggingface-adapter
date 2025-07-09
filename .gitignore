@@ -322,3 +322,4 @@ prompts
 **/tmp/**
 tmp/
 .cursor/
+.vscode/

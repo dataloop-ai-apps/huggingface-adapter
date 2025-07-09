@@ -1,0 +1,188 @@
+{
+  "name": "dfine-xlarge-obj2coco-huggingface-app",
+  "description": "DFine-XLarge: Object Detection model (COCO format) from ustc-community, via Hugging Face.",
+  "attributes": {
+    "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
+    "License": "Apache 2.0",
+    "Category": "Model",
+    "Media Type": [
+      "Image"
+    ]
+  },
+  "displayName": "DFine XLarge Object Detection",
+  "version": "0.1.49",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+    "gitTag": "0.1.49"
+  },
+  "scope": "public",
+  "components": {
+    "computeConfigs": [
+      {
+        "name": "dfine-xlarge-obj2coco-huggingface-deploy",
+        "secrets": [],
+        "runtime": {
+          "podType": "regular-s",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.5",
+          "concurrency": 1,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 1000
+          },
+          "preemptible": false
+        }
+      },
+      {
+        "name": "dfine-xlarge-obj2coco-huggingface-train-evaluate",
+        "runtime": {
+          "podType": "gpu-t4",
+          "concurrency": 1,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.5",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 100
+          }
+        },
+        "executionTimeout": 432000
+      }
+    ],
+    "modules": [
+      {
+        "name": "dfine-xlarge-obj2coco-module",
+        "entryPoint": "adapters/dfine-xlarge-obj2coco/dfine-xlarge-obj2coco.py",
+        "className": "HuggingAdapter",
+        "computeConfig": "dfine-xlarge-obj2coco-huggingface-deploy",
+        "initInputs": [
+          {
+            "type": "Model",
+            "name": "model_entity"
+          }
+        ],
+        "functions": [
+          {
+            "name": "train_model",
+            "computeConfig": "dfine-xlarge-obj2coco-huggingface-train-evaluate",
+            "input": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              }
+            ],
+            "output": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              }
+            ],
+            "displayName": "Train a Model",
+            "displayIcon": "",
+            "description": "Function to train dfine-xlarge-obj2coco model"
+          },
+          {
+            "name": "evaluate_model",
+            "computeConfig": "dfine-xlarge-obj2coco-huggingface-train-evaluate",
+            "input": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              },
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "Dataloop Dataset Entity"
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "Dataloop Filter DQL"
+              }
+            ],
+            "output": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              },
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "Dataloop Dataset Entity"
+              }
+            ],
+            "displayName": "Evaluate a Model",
+            "displayIcon": "",
+            "description": "Function to evaluate dfine-xlarge-obj2coco model performance"
+          },
+          {
+            "name": "predict_items",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The input images for prediction."
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input images for prediction."
+              },
+              {
+                "type": "Annotation[]",
+                "name": "annotations",
+                "description": "The predicted annotations."
+              }
+            ],
+            "displayName": "Predict Items",
+            "displayIcon": "",
+            "description": "The inference function of the model."
+          },
+          {
+            "name": "predict_dataset",
+            "input": [
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "The input dataset of the items required for prediction."
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "The DQL in json format to get all the items required for prediction."
+              }
+            ],
+            "output": [],
+            "displayName": "Predict Dataset",
+            "displayIcon": "",
+            "description": "Inference function of the model on a dataset."
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "dfine-xlarge-obj2coco-huggingface-model",
+        "moduleName": "dfine-xlarge-obj2coco-module",
+        "scope": "project",
+        "status": "pre-trained",
+        "configuration": {
+          "model_name": "ustc-community/dfine-xlarge-obj2coco",
+          "module_name": "generate.responses.dfine-xlarge-obj2coco_image_detection_2025.06.11_13.03.58",
+          "device": "cuda if torch.cuda.is_available() else cpu"
+        },
+        "metadata": {},
+        "description": "DFine-XLarge: Object Detection model (COCO format) from ustc-community, via Hugging Face."
+      }
+    ]
+  }
+}
