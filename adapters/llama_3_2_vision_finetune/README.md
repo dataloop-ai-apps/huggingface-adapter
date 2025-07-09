@@ -52,12 +52,9 @@ Prompt item JSONs should be formatted as follows:
       "role": "user",
       "content": [
         {
-        },
-        {
           "mimetype": "image/*",
           "value": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ..."
           }
-        }
       ]
     },
     {
@@ -65,7 +62,7 @@ Prompt item JSONs should be formatted as follows:
       "content": "This is the expected response describing the image."
     }
   ]
-}
+} 
 ```
 
 **Important Notes:**
