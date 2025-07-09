@@ -1,6 +1,6 @@
 Pillow
 requests
-transformers>=4.30.2
+transformers>=4.45.0
 timm
 torch
 sentencepiece
@@ -12,4 +12,3 @@ typing-extensions
 bitsandbytes
 datasets
 git+https://github.com/dataloop-ai-apps/dtlpy-converters
-transformers
