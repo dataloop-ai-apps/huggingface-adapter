@@ -19,7 +19,7 @@
     "computeConfigs": [
       {
         "name": "llama-vision-finetune-deploy",
-        "executionTimeout": 1200,
+        "executionTimeout": 7200,
         "runtime": {
           "podType": "gpu-a100-s",
           "concurrency": 5,
