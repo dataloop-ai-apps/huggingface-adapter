@@ -706,7 +706,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             logger.info(f"HuggingAdapter.train Removing checkpoint: {checkpoint_path}")
             shutil.rmtree(checkpoint_path)
 
-    def embed(self, batch: List[dl.Item], **kwargs: Any) -> List[np.ndarray]:
+    def embed(self, batch, **kwargs):
         """Model feature vectors (embedding) on batch of images
 
         There are four pooling methods:
