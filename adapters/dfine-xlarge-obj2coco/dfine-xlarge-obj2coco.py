@@ -312,8 +312,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         image_processor_path = self.configuration.get("image_processor_path", "ustc-community/dfine-xlarge-obj2coco")
         checkpoint = self.configuration.get("checkpoint_name", "ustc-community/dfine-xlarge-obj2coco")
-        checkpoint_path = os.path.join(local_path, checkpoint)
 
+        checkpoint_path = os.path.join(local_path, checkpoint)
         # Initialize image processor
         self.processor = AutoImageProcessor.from_pretrained(
             "ustc-community/dfine-xlarge-obj2coco",
@@ -380,6 +380,9 @@ class HuggingAdapter(dl.BaseModelAdapter):
         print(f"-HHH- self.model.config.id2label {self.model.config.id2label}")
         print(f"-HHH- self.model.config.label2id {self.model.config.label2id}")
         print(f"-HHH- self.model_entity.labels {self.model_entity.labels}")
+
+        self.pooling_method = self.configuration.get("pooling_method", "max")
+        logger.info(f"Using pooling method for embeddings: {self.pooling_method}")
 
     def predict(self, batch: List[np.ndarray], **kwargs: Any) -> List[dl.AnnotationCollection]:
         """Predict on a batch of images.
@@ -597,8 +600,52 @@ class HuggingAdapter(dl.BaseModelAdapter):
             self.model_entity.update()
 
     def embed(self, batch: List[dl.Item], **kwargs: Any) -> None:
-        """Embed items - not implemented for this adapter."""
-        raise NotImplementedError("Embed method not implemented for this adapter")
+        """Model feature vectors (embedding) on batch of images
+
+        There are four pooling methods:
+        - Mean pooling: Images with similar overall content will cluster together
+        - Max pooling: Images with similar prominent objects will cluster together
+        - CLS pooling: Images with similar scene types will cluster together
+        - Attention pooling: Images with similar "important" objects will cluster together
+
+        :param batch: `np.ndarray` - batch of images
+        :return: `list[np.ndarray]` per each image / item in the batch
+        """
+        # Convert numpy arrays to PIL images
+        images = [Image.fromarray(img) for img in batch]
+
+        # Process through D-FINE model
+        inputs = self.processor(images=images, return_tensors="pt")
+
+        with torch.no_grad():
+            # Get model outputs with hidden states
+            outputs = self.model(**inputs, output_hidden_states=True)
+
+            # Get the last hidden state (decoder output)
+            last_hidden_state = outputs.last_hidden_state  # Shape: [batch, num_queries, hidden_size]
+
+            # Apply pooling to get a fixed-size representation
+            if self.pooling_method == 'mean':
+                # Average over all object queries
+                embeddings = torch.mean(last_hidden_state, dim=1)
+            elif self.pooling_method == 'max':
+                # Max pooling over object queries
+                embeddings = torch.max(last_hidden_state, dim=1)[0]
+            elif self.pooling_method == 'cls':
+                # Use first query as "CLS" token
+                embeddings = last_hidden_state[:, 0, :]
+            elif self.pooling_method == 'attention':
+                # Attention-weighted pooling
+                attention_weights = F.softmax(torch.sum(last_hidden_state, dim=-1), dim=-1)
+                embeddings = torch.sum(last_hidden_state * attention_weights.unsqueeze(-1), dim=1)
+            else:
+                raise ValueError(f"Unknown pooling method: {self.pooling_method}")
+
+            embeddings = embeddings.cpu().detach().numpy().tolist()
+
+        # Return list of numpy arrays (one per image)
+        return embeddings
+
 
 
 if __name__ == "__main__":
