@@ -120,9 +120,15 @@ class HuggingAdapter(dl.BaseModelAdapter):
         for image in coco_data.get('images', []):
             if isinstance(image['id'], str):
                 image['id'] = abs(hash(image['id']))
-            # Remove parent directory from file_name
+            # Update file_name to match new filename format with path information
             if '/' in image['file_name']:
-                image['file_name'] = os.path.basename(image['file_name'])
+                # Convert path separators to underscores and prepend relative path
+                relative_path = os.path.dirname(image['file_name'])
+                filename = os.path.basename(image['file_name'])
+                if relative_path == ".":
+                    image['file_name'] = filename  # Keep original filename for root files
+                else:
+                    image['file_name'] = f"{relative_path.replace('/', '_')}_{filename}"
 
         # Convert annotation IDs and image_ids to integers
         for annotation in coco_data.get('annotations', []):
@@ -372,7 +378,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # Get configuration parameters
         image_size = self.configuration.get("image_size", 640)
-        self.model_name = self.configuration.get("model_name", "d-fine")
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.confidence_threshold = self.configuration.get("confidence_threshold", 0.25)
         image_processor_path = self.configuration.get("image_processor_path", "ustc-community/dfine-xlarge-obj2coco")
@@ -381,7 +386,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
         logger.info(
             f"Model Configuration:\n"
             f"Image Size: {image_size}\n"
-            f"Model Name: {self.model_name}\n"
             f"Device: {self.device}\n"
             f"Confidence Threshold: {self.confidence_threshold}\n"
             f"Image Processor Path: {image_processor_path}\n"
@@ -509,7 +513,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     annotation_definition=dl.Box(
                         label=self.model.config.id2label[label], top=top, left=left, bottom=bottom, right=right
                     ),
-                    model_info={"name": self.model_name, "model_id": self.model_name, "confidence": round(score, 3)},
+                    model_info={"name": self.model_entity.name, "model_id": self.model_entity.id, "confidence": round(score, 3)},
                 )
             batch_annotations.append(item_annotations)
 
@@ -587,7 +591,15 @@ class HuggingAdapter(dl.BaseModelAdapter):
             if len(all_files) == 0:
                 raise FileNotFoundError(f"No files found in {src_parent_dir}")
             for file in all_files:
-                shutil.move(file, tmp_dir_path)
+                # Get the relative path from the source directory
+                relative_path = os.path.relpath(file.parent, src_parent_dir)
+                if relative_path == ".":
+                    new_filename = file.name  # Keep the original filename for root files
+                else:
+                    new_filename = f"{relative_path.replace(os.sep, '_')}_{file.name}"
+                # Create new file path in tmp_dir with unique filename
+                new_file_path = os.path.join(tmp_dir_path, new_filename)
+                shutil.move(file, new_file_path)
 
             # Remove the original subset directory
             logger.info(f'Removing {os.path.join(data_path, subset_name)}')
@@ -752,3 +764,61 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # Return list of numpy arrays (one per image)
         return embeddings
+
+
+
+
+if __name__ == "__main__":
+    print("start")
+    use_rc_env = False
+    if use_rc_env:
+        dl.setenv('rc')
+    else:
+        dl.setenv('prod')
+    # from dotenv import load_dotenv
+
+    # load_dotenv()
+    # api_key = os.getenv('DTLPY_API_KEY')
+    # print(f"api_key: {api_key}")
+    # if api_key:
+    #     print("DTLPY_API_KEY found in environment variables")
+    #     dl.login_api_key(api_key=api_key)
+    # else:
+    #     print("ERROR: DTLPY_API_KEY not found in environment variables")
+    #     raise ValueError("Missing required DTLPY_API_KEY environment variable")
+
+    # if dl.token_expired():
+    #     dl.login()
+    # print("login done")
+
+    if use_rc_env:
+        project = dl.projects.get(project_name='Husam Testing')
+    else:
+        # project = dl.projects.get(project_name='ShadiDemo')
+        project = dl.projects.get(project_name='IPM development')
+    print("project done")
+    model = project.models.get(model_name='sdk-clone-try-yaya-issue')
+    # model = project.models.get(model_name='dfine-sdk-for-prediction')
+    print("model done")
+    model.status = 'pre-trained'
+    model_adapter = HuggingAdapter(model)
+    model_adapter.configuration['start_epoch'] = 1
+    model_adapter.configuration['checkpoint_name'] = "ustc-community/dfine-xlarge-obj2coco"
+    model_adapter.configuration['train_configs'] = {
+        'num_train_epochs': 1,
+        'per_device_train_batch_size': 1,
+        'per_device_eval_batch_size': 1,
+        'gradient_accumulation_steps': 8,
+    }
+    # # print("run predict")
+    model_adapter.train_model(model=model)
+    # items_ids = ['686a25c0ab5917691116650e']
+    # for item_id in items_ids:
+    #     print(f"item_id: {item_id}")
+    #     _, annotations = model_adapter.predict_items(items=[project.items.get(item_id=item_id)])
+    #     print(f"annotations: {annotations}")
+
+    # dataset = project.datasets.get(dataset_id='66bded71c556f9814b6ebf10')
+    # filters = dl.Filters(resource=dl.FiltersResource.ITEM, field='dir', values='/D-FINE')
+    # items = list(dataset.items.list(filters=filters).all())
+    # _, annotations = model_adapter.predict
