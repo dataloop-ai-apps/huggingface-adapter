@@ -6,16 +6,17 @@
     "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
+    "Computer Vision": "Object Detection",
     "Media Type": [
       "Image"
     ]
   },
   "displayName": "DFine XLarge Object Detection",
-  "version": "0.1.49",
+  "version": "0.1.50",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.49"
+    "gitTag": "0.1.50"
   },
   "scope": "public",
   "components": {
@@ -25,7 +26,7 @@
         "secrets": [],
         "runtime": {
           "podType": "regular-s",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.5",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.6",
           "concurrency": 1,
           "autoscaler": {
             "type": "rabbitmq",
@@ -41,7 +42,7 @@
         "runtime": {
           "podType": "gpu-t4",
           "concurrency": 1,
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.5",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.6",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
