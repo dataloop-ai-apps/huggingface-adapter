@@ -175,8 +175,8 @@
       {
         "scope": "project",
         "status": "pre-trained",
-        "pooling_method": "max",
         "configuration": {
+          "pooling_method": "max",
           "image_size": 640,
           "model_name": "d-fine",
           "confidence_threshold": 0.25,
