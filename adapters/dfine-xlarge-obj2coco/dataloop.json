@@ -176,12 +176,11 @@
         "scope": "project",
         "status": "pre-trained",
         "configuration": {
-          "pooling_method": "max",
           "image_size": 640,
-          "model_name": "d-fine",
           "confidence_threshold": 0.25,
           "image_processor_path": "ustc-community/dfine-xlarge-obj2coco",
           "checkpoint_name": "ustc-community/dfine-xlarge-obj2coco",
+          "pooling_method": "max",
           "augmentation_config": {
             "rotate_limit": 15,
             "rotate_p": 0.5,
