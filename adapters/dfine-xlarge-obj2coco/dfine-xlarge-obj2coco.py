@@ -121,6 +121,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             if isinstance(image['id'], str):
                 image['id'] = abs(hash(image['id']))
             # Update file_name to match new filename format with path information
+            print(f"-HHH- old file_name: {image['file_name']}")
             if '/' in image['file_name']:
                 # Convert path separators to underscores and prepend relative path
                 relative_path = os.path.dirname(image['file_name'])
@@ -129,7 +130,9 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     image['file_name'] = filename  # Keep original filename for root files
                 else:
                     image['file_name'] = f"{relative_path.replace('/', '_')}_{filename}"
-
+            # Add "items_" prefix to file_name
+            image['file_name'] = f"items_{image['file_name']}"
+            print(f"-HHH- new file_name: {image['file_name']}")
         # Convert annotation IDs and image_ids to integers
         for annotation in coco_data.get('annotations', []):
             if isinstance(annotation['id'], str):
@@ -593,9 +596,12 @@ class HuggingAdapter(dl.BaseModelAdapter):
             for file in all_files:
                 # Get the relative path from the source directory
                 relative_path = os.path.relpath(file.parent, src_parent_dir)
+                print(f"-HHH- relative_path: {relative_path}")
                 if relative_path == ".":
                     new_filename = file.name  # Keep the original filename for root files
                 else:
+                    # Remove 'items' from the start of the relative path if present
+                    path_parts = relative_path.split(os.sep)                    
                     new_filename = f"{relative_path.replace(os.sep, '_')}_{file.name}"
                 # Create new file path in tmp_dir with unique filename
                 new_file_path = os.path.join(tmp_dir_path, new_filename)
@@ -797,7 +803,7 @@ if __name__ == "__main__":
         # project = dl.projects.get(project_name='ShadiDemo')
         project = dl.projects.get(project_name='IPM development')
     print("project done")
-    model = project.models.get(model_name='sdk-clone-try-yaya-issue')
+    model = project.models.get(model_name='sdk-clone-try-yaya-issue-4')
     # model = project.models.get(model_name='dfine-sdk-for-prediction')
     print("model done")
     model.status = 'pre-trained'
