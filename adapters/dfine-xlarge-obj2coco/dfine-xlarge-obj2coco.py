@@ -121,7 +121,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
             if isinstance(image['id'], str):
                 image['id'] = abs(hash(image['id']))
             # Update file_name to match new filename format with path information
-            print(f"-HHH- old file_name: {image['file_name']}")
             if '/' in image['file_name']:
                 # Convert path separators to underscores and prepend relative path
                 relative_path = os.path.dirname(image['file_name'])
@@ -132,7 +131,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     image['file_name'] = f"{relative_path.replace('/', '_')}_{filename}"
             # Add "items_" prefix to file_name
             image['file_name'] = f"items_{image['file_name']}"
-            print(f"-HHH- new file_name: {image['file_name']}")
         # Convert annotation IDs and image_ids to integers
         for annotation in coco_data.get('annotations', []):
             if isinstance(annotation['id'], str):
@@ -596,7 +594,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
             for file in all_files:
                 # Get the relative path from the source directory
                 relative_path = os.path.relpath(file.parent, src_parent_dir)
-                print(f"-HHH- relative_path: {relative_path}")
                 if relative_path == ".":
                     new_filename = file.name  # Keep the original filename for root files
                 else:
@@ -770,61 +767,3 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # Return list of numpy arrays (one per image)
         return embeddings
-
-
-
-
-if __name__ == "__main__":
-    print("start")
-    use_rc_env = False
-    if use_rc_env:
-        dl.setenv('rc')
-    else:
-        dl.setenv('prod')
-    # from dotenv import load_dotenv
-
-    # load_dotenv()
-    # api_key = os.getenv('DTLPY_API_KEY')
-    # print(f"api_key: {api_key}")
-    # if api_key:
-    #     print("DTLPY_API_KEY found in environment variables")
-    #     dl.login_api_key(api_key=api_key)
-    # else:
-    #     print("ERROR: DTLPY_API_KEY not found in environment variables")
-    #     raise ValueError("Missing required DTLPY_API_KEY environment variable")
-
-    # if dl.token_expired():
-    #     dl.login()
-    # print("login done")
-
-    if use_rc_env:
-        project = dl.projects.get(project_name='Husam Testing')
-    else:
-        # project = dl.projects.get(project_name='ShadiDemo')
-        project = dl.projects.get(project_name='IPM development')
-    print("project done")
-    model = project.models.get(model_name='sdk-clone-try-yaya-issue-4')
-    # model = project.models.get(model_name='dfine-sdk-for-prediction')
-    print("model done")
-    model.status = 'pre-trained'
-    model_adapter = HuggingAdapter(model)
-    model_adapter.configuration['start_epoch'] = 1
-    model_adapter.configuration['checkpoint_name'] = "ustc-community/dfine-xlarge-obj2coco"
-    model_adapter.configuration['train_configs'] = {
-        'num_train_epochs': 1,
-        'per_device_train_batch_size': 1,
-        'per_device_eval_batch_size': 1,
-        'gradient_accumulation_steps': 8,
-    }
-    # # print("run predict")
-    model_adapter.train_model(model=model)
-    # items_ids = ['686a25c0ab5917691116650e']
-    # for item_id in items_ids:
-    #     print(f"item_id: {item_id}")
-    #     _, annotations = model_adapter.predict_items(items=[project.items.get(item_id=item_id)])
-    #     print(f"annotations: {annotations}")
-
-    # dataset = project.datasets.get(dataset_id='66bded71c556f9814b6ebf10')
-    # filters = dl.Filters(resource=dl.FiltersResource.ITEM, field='dir', values='/D-FINE')
-    # items = list(dataset.items.list(filters=filters).all())
-    # _, annotations = model_adapter.predict
