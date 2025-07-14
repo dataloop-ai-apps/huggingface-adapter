@@ -10,12 +10,12 @@
     "Media Type": ["Text", "Image", "Multi Modal"]
   },
   "displayName": "Instruct-Pix2Pix",
-  "version": "0.1.51",
+  "version": "0.1.52",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.51"
+    "gitTag": "0.1.52"
   },
   "components": {
     "computeConfigs": [
