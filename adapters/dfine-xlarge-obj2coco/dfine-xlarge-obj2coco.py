@@ -598,7 +598,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     new_filename = file.name  # Keep the original filename for root files
                 else:
                     # Remove 'items' from the start of the relative path if present
-                    path_parts = relative_path.split(os.sep)                    
                     new_filename = f"{relative_path.replace(os.sep, '_')}_{file.name}"
                 # Create new file path in tmp_dir with unique filename
                 new_file_path = os.path.join(tmp_dir_path, new_filename)
