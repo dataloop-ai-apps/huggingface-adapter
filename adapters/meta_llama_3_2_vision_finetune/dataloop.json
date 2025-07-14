@@ -1,7 +1,7 @@
 {
   "name": "llama-vision-finetune",
   "displayName": "Llama-3.2 Vision Finetune",
-  "version": "0.1.50",
+  "version": "0.1.51",
   "scope": "project",
   "description": "Llama-3.2 Vision or Vision Instruct from Hugging Face, ready for fine-tuning with LoRA. Supports multimodal vision-to-text capabilities.",
   "attributes": {

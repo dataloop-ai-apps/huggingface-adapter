@@ -11,12 +11,12 @@
         "Media Type": ["Text", "Image", "Multi Modal"]
     },
     "displayName": "Microsoft Kosmos-2",
-    "version": "0.1.50",
+    "version": "0.1.51",
     "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.50"
+        "gitTag": "0.1.51"
     },
     "components": {
         "computeConfigs": [
