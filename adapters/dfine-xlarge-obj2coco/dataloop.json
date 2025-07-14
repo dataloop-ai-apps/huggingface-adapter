@@ -173,6 +173,8 @@
     ],
     "models": [
       {
+        "name": "dfine-xlarge-obj2coco-huggingface-model",
+        "moduleName": "dfine-xlarge-obj2coco-module",
         "scope": "project",
         "status": "pre-trained",
         "configuration": {
