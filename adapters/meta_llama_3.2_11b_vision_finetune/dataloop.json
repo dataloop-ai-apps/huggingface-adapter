@@ -109,7 +109,7 @@
           },
           {
             "name": "train_model",
-            "computeConfig": "llama3.2-vision-finetune-train",
+            "computeConfig": "llama3.2-11b-vision-finetune-train",
             "input": [
               {
                 "type": "Model",
