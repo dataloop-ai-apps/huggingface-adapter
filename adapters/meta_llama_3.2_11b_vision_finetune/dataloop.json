@@ -63,6 +63,7 @@
         "functions": [
           {
             "name": "predict_items",
+            "computeConfig": "llama3.2-11b-vision-finetune-deploy",
             "input": [
               {
                 "type": "Item[]",
@@ -88,6 +89,7 @@
           },
           {
             "name": "predict_dataset",
+            "computeConfig": "llama3.2-11b-vision-finetune-deploy",
             "input": [
               {
                 "type": "Dataset",
