@@ -133,7 +133,7 @@
     ],
     "models": [
       {
-        "name": "meta-llama3.2-11b-vision-finetune",
+        "name": "llama3.2-11b-vision-finetune",
         "moduleName": "llama3.2-11b-vision-finetune-module",
         "scope": "project",
         "status": "pre-trained",
