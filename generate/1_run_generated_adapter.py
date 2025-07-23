@@ -5,13 +5,14 @@ import importlib.util
 import dtlpy as dl
 
 MODEL_NAME = "microsoft/kosmos-2-patch14-224"  # "facebook/detr-resnet-50"  # "dslim/bert-base-NER"
-ITEM_ID = "67bee79dcb4162a4b84e1ab5"
+ITEM_ID = "6880d943c1294f3c665f6e78"
 # Available items:
 # "67c961cc084575d04c468719"  -  photo in a prompt item
 # "67da8d6da1b8775dbed524f2" - text only prompt item
 # "67bee79dcb4162a4b84e1ab5" - image item
 # "67dbd95b45c52a84598f6793" - text item
 # "67e16db0f27dd1335f907618" - text prompt item for NER
+# "6880d943c1294f3c665f6e78" - image item, snowman from HuggingFace microsoft kosmos-2-patch14-224
 
 
 def find_most_recent_adapter(model_name, responses_dir):
