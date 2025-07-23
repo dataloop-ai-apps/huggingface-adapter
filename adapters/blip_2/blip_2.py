@@ -8,6 +8,7 @@ from transformers import Blip2Processor, Blip2ForConditionalGeneration
 
 logger = logging.getLogger("[BLIP-2]")
 
+
 class HuggingAdapter(dl.BaseModelAdapter):
     def load(self, local_path, **kwargs):
         self.model_name = self.configuration.get("model_name", "blip-2")
@@ -23,32 +24,17 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
     def predict(self, batch: List[dl.Item], **kwargs):
         for prompt_item in batch:
-            prompt_txt, image_buffer = self.reformat_messages(
-                prompt_item.to_messages(model_name=self.model_name)
-            )
+            prompt_txt, image_buffer = self.reformat_messages(prompt_item.to_messages(model_name=self.model_name))
             if prompt_txt:
-                encoding = self.processor(
-                    PIL.Image.open(image_buffer), prompt_txt, return_tensors="pt"
-                ).to(self.device)
+                encoding = self.processor(PIL.Image.open(image_buffer), prompt_txt, return_tensors="pt").to(self.device)
             else:
-                encoding = self.processor(
-                    PIL.Image.open(image_buffer), return_tensors="pt"
-                ).to(self.device)
+                encoding = self.processor(PIL.Image.open(image_buffer), return_tensors="pt").to(self.device)
             output = self.model.generate(**encoding)
-            response = self.processor.decode(
-                output[0], skip_special_tokens=True
-            ).strip()
+            response = self.processor.decode(output[0], skip_special_tokens=True).strip()
             print("Response: {}".format(response))
             prompt_item.add(
-                message={
-                    "role": "assistant",
-                    "content": [{"mimetype": dl.PromptType.TEXT, "value": response}],
-                },
-                model_info={
-                    "name": self.model_name,
-                    "confidence": 1.0,
-                    "model_id": 1,
-                },
+                message={"role": "assistant", "content": [{"mimetype": dl.PromptType.TEXT, "value": response}]},
+                model_info={"name": self.model_name, "confidence": 1.0, "model_id": 1},
             )
         return []
 

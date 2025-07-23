@@ -15,11 +15,11 @@ from prompt_templates import ModelAdapterPrompts
 MODEL_ADAPTER_TYPE = (
     "create_model_adapter"  # Options: "create_model_adapter", "create_hugging_adapter", "convert_to_hugging_base"
 )
-MODEL_REPO = "meta-llama/Llama-4-Scout-17B-16E-Instruct"
+MODEL_REPO = "microsoft/kosmos-2-patch14-224"
 
 if MODEL_ADAPTER_TYPE == "convert_to_hugging_base":
     ORIGINAL_ADAPTER_PATH = (
-        "generate/responses/basemodeladapter/dfine-xlarge-coco_2025.06.04_15.10.00.py"  # Path to adapter to convert
+        "adapters/microsoft_kosmos_2/kosmos_2_patch14_224.py"  # Path to adapter to convert
     )
 else:
     ORIGINAL_ADAPTER_PATH = None
@@ -125,10 +125,10 @@ if MODEL_ADAPTER_TYPE == "create_model_adapter":
         'dtlpy_context': dtlpy_context,
         'ex1_repo': ex1_repo,
         'script_string1': script_string1,
-        'ex2_repo': ex2_repo,
-        'script_string2': script_string2,
-        'ex3_repo': ex3_repo,
-        'script_string3': script_string3,
+        # 'ex2_repo': ex2_repo,
+        # 'script_string2': script_string2,
+        # 'ex3_repo': ex3_repo,
+        # 'script_string3': script_string3,
         'model_card': model_card,
     }
 elif MODEL_ADAPTER_TYPE == "create_hugging_adapter":
