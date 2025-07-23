@@ -1,9 +1,11 @@
 import base64
-from io import BytesIO
-from typing import List
-import PIL
 import dtlpy as dl
 import logging
+
+from io import BytesIO
+from PIL import Image
+from typing import List
+
 from transformers import AutoProcessor, AutoModelForVision2Seq
 
 logger = logging.getLogger("[KOSMOS-2]")
@@ -33,13 +35,14 @@ class HuggingAdapter(dl.BaseModelAdapter):
     def predict(self, batch: List[dl.Item], **kwargs):
         annotations = []
         for item, prompt_txt, image_buffer in batch:
-            print(item.id)  # DEBUG
             # Open image to get dimensions
-            pil_image = PIL.Image.open(image_buffer)
+            pil_image = Image.open(image_buffer)
             image_width, image_height = pil_image.size
 
             prompt_txt = "<grounding> " + prompt_txt
-            encoding = self.processor(PIL.Image.open(image_buffer), prompt_txt, return_tensors="pt").to(self.device)
+            encoding = self.processor(text=prompt_txt, images=Image.open(image_buffer), return_tensors="pt").to(
+                self.device
+            )
             generated_ids = self.model.generate(
                 pixel_values=encoding["pixel_values"],
                 input_ids=encoding["input_ids"],
@@ -63,7 +66,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 )
             else:
                 item.description = f"{processed_text} (captioned by {self.model_name})"
-                print(entities) # DEBUG
+
                 # Convert entities to Dataloop annotations
                 entity_annotations = self.convert_entities_to_annotations(entities, image_width, image_height)
                 annotations.append(entity_annotations)
@@ -102,11 +105,9 @@ class HuggingAdapter(dl.BaseModelAdapter):
                         base64_str = content["image_url"]["url"].split("base64,")[1]
                         image_buffer = BytesIO(base64.b64decode(base64_str))
 
-        if prompt_txt:
-            prompt_txt = "Question: {} Answer:".format(prompt_txt)
-        else:
-            prompt_txt = "An image of"
-            logging.warning(f"No text found in messages, using default prompt: {prompt_txt}")
+        if prompt_txt is None:
+            logging.warning("No text found in messages, using blank text.")
+            prompt_txt = ""
         if not image_buffer:
             raise ValueError("No image found in messages.")
 
