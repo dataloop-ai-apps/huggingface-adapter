@@ -11,12 +11,12 @@
     "Media Type": ["Text", "Image", "Multi Modal"]
   },
   "displayName": "ViLT VQA",
-  "version": "0.1.52",
+  "version": "0.1.53",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.52"
+    "gitTag": "0.1.53"
   },
   "components": {
     "computeConfigs": [
