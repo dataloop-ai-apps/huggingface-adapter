@@ -39,8 +39,8 @@
         "modules": [
             {
                 "name": "microsoft-kosmos-2-module",
-                "entryPoint": "model_adapter.py",
-                "className": "ModelAdapter",
+                "entryPoint": "adapters/microsoft_kosmos_2/kosmos_2_patch14_224.py",
+                "className": "HuggingAdapter",
                 "computeConfig": "microsoft-kosmos-2-huggingface-deploy",
                 "initInputs": [
                     {
