@@ -22,9 +22,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
     def prepare_item_func(self, item: dl.Item):
         if "image/" in item.mimetype:
-            prompt_txt = "An image of"
+            prompt_txt = item.description if item.description is not None else "An image of"
             image_buffer = item.download(save_locally=False)
-
         elif "application/json" in item.mimetype:
             prompt_item = dl.PromptItem.from_item(item)
             prompt_txt, image_buffer = self.reformat_messages(prompt_item.to_messages(model_name=self.model_name))
