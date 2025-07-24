@@ -10,6 +10,7 @@ safetensors
 numpy==1.23.5
 typing-extensions
 bitsandbytes
+setuptools>=78.1.1 # not directly required, pinned by Snyk to avoid a vulnerability
 urllib3>=2.5.0 # not directly required, pinned by Snyk to avoid a vulnerability
 datasets
 git+https://github.com/dataloop-ai-apps/dtlpy-converters
