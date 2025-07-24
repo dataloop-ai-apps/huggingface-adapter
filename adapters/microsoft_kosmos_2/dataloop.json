@@ -1,6 +1,6 @@
 {
     "name": "microsoft-kosmos-2-huggingface-app",
-    "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world.",
+    "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world. Can be used with prompt items and images directly (image captions will be saved as item description).",
     "attributes": {
         "Provider": "Microsoft",
         "Deployed By": "Dataloop",
@@ -11,24 +11,20 @@
         "Media Type": ["Text", "Image", "Multi Modal"]
     },
     "displayName": "Microsoft Kosmos-2",
-    "version": "0.1.48",
+    "version": "0.1.52",
     "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.48"
+        "gitTag": "0.1.52"
     },
     "components": {
         "computeConfigs": [
             {
                 "name": "microsoft-kosmos-2-huggingface-deploy",
-                "versions": {
-                    "dtlpy": "1.90.37"
-                },
-                "secrets": [],
                 "runtime": {
-                    "podType": "gpu-t4",
-                    "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+                    "podType": "regular-l",
+                    "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.45",
                     "concurrency": 1,
                     "autoscaler": {
                         "type": "rabbitmq",
@@ -109,13 +105,11 @@
                 "configuration": {
                     "model_name": "kosmos-2-patch14-224",
                     "max_new_tokens": 128,
-                    "include_entities": false,
-                    "module_name": "adapters.microsoft_kosmos_2.kosmos_2_patch14_224",
-                    "device": "cuda:0"
+                    "module_name": "adapters.microsoft_kosmos_2.kosmos_2_patch14_224"
                 },
                 "tags": ["llm", "pretrained", "hugging-face"],
                 "metadata": {},
-                "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world."
+                "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world. Can be used with prompt items and images directly (image captions will be saved as item description)."
             }
         ]
     }
