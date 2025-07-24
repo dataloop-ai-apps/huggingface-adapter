@@ -64,6 +64,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     model_info={"name": self.model_name, "confidence": 1.0, "model_id": 1},
                 )
             else:
+                item.description = None
+                item.update()
                 item.description = f"{processed_text} (captioned by {self.model_name})"
 
                 # Convert entities to Dataloop annotations
