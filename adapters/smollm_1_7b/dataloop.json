@@ -1,16 +1,16 @@
 {
-  "name": "dialogpt-large-huggingface-app",
-  "description": "DialoGPT is a SOTA large-scale pretrained dialogue response generation model for multiturn conversations.",
+  "name": "smollm-1-7b-huggingface-app",
+  "description": "Smollm 1.7b Huggingface Model",
   "attributes": {
-    "Provider": "Microsoft",
+    "Provider": "HuggingFace",
     "Deployed By": "Dataloop",
-    "License": "MIT",
+    "License": "Apache 2.0",
     "Category": "Model",
-    "NLP": "Conversational",
+    "NLP": "Other",
     "Gen AI": "LLM",
     "Media Type": ["Text"]
   },
-  "displayName": "Microsoft DialoGPT-Large",
+  "displayName": "Smollm 1.7b Huggingface Model",
   "version": "0.1.52",
   "scope": "public",
   "codebase": {
@@ -21,10 +21,10 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "dialogpt-large-huggingface-deploy",
+        "name": "smollm-1-7b-huggingface-deploy",
         "secrets": [],
         "runtime": {
-          "podType": "highmem-l",
+          "podType": "regular-m",
           "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
           "concurrency": 1,
           "autoscaler": {
@@ -39,10 +39,10 @@
     ],
     "modules": [
       {
-        "name": "dialogpt-large-module",
+        "name": "smollm-1-7b-huggingface-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "dialogpt-large-huggingface-deploy",
+        "computeConfig": "smollm-1-7b-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -99,17 +99,17 @@
     ],
     "models": [
       {
-        "name": "dialogpt-large-huggingface-model",
-        "moduleName": "dialogpt-large-module",
+        "name": "smollm-1-7b-huggingface-model",
+        "moduleName": "smollm-1-7b-huggingface-module",
         "scope": "project",
         "status": "pre-trained",
         "configuration": {
-          "weights_filename": "dialogpt.pt",
-          "module_name": "adapters.dialogpt_large.dialogpt_large",
-          "device": "cpu"
+          "module_name": "adapters.smollm_1_7b.smollm_adapter",
+          "model_name": "HuggingFaceTB/SmolLM2-1.7B-Instruct"
         },
+        "tags": ["llm", "pretrained", "hugging-face"],
         "metadata": {},
-        "description": "DialoGPT is a SOTA large-scale pretrained dialogue response generation model for multiturn conversations."
+        "description": "Smollm 1.7b Huggingface Model"
       }
     ]
   }
