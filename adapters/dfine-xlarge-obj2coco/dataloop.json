@@ -12,11 +12,11 @@
     ]
   },
   "displayName": "DFine XLarge Object Detection",
-  "version": "0.1.50",
+  "version": "0.1.52",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.50"
+    "gitTag": "0.1.52"
   },
   "scope": "public",
   "components": {
@@ -48,8 +48,9 @@
             "minReplicas": 0,
             "maxReplicas": 2,
             "queueLength": 100
-          }
+          }          
         },
+        "preemptible": false,
         "executionTimeout": 432000
       }
     ],
@@ -177,9 +178,35 @@
         "scope": "project",
         "status": "pre-trained",
         "configuration": {
-          "model_name": "ustc-community/dfine-xlarge-obj2coco",
-          "module_name": "generate.responses.dfine-xlarge-obj2coco_image_detection_2025.06.11_13.03.58",
-          "device": "cuda if torch.cuda.is_available() else cpu"
+          "image_size": 640,
+          "confidence_threshold": 0.25,
+          "image_processor_path": "ustc-community/dfine-xlarge-obj2coco",
+          "checkpoint_name": "ustc-community/dfine-xlarge-obj2coco",
+          "pooling_method": "max",
+          "augmentation_config": {
+            "rotate_limit": 15,
+            "rotate_p": 0.5,
+            "perspective_p": 0.1,
+            "horizontal_flip_p": 0.5,
+            "brightness_contrast_p": 0.5,
+            "hue_saturation_p": 0.1
+          },
+          "train_configs": {
+            "per_device_train_batch_size": 8,
+            "per_device_eval_batch_size": 8,
+            "gradient_accumulation_steps": 1,
+            "learning_rate": 5e-5,
+            "weight_decay": 0.0,
+            "num_train_epochs": 3,
+            "warmup_steps": 300,
+            "max_grad_norm": 0.1,
+            "logging_steps": 50,
+            "save_strategy": "epoch",
+            "eval_strategy": "epoch",
+            "fp16": false,
+            "metric_for_best_model": "eval_loss",
+            "greater_is_better": false
+          }
         },
         "metadata": {},
         "description": "DFine-XLarge: Object Detection model (COCO format) from ustc-community, via Hugging Face."

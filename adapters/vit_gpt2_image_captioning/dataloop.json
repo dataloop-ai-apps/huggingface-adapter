@@ -11,12 +11,12 @@
     "Media Type": ["Text", "Image", "Multi Modal"]
   },
   "displayName": "ViT-GPT2 Image Captioning",
-  "version": "0.1.50",
+  "version": "0.1.52",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.50"
+    "gitTag": "0.1.52"
   },
   "components": {
     "computeConfigs": [

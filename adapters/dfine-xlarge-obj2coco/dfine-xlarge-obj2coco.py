@@ -120,10 +120,17 @@ class HuggingAdapter(dl.BaseModelAdapter):
         for image in coco_data.get('images', []):
             if isinstance(image['id'], str):
                 image['id'] = abs(hash(image['id']))
-            # Remove parent directory from file_name
+            # Update file_name to match new filename format with path information
             if '/' in image['file_name']:
-                image['file_name'] = os.path.basename(image['file_name'])
-
+                # Convert path separators to underscores and prepend relative path
+                relative_path = os.path.dirname(image['file_name'])
+                filename = os.path.basename(image['file_name'])
+                if relative_path == ".":
+                    image['file_name'] = filename  # Keep original filename for root files
+                else:
+                    image['file_name'] = f"{relative_path.replace('/', '_')}_{filename}"
+            # Add "items_" prefix to file_name
+            image['file_name'] = f"items_{image['file_name']}"
         # Convert annotation IDs and image_ids to integers
         for annotation in coco_data.get('annotations', []):
             if isinstance(annotation['id'], str):
@@ -372,7 +379,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # Get configuration parameters
         image_size = self.configuration.get("image_size", 640)
-        self.model_name = self.configuration.get("model_name", "d-fine")
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.confidence_threshold = self.configuration.get("confidence_threshold", 0.25)
         image_processor_path = self.configuration.get("image_processor_path", "ustc-community/dfine-xlarge-obj2coco")
@@ -381,7 +387,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
         logger.info(
             f"Model Configuration:\n"
             f"Image Size: {image_size}\n"
-            f"Model Name: {self.model_name}\n"
             f"Device: {self.device}\n"
             f"Confidence Threshold: {self.confidence_threshold}\n"
             f"Image Processor Path: {image_processor_path}\n"
@@ -509,7 +514,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     annotation_definition=dl.Box(
                         label=self.model.config.id2label[label], top=top, left=left, bottom=bottom, right=right
                     ),
-                    model_info={"name": self.model_name, "model_id": self.model_name, "confidence": round(score, 3)},
+                    model_info={"name": self.model_entity.name, "model_id": self.model_entity.id, "confidence": round(score, 3)},
                 )
             batch_annotations.append(item_annotations)
 
@@ -587,7 +592,16 @@ class HuggingAdapter(dl.BaseModelAdapter):
             if len(all_files) == 0:
                 raise FileNotFoundError(f"No files found in {src_parent_dir}")
             for file in all_files:
-                shutil.move(file, tmp_dir_path)
+                # Get the relative path from the source directory
+                relative_path = os.path.relpath(file.parent, src_parent_dir)
+                if relative_path == ".":
+                    new_filename = file.name  # Keep the original filename for root files
+                else:
+                    # Remove 'items' from the start of the relative path if present
+                    new_filename = f"{relative_path.replace(os.sep, '_')}_{file.name}"
+                # Create new file path in tmp_dir with unique filename
+                new_file_path = os.path.join(tmp_dir_path, new_filename)
+                shutil.move(file, new_file_path)
 
             # Remove the original subset directory
             logger.info(f'Removing {os.path.join(data_path, subset_name)}')
