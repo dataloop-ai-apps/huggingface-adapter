@@ -1,8 +1,8 @@
 {
-  "name": "llama-vision-finetune",
-  "displayName": "Llama-3.2 Vision Finetune",
+  "name": "meta-llama3.2-11b-vision-finetune",
+  "displayName": "Meta Llama 3.2 11B Vision Finetune",
   "version": "0.1.52",
-  "scope": "project",
+  "scope": "public",
   "description": "Llama-3.2 Vision or Vision Instruct from Hugging Face, ready for fine-tuning with LoRA. Supports multimodal vision-to-text capabilities.",
   "attributes": {
     "Provider": "Meta",
@@ -18,8 +18,8 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "llama-vision-finetune-deploy",
-        "executionTimeout": 7200,
+        "name": "llama3.2-11b-vision-finetune-deploy",
+        "executionTimeout": 36000,
         "runtime": {
           "podType": "gpu-a100-s",
           "concurrency": 5,
@@ -32,7 +32,7 @@
         }
       },
       {
-        "name": "llama-vision-finetune-train",
+        "name": "llama3.2-11b-vision-finetune-train",
         "executionTimeout": 360000,
         "runtime": {
           "podType": "gpu-a100-s",
@@ -48,10 +48,10 @@
     ],
     "modules": [
       {
-        "name": "llama-vision-finetune-module",
-        "entryPoint": "adapters/llama_3_2_vision_finetune/model_adapter.py",
+        "name": "llama3.2-11b-vision-finetune-module",
+        "entryPoint": "adapters/meta_llama_3.2_11b_vision_finetune/model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "llama-vision-finetune-deploy",
+        "computeConfig": "llama3.2-11b-vision-finetune-deploy",
         "description": "Llama 3.2 Vision or Vision-Instruct model adapter for fine-tuning and inference",
         "integrations": ["dl-huggingface-api-key"],
         "initInputs": [
@@ -63,6 +63,7 @@
         "functions": [
           {
             "name": "predict_items",
+            "computeConfig": "llama3.2-11b-vision-finetune-deploy",
             "input": [
               {
                 "type": "Item[]",
@@ -88,6 +89,7 @@
           },
           {
             "name": "predict_dataset",
+            "computeConfig": "llama3.2-11b-vision-finetune-deploy",
             "input": [
               {
                 "type": "Dataset",
@@ -107,7 +109,7 @@
           },
           {
             "name": "train_model",
-            "computeConfig": "llama-vision-finetune-train",
+            "computeConfig": "llama3.2-11b-vision-finetune-train",
             "input": [
               {
                 "type": "Model",
@@ -122,17 +124,17 @@
                 "description": "Dataloop Model Entity"
               }
             ],
-            "displayName": "Fine-tuned Llama Vision Model",
+            "displayName": "Fine-tuned Llama 3.2 11B Vision Model",
             "displayIcon": "",
-            "description": "Fine-tune the Llama vision-language model on a custom dataset using LoRA."
+            "description": "Fine-tune the Llama 3.2 11B Vision model on a custom dataset using LoRA."
           }
         ]
       }
     ],
     "models": [
       {
-        "name": "llama-3.2-11B-vision-finetune",
-        "moduleName": "llama-vision-finetune-module",
+        "name": "llama3.2-11b-vision-finetune",
+        "moduleName": "llama3.2-11b-vision-finetune-module",
         "scope": "project",
         "status": "pre-trained",
         "outputType": "text",
