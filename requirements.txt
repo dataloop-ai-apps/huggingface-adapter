@@ -10,3 +10,6 @@ safetensors
 numpy==1.23.5
 typing-extensions
 bitsandbytes
+datasets
+git+https://github.com/dataloop-ai-apps/dtlpy-converters
+albumentations==1.3.1
