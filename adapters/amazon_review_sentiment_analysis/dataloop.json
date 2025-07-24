@@ -11,12 +11,12 @@
     "NLP": "Sentiment Analysis"
   },
   "displayName": "Amazon Review Sentiment Analysis",
-  "version": "0.1.54",
+  "version": "0.1.55",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.54"
+    "gitTag": "0.1.55"
   },
   "components": {
     "computeConfigs": [
