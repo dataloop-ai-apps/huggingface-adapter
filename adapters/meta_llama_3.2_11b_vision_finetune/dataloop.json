@@ -1,0 +1,185 @@
+{
+  "name": "meta-llama3.2-11b-vision-finetune",
+  "displayName": "Meta Llama 3.2 11B Vision Finetune",
+  "version": "0.1.55",
+  "scope": "public",
+  "description": "Llama-3.2 Vision or Vision Instruct from Hugging Face, ready for fine-tuning with LoRA. Supports multimodal vision-to-text capabilities.",
+  "attributes": {
+    "Provider": "Meta",
+    "Deployed By": "Dataloop",
+    "License": "Llama 3.2",
+    "Media Type": ["Image", "Text"],
+    "Category": "Model",
+    "Gen AI": "LLM",
+    "Vision": "Multimodal",
+    "NLP": "Conversational",
+    "Hub": ["Dataloop"]
+  },
+  "components": {
+    "computeConfigs": [
+      {
+        "name": "llama3.2-11b-vision-finetune-deploy",
+        "executionTimeout": 36000,
+        "runtime": {
+          "podType": "gpu-a100-s",
+          "concurrency": 5,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.7",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2
+          }
+        }
+      },
+      {
+        "name": "llama3.2-11b-vision-finetune-train",
+        "executionTimeout": 360000,
+        "runtime": {
+          "podType": "gpu-a100-s",
+          "concurrency": 1,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.7",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 1
+          }
+        }
+      }
+    ],
+    "modules": [
+      {
+        "name": "llama3.2-11b-vision-finetune-module",
+        "entryPoint": "adapters/meta_llama_3.2_11b_vision_finetune/model_adapter.py",
+        "className": "ModelAdapter",
+        "computeConfig": "llama3.2-11b-vision-finetune-deploy",
+        "description": "Llama 3.2 Vision or Vision-Instruct model adapter for fine-tuning and inference",
+        "integrations": ["dl-huggingface-api-key"],
+        "initInputs": [
+          {
+            "type": "Model",
+            "name": "model_entity"
+          }
+        ],
+        "functions": [
+          {
+            "name": "predict_items",
+            "computeConfig": "llama3.2-11b-vision-finetune-deploy",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "List of items to run inference on"
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input items for prediction."
+              },
+              {
+                "type": "Annotation[]",
+                "name": "annotations",
+                "description": "The predicted annotations."
+              }
+            ],
+            "displayName": "Predict Items",
+            "displayIcon": "",
+            "description": "Run inference on a list of items with the vision model"
+          },
+          {
+            "name": "predict_dataset",
+            "computeConfig": "llama3.2-11b-vision-finetune-deploy",
+            "input": [
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "Dataset to run inference on"
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "Dataloop Filter DQL"
+              }
+            ],
+            "output": [],
+            "displayName": "Predict Dataset",
+            "displayIcon": "",
+            "description": "Run inference on an entire dataset with filters"
+          },
+          {
+            "name": "train_model",
+            "computeConfig": "llama3.2-11b-vision-finetune-train",
+            "input": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              }
+            ],
+            "output": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              }
+            ],
+            "displayName": "Fine-tuned Llama 3.2 11B Vision Model",
+            "displayIcon": "",
+            "description": "Fine-tune the Llama 3.2 11B Vision model on a custom dataset using LoRA."
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "llama3.2-11b-vision-finetune",
+        "moduleName": "llama3.2-11b-vision-finetune-module",
+        "scope": "project",
+        "status": "pre-trained",
+        "outputType": "text",
+        "configuration": {
+          "system_prompt": "You are a helpful visual assistant. Describe what you see in the image accurately and answer questions related to the visual content. If you don't know or can't see clearly, just say so.",
+          "model_name": "meta-llama/Llama-3.2-11B-Vision-Instruct",
+          "max_new_tokens": 512,
+          "temperature": 0.7,
+          "do_sample": true,
+          "use_cache": true,
+          "top_p": 0.9,
+          "use_lora": true,
+          "freeze_llm": false,
+          "freeze_image": false,
+          "r": 8,
+          "lora_alpha": 8,
+          "lora_dropout": 0.1,
+          "target_modules": [
+            "down_proj",
+            "o_proj",
+            "k_proj",
+            "q_proj",
+            "gate_proj",
+            "up_proj",
+            "v_proj"
+          ],
+          "use_dora": true,
+          "init_lora_weights": "gaussian",
+          "num_train_epochs": 10,
+          "per_device_train_batch_size": 1,
+          "gradient_accumulation_steps": 16,
+          "warmup_steps": 2,
+          "learning_rate": 2e-4,
+          "weight_decay": 1e-6,
+          "adam_beta2": 0.999,
+          "optim": "paged_adamw_32bit",
+          "bf16": true,
+          "save_strategy": "no",
+          "logging_strategy": "epoch",
+          "evaluation_strategy": "epoch",
+          "remove_unused_columns": false,
+          "dataloader_pin_memory": false
+        },
+        "description": "Llama-3.2 11B Vision models from Hugging Face, ready for fine-tuning with LoRA. Process both images and text for multimodal understanding."
+      }
+    ]
+  }
+}

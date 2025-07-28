@@ -13,12 +13,12 @@
         ]
     },
     "displayName": "Meta LLama 3 8b Instruct",
-    "version": "0.1.46",
+    "version": "0.1.55",
     "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.46"
+        "gitTag": "0.1.55"
     },
     "components": {
         "computeConfigs": [
@@ -35,9 +35,9 @@
                         "maxReplicas": 2,
                         "queueLength": 1000
                     },
-                    "executionTimeout": 864000,
                     "preemptible": false
-                }
+                },
+                "executionTimeout": 10800
             }
         ],
         "modules": [
