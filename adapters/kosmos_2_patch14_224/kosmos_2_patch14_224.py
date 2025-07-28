@@ -4,6 +4,7 @@ from io import BytesIO
 from typing import List
 import dtlpy as dl
 import logging
+import torch
 
 from transformers import AutoProcessor, AutoModelForVision2Seq
 
@@ -13,7 +14,7 @@ logger = logging.getLogger("[Kosmos-2 Patch 14 224]")
 class HuggingAdapter(dl.BaseModelAdapter):
     def load(self, local_path, **kwargs):
         self.model_name = self.configuration.get("model_name", "kosmos-2")
-        self.device = self.configuration.get("device", "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.processor = AutoProcessor.from_pretrained("microsoft/kosmos-2-patch14-224")
         self.model = AutoModelForVision2Seq.from_pretrained("microsoft/kosmos-2-patch14-224")
         self.model.to(self.device)
@@ -34,7 +35,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         annotations = []
         for item, prompt_txt, image_buffer in batch:
             # Open image to get dimensions
-            pil_image = Image.open(image_buffer)
+            pil_image = PIL.Image.open(image_buffer)
             image_width, image_height = pil_image.size
 
             prompt_txt = f"<grounding> {prompt_txt}"
