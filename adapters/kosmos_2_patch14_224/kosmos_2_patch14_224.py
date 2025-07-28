@@ -1,10 +1,9 @@
 import base64
+import PIL
+from io import BytesIO
+from typing import List
 import dtlpy as dl
 import logging
-
-from io import BytesIO
-from PIL import Image
-from typing import List
 
 from transformers import AutoProcessor, AutoModelForVision2Seq
 
@@ -39,7 +38,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             image_width, image_height = pil_image.size
 
             prompt_txt = f"<grounding> {prompt_txt}"
-            encoding = self.processor(text=prompt_txt, images=Image.open(image_buffer), return_tensors="pt").to(
+            encoding = self.processor(text=prompt_txt, images=PIL.Image.open(image_buffer), return_tensors="pt").to(
                 self.device
             )
             generated_ids = self.model.generate(
