@@ -1,0 +1,26 @@
+# ordered list of dpks to publish and install
+dpks:
+    - name: ivrit-ai-whisper-large-v3-ct2-app
+      install_app: True
+
+# ordered list of datasets to create from local assets or to get from installed apps
+datasets:
+    - name: dataset_audio
+      type: local
+
+# ordered list of models to get from apps
+models:
+    - name: whisper-large-v3-ct2-huggingface-model
+      deploy_model: False
+      source_app: ivrit-ai-whisper-large-v3-ct2-app
+
+# list of pipeline variables to update with reference
+variables:
+    - name: dataset
+      resource_type: datasets
+      resource_value:
+          resource_name: dataset_audio
+    - name: model
+      resource_type: models
+      resource_value:
+          resource_name: whisper-large-v3-ct2-huggingface-model
