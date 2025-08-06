@@ -12,11 +12,11 @@
     ]
   },
   "displayName": "DFine XLarge Object Detection",
-  "version": "0.1.55",
+  "version": "0.1.56",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.55"
+    "gitTag": "0.1.56"
   },
   "scope": "public",
   "components": {
