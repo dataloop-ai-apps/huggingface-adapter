@@ -1,118 +1,114 @@
 {
-    "name": "blip-image-captioning-large-huggingface-app",
-    "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation",
-    "attributes": {
-        "Provider": "Hugging Face",
-        "Deployed By": "Dataloop",
-        "License": "BSD-3-Clause",
-        "Category": "Model",
-        "NLP": "Conversational",
-        "Gen AI": "LMM",
-        "Media Type": [
-            "Text",
-            "Image",
-            "Multi Modal"
-        ]
-    },
-    "displayName": "BLIP Image Captioning Large",
-    "version": "0.1.55",
-    "scope": "public",
-    "codebase": {
-        "type": "git",
-        "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.55"
-    },
-    "components": {
-        "computeConfigs": [
-            {
-                "name": "blip-image-captioning-large-huggingface-deploy",
-                "secrets": [],
-                "runtime": {
-                    "podType": "regular-l",
-                    "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.45",
-                    "concurrency": 1,
-                    "autoscaler": {
-                        "minReplicas": 0,
-                        "maxReplicas": 2,
-                        "queueLength": 1000
-                    }
-                }
-            }
-        ],
-        "modules": [
-            {
-                "name": "blip-image-captioning-large-module",
-                "entryPoint": "adapters/blip_image_captioning_large/blip_image_captioning_large.py",
-                "className": "HuggingAdapter",
-                "computeConfig": "blip-image-captioning-large-huggingface-deploy",
-                "initInputs": [
-                    {
-                        "type": "Model",
-                        "name": "model_entity"
-                    }
-                ],
-                "functions": [
-                    {
-                        "name": "predict_items",
-                        "input": [
-                            {
-                                "type": "Item[]",
-                                "name": "items",
-                                "description": "The input images for prediction."
-                            }
-                        ],
-                        "output": [
-                            {
-                                "type": "Item[]",
-                                "name": "items",
-                                "description": "The same input images for prediction."
-                            },
-                            {
-                                "type": "Annotation[]",
-                                "name": "annotations",
-                                "description": "The predicted annotations."
-                            }
-                        ],
-                        "displayName": "Predict Items",
-                        "displayIcon": "",
-                        "description": "The inference function of the model."
-                    },
-                    {
-                        "name": "predict_dataset",
-                        "input": [
-                            {
-                                "type": "Dataset",
-                                "name": "dataset",
-                                "description": "The input dataset of the items required for prediction."
-                            },
-                            {
-                                "type": "Json",
-                                "name": "filters",
-                                "description": "The DQL in json format to get all the items required for prediction."
-                            }
-                        ],
-                        "output": [],
-                        "displayName": "Predict Dataset",
-                        "displayIcon": "",
-                        "description": "Inference function of the model on a dataset."
-                    }
-                ]
-            }
-        ],
-        "models": [
-            {
-                "name": "blip-image-captioning-large-huggingface-model",
-                "moduleName": "blip-image-captioning-large-module",
-                "scope": "project",
-                "status": "pre-trained",
-                "configuration": {
-                    "model_name": "blip",
-                    "module_name": "adapters.blip_image_captioning_large.blip_image_captioning_large",
-                    "conditioning": false
-                },
-                "metadata": {},
-                "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation"
-            }
-        ]
+  "name": "blip-image-captioning-large-huggingface-app",
+  "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation",
+  "attributes": {
+    "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
+    "License": "BSD-3-Clause",
+    "Category": "Model",
+    "NLP": "Conversational",
+    "Gen AI": "LMM",
+    "Media Type": ["Text", "Image", "Multi Modal"]
+  },
+  "displayName": "BLIP Image Captioning Large",
+  "version": "0.1.57",
+  "scope": "public",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+    "gitTag": "0.1.57"
+  },
+  "components": {
+    "computeConfigs": [
+      {
+        "name": "blip-image-captioning-large-huggingface-deploy",
+        "secrets": [],
+        "runtime": {
+          "podType": "regular-l",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.45",
+          "concurrency": 1,
+          "autoscaler": {
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 1000
+          }
+      }
     }
+    ],
+    "modules": [
+      {
+        "name": "blip-image-captioning-large-module",
+        "entryPoint": "adapters/blip_image_captioning_large/blip_image_captioning_large.py",
+        "className": "HuggingAdapter",
+        "computeConfig": "blip-image-captioning-large-huggingface-deploy",
+        "initInputs": [
+          {
+            "type": "Model",
+            "name": "model_entity"
+          }
+        ],
+        "functions": [
+          {
+            "name": "predict_items",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The input images for prediction."
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input images for prediction."
+              },
+              {
+                "type": "Annotation[]",
+                "name": "annotations",
+                "description": "The predicted annotations."
+              }
+            ],
+            "displayName": "Predict Items",
+            "displayIcon": "",
+            "description": "The inference function of the model."
+          },
+          {
+            "name": "predict_dataset",
+            "input": [
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "The input dataset of the items required for prediction."
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "The DQL in json format to get all the items required for prediction."
+              }
+            ],
+            "output": [],
+            "displayName": "Predict Dataset",
+            "displayIcon": "",
+            "description": "Inference function of the model on a dataset."
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "blip-image-captioning-large-huggingface-model",
+        "moduleName": "blip-image-captioning-large-module",
+        "scope": "project",
+        "status": "pre-trained",
+        "configuration": {
+          "model_name": "blip",
+          "module_name": "adapters.blip_image_captioning_large.blip_image_captioning_large",
+          "conditioning": false
+        },
+        "metadata": {},
+        "description": "Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation"
+      }
+    ]
+  }
 }
