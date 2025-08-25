@@ -19,7 +19,7 @@ variables:
     - name: dataset
       resource_type: datasets
       resource_value:
-          resource_name: text_prompt_text_answer
+          resource_name: text_image_prompt_text_answer
     - name: model
       resource_type: models
       resource_value:
