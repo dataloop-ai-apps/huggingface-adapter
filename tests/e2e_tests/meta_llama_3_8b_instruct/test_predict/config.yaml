@@ -2,6 +2,9 @@
 dpks:
     - name: meta-llama3-8b-instruct-huggingface-app
       install_app: True
+      integrations:
+        - key: "dl-huggingface-api-key"
+          value: "HUGGINGFACE_TOKEN"
 
 # ordered list of datasets to create from local assets or to get from installed apps
 datasets:
