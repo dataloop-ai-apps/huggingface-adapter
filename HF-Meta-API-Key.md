@@ -1,4 +1,4 @@
-# How to get API key for HF Meta Llama-3 8b Instruct
+# How to get API key for HF Meta Llama Models
 
 ## Detailed guide:
 
@@ -7,7 +7,7 @@
    ![login.png](assets%2Flogin.png)
 
 
-2. Go to [meta-llama/Meta-Llama-3-8B-Instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct) page and 
+2. Go to Meta Llama page page (i.e. [meta-llama/Meta-Llama-3-8B-Instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct) and 
    fill `META LLAMA 3 COMMUNITY LICENSE AGREEMENT`. \
    ![agreement_review.png](assets%2Fagreement_review.png)
 
@@ -30,3 +30,13 @@
 
 7. `Copy` the generated token and add it as a `Secret` to the model. \
    ![available_access_token.png](assets%2Favailable_access_token.png)
+
+
+## Supported models in this Repo:
+
+- [meta-llama/Llama-3.2-11B-Vision-Instruct](https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct)
+- [meta-llama/Meta-Llama-3-8B-Instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct)
+
+## Notices:
+
+- `META LLAMA 3 COMMUNITY LICENSE AGREEMENT` is required to be filled **per model** and not 
