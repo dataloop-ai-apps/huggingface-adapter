@@ -10,7 +10,7 @@ logger = logging.getLogger("[Meta LLama 3 8b Instruct]")
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        access_token = os.getenv(configuration.get("hf_access_token", "HUGGINGFACEHUB_API_KEY"))
+        access_token = os.environ.get("HUGGINGFACE_TOKEN")
         model_path = configuration.get("model_path", "meta-llama/Meta-Llama-3-8B-Instruct")
         torch_dtype = configuration.get("torch_dtype", "4bits")
         model_args = {"low_cpu_mem_usage": True}

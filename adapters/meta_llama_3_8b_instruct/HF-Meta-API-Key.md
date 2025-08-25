@@ -1,4 +1,4 @@
-# How to get API key for HF Meta LLAMA 3.8b Instruct
+# How to get API key for HF Meta Llama-3 8b Instruct
 
 ## Detailed guide:
 
