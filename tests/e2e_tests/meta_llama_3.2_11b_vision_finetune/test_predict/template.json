@@ -48,12 +48,6 @@
       "type": "String",
       "value": "free-text",
       "description": null
-    },
-    {
-      "name": "secret_name",
-      "type": "String",
-      "value": "meta_llama_3.2_11b_vision_finetune_key",
-      "description": null
     }
   ],
   "description": "",
@@ -70,24 +64,6 @@
           "name": "dataset",
           "displayName": "dataset",
           "variableName": "dataset",
-          "io": "input"
-        },
-        {
-          "portId": "a545f85e-2ce8-4759-82b6-002a450b8c17",
-          "nodeId": "a545f85e-2ce8-4759-82b6-002a450b8c17",
-          "type": "Model",
-          "name": "model",
-          "displayName": "model",
-          "variableName": "model",
-          "io": "input"
-        },
-        {
-          "portId": "df9e261e-78fd-4a4b-9aec-d2d64bc02488",
-          "nodeId": "df9e261e-78fd-4a4b-9aec-d2d64bc02488",
-          "type": "String",
-          "name": "secret_name",
-          "displayName": "secret_name",
-          "variableName": "secret_name",
           "io": "input"
         }
       ],
@@ -113,7 +89,7 @@
       "projectId": null,
       "config": {
         "package": {
-          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def _add_secret_to_model(dataset: dl.Dataset, model: dl.Model, secret_name: str, pipeline_id: str):\n        # Deploy model and get Service\n        if model.status != \"deployed\":\n            service = model.deploy()\n\n        # Model is deployed, looking for the pipeline service\n        elif pipeline_id is not None:\n            model_services = list(model.services.list().all())\n            found_service = None\n            model_service: dl.Service\n            for model_service in model_services:\n                model_service_refs = model_service.metadata[\"system\"].get(\"refs\", list())\n                for model_service_ref in model_service_refs:\n                    if model_service_ref[\"type\"] == \"pipeline\" and model_service_ref[\"id\"] == pipeline_id:\n                        found_service = model_service\n                        break\n\n            if found_service is None:\n                raise ValueError(f\"Model is already deployed but not connected to pipeline {pipeline_id}.\")\n            service = found_service\n        else:\n            raise ValueError(\n                \"Model is already deployed. Please provide a pipeline_id to connect the secret to the model.\"\n            )\n\n        # Get Secret\n        project_org = dl.organizations.get(organization_id=dataset.project.org[\"id\"])\n        org_integrations = project_org.integrations.list()\n        secret_id = None\n        for integration in org_integrations:\n            if integration[\"name\"] == secret_name:\n                secret_id = integration[\"id\"]\n                break\n\n        if secret_id is None:\n            raise ValueError(f\"Secret {secret_name} not found.\")\n\n        # Connect the secret to the service and the model\n        service.secrets = [secret_id]\n        service.update()\n        model.configuration[\"hf_access_token\"] = secret_name\n        model.update()\n\n    def run(self, dataset: dl.Dataset, model: dl.Model, secret_name: str, context: dl.Context = None):\n        pipeline_id = None\n        if context is not None:\n            pipeline_id = context.pipeline_id\n        self._add_secret_to_model(dataset=dataset, model=model, secret_name=secret_name, pipeline_id=pipeline_id)\n\n        # Define filters\n        filters = dl.Filters()\n        filters.add(field=\"metadata.tags.predict\", values=True)\n\n        # Get predict item\n        predict_item = list(dataset.items.list(filters=filters).all())[0]\n        predict_item.annotations.delete(filters=dl.Filters(resource=dl.FiltersResource.ANNOTATION))\n\n        return predict_item\n",
+          "code": "import dtlpy as dl\nimport json\n\nclass ServiceRunner:\n    @staticmethod\n    def run(dataset: dl.Dataset):\n        image_item = None\n        prompt_item = None\n\n        # Define filters\n        filters = dl.Filters()\n        filters.add(field=\"metadata.tags.predict\", values=True)\n\n        # Get prompt and image items\n        item: dl.Item\n        for item in list(dataset.items.list(filters=filters).all()):\n            if \"application/json\" in item.mimetype:\n                prompt_item = item\n            elif \"image\" in item.mimetype:\n                image_item = item\n            else:\n                continue\n        if prompt_item is None:\n            raise ValueError(\"Prompt item not found\")\n        if image_item is None:\n            raise ValueError(\"Image item not found\")\n\n        # Update prompt item\n        prompt_item_data = json.loads(prompt_item.download(save_locally=False).getvalue())\n        for prompt_data_list in list(prompt_item_data[\"prompts\"].values()):\n            for prompt_data in prompt_data_list:\n                if \"image\" in prompt_data[\"mimetype\"]:\n                    prompt_data[\"value\"] = image_item.stream\n        prompt_item._Item__update_item_binary(_json=prompt_item_data)\n\n        # Get predict item\n        prompt_item.annotations.delete(filters=dl.Filters(resource=dl.FiltersResource.ANNOTATION))\n\n        return prompt_item\n",
           "name": "run",
           "type": "code",
           "codebase": {
