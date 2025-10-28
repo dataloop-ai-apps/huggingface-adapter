@@ -1,3 +1,3 @@
-from .smollm_adapter import HuggingAdapter
+from .model_adapter import ModelAdapter
 
-__all__ = ["HuggingAdapter"]
+__all__ = ["ModelAdapter"]

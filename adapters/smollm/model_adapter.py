@@ -93,7 +93,7 @@ class ModelAdapter(dl.BaseModelAdapter):
             save_strategy = configs.get("save_strategy", "epoch")
             logging_strategy = configs.get("logging_strategy", "steps")
             logging_steps = configs.get("logging_steps", 10)
-            evaluation_strategy = configs.get("evaluation_strategy", "epoch")
+            eval_strategy = configs.get("evaluation_strategy", "epoch")
             save_total_limit = configs.get("save_total_limit", 2)
             gradient_checkpointing = configs.get("gradient_checkpointing", True)
             
@@ -118,7 +118,7 @@ class ModelAdapter(dl.BaseModelAdapter):
                 save_strategy=save_strategy,
                 logging_strategy=logging_strategy,
                 logging_steps=logging_steps,
-                evaluation_strategy=evaluation_strategy,
+                eval_strategy=eval_strategy,
                 save_total_limit=save_total_limit,
                 load_best_model_at_end=True,
                 metric_for_best_model="eval_loss",
@@ -864,7 +864,7 @@ if __name__ == "__main__":
     dataset: dl.Dataset = dl.datasets.get(dataset_id='<dataset_id>')
     model_entity = project.models.get(model_id="<model_id>")
     item = dl.items.get(item_id="<item_id>")
-    adapter = HuggingAdapter(model_entity=model_entity)
+    adapter = ModelAdapter(model_entity=model_entity)
     prompt_item = dl.PromptItem.from_item(item=item)
     response = adapter.predict([prompt_item])
     print(response)

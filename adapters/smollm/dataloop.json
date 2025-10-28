@@ -1,37 +1,45 @@
 {
   "name": "smollm-huggingface-app",
   "description": "The SmolLM & SmolLM2 Huggingface Models are a family of compact language models available in three size: 135M, 360M, and 1.7B parameters. They are capable of solving a wide range of tasks while being lightweight enough to run on-device.",
+  "version": "0.1.49",
+  "scope": "project",
   "attributes": {
     "Provider": "HuggingFace",
     "Deployed By": "Dataloop",
     "License": "Apache 2.0",
-    "Category": "Model",
-    "NLP": "Other",
+    "Media Type": ["Text"],
     "Gen AI": "LLM",
-    "Media Type": ["Text"]
-  },
-  "displayName": "SmolLM Huggingface Model",
-  "version": "0.1.48",
-  "scope": "public",
-  "codebase": {
-    "type": "git",
-    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.48"
+    "Category": "Model",
+    "NLP": "Conversational",
+    "Hub": ["Dataloop"]
   },
   "components": {
     "computeConfigs": [
       {
         "name": "smollm-huggingface-deploy",
-        "secrets": [],
+        "executionTimeout": 1200,
         "runtime": {
           "podType": "regular-m",
-          "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
           "concurrency": 1,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.4-SmolLM-3",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
-            "maxReplicas": 2,
-            "queueLength": 1000
+            "maxReplicas": 2
+          }
+        }
+      },
+      {
+        "name": "smollm-huggingface-train",
+        "executionTimeout": 360000,
+        "runtime": {
+          "podType": "gpu-t4-m",
+          "concurrency": 1,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.4-SmolLM-2",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 1
           },
           "preemptible": false
         }
@@ -40,8 +48,8 @@
     "modules": [
       {
         "name": "smollm-huggingface-module",
-        "entryPoint": "adapters.smollm.smollm_adapter.py",
-        "className": "HuggingAdapter",
+        "entryPoint": "adapters/smollm/model_adapter.py",
+        "className": "ModelAdapter",
         "computeConfig": "smollm-huggingface-deploy",
         "initInputs": [
           {
@@ -56,14 +64,14 @@
               {
                 "type": "Item[]",
                 "name": "items",
-                "description": "The input images for prediction."
+                "description": "List of items to run inference on."
               }
             ],
             "output": [
               {
                 "type": "Item[]",
                 "name": "items",
-                "description": "The same input images for prediction."
+                "description": "The same input items for prediction."
               },
               {
                 "type": "Annotation[]",
@@ -73,7 +81,7 @@
             ],
             "displayName": "Predict Items",
             "displayIcon": "",
-            "description": "The inference function of the model."
+            "description": "Run inference on a list of items with the model"
           },
           {
             "name": "predict_dataset",
@@ -93,6 +101,27 @@
             "displayName": "Predict Dataset",
             "displayIcon": "",
             "description": "Inference function of the model on a dataset."
+          },
+          {
+            "name": "train_model",
+            "computeConfig": "smollm-huggingface-train",
+            "input": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              }
+            ],
+            "output": [
+              {
+                "type": "Model",
+                "name": "model",
+                "description": "Dataloop Model Entity"
+              }
+            ],
+            "displayName": "Fine-tuned SmolLM Model",
+            "displayIcon": "",
+            "description": "Fine-tune the SmolLM model on a custom dataset using LoRA."
           }
         ]
       }
@@ -103,12 +132,23 @@
         "moduleName": "smollm-huggingface-module",
         "scope": "project",
         "status": "pre-trained",
+        "outputType": "text",
         "configuration": {
           "module_name": "adapters.smollm.smollm_adapter",
-          "model_path": "HuggingFaceTB/SmolLM2-135M-Instruct"
+          "model_path": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "max_tokens": 1024,
+          "temperature": 0.2,
+          "top_p": 0.9,
+          "stream": true,
+          "system_prompt": "You are a helpful assistant.",
+          "add_metadata": true,
+          "max_length": 2048,
+          "use_lora": true,
+          "lora_r": 16,
+          "lora_alpha": 32,
+          "lora_dropout": 0.05,
+          "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
         },
-        "tags": ["llm", "pretrained", "hugging-face"],
-        "metadata": {},
         "description": "SmolLM2-135M-Instruct Huggingface Model"
       },
       {
@@ -116,12 +156,23 @@
         "moduleName": "smollm-huggingface-module",
         "scope": "project",
         "status": "pre-trained",
+        "outputType": "text",
         "configuration": {
           "module_name": "adapters.smollm.smollm_adapter",
-          "model_path": "HuggingFaceTB/SmolLM2-360M-Instruct"
+          "model_path": "HuggingFaceTB/SmolLM2-360M-Instruct",
+          "max_tokens": 1024,
+          "temperature": 0.2,
+          "top_p": 0.9,
+          "stream": true,
+          "system_prompt": "You are a helpful assistant.",
+          "add_metadata": true,
+          "max_length": 2048,
+          "use_lora": true,
+          "lora_r": 16,
+          "lora_alpha": 32,
+          "lora_dropout": 0.05,
+          "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
         },
-        "tags": ["llm", "pretrained", "hugging-face"],
-        "metadata": {},
         "description": "SmolLM2-360M-Instruct Huggingface Model"
       },
       {
@@ -129,12 +180,23 @@
         "moduleName": "smollm-huggingface-module",
         "scope": "project",
         "status": "pre-trained",
+        "outputType": "text",
         "configuration": {
           "module_name": "adapters.smollm.smollm_adapter",
-          "model_path": "HuggingFaceTB/SmolLM2-1.7B-Instruct"
+          "model_path": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+          "max_tokens": 1024,
+          "temperature": 0.2,
+          "top_p": 0.9,
+          "stream": true,
+          "system_prompt": "You are a helpful assistant.",
+          "add_metadata": true,
+          "max_length": 2048,
+          "use_lora": true,
+          "lora_r": 16,
+          "lora_alpha": 32,
+          "lora_dropout": 0.05,
+          "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
         },
-        "tags": ["llm", "pretrained", "hugging-face"],
-        "metadata": {},
         "description": "SmolLM2-1.7B-Instruct Huggingface Model"
       },
       {
@@ -142,12 +204,23 @@
         "moduleName": "smollm-huggingface-module",
         "scope": "project",
         "status": "pre-trained",
+        "outputType": "text",
         "configuration": {
           "module_name": "adapters.smollm.smollm_adapter",
-          "model_path": "HuggingFaceTB/SmolLM-135M-Instruct"
+          "model_path": "HuggingFaceTB/SmolLM-135M-Instruct",
+          "max_tokens": 1024,
+          "temperature": 0.2,
+          "top_p": 0.9,
+          "stream": true,
+          "system_prompt": "You are a helpful assistant.",
+          "add_metadata": true,
+          "max_length": 2048,
+          "use_lora": true,
+          "lora_r": 16,
+          "lora_alpha": 32,
+          "lora_dropout": 0.05,
+          "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
         },
-        "tags": ["llm", "pretrained", "hugging-face"],
-        "metadata": {},
         "description": "SmolLM-135M-Instruct Huggingface Model"
       },
       {
@@ -155,28 +228,49 @@
         "moduleName": "smollm-huggingface-module",
         "scope": "project",
         "status": "pre-trained",
+        "outputType": "text",
         "configuration": {
           "module_name": "adapters.smollm.smollm_adapter",
-          "model_path": "HuggingFaceTB/SmolLM-360M-Instruct"
+          "model_path": "HuggingFaceTB/SmolLM-360M-Instruct",
+          "max_tokens": 1024,
+          "temperature": 0.2,
+          "top_p": 0.9,
+          "stream": true,
+          "system_prompt": "You are a helpful assistant.",
+          "add_metadata": true,
+          "max_length": 2048,
+          "use_lora": true,
+          "lora_r": 16,
+          "lora_alpha": 32,
+          "lora_dropout": 0.05,
+          "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
         },
-        "tags": ["llm", "pretrained", "hugging-face"],
-        "metadata": {},
         "description": "SmolLM-360M-Instruct Huggingface Model"
       },
       {
         "name": "SmolLM-1.7B-Instruct",
         "moduleName": "smollm-huggingface-module",
-        "scope": "project",
+        "scope": "project", 
         "status": "pre-trained",
+        "outputType": "text",
         "configuration": {
           "module_name": "adapters.smollm.smollm_adapter",
-          "model_path": "HuggingFaceTB/SmolLM-1.7B-Instruct"
+          "model_path": "HuggingFaceTB/SmolLM-1.7B-Instruct",
+          "max_tokens": 1024,
+          "temperature": 0.2,
+          "top_p": 0.9,
+          "stream": true,
+          "system_prompt": "You are a helpful assistant.",
+          "add_metadata": true,
+          "max_length": 2048,
+          "use_lora": true,
+          "lora_r": 16,
+          "lora_alpha": 32,
+          "lora_dropout": 0.05,
+          "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
         },
-        "tags": ["llm", "pretrained", "hugging-face"],
-        "metadata": {},
         "description": "SmolLM-1.7B-Instruct Huggingface Model"
       }
-
     ]
   }
 }
