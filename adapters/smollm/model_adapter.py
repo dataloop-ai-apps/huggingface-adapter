@@ -144,6 +144,15 @@ class ModelAdapter(dl.BaseModelAdapter):
             logger.info(f"Training samples: {len(train_dataset)}, Validation samples: {len(val_dataset)}")
             
             # Initialize trainer
+            # Ensure all model parameters are trainable before initializing Trainer
+            params_reenabled = 0
+            for param in self.model.parameters():
+                if not param.requires_grad:
+                    param.requires_grad_(True)
+                    params_reenabled += 1
+            if params_reenabled:
+                logger.info(f"Re-enabled gradients for {params_reenabled} parameters")
+
             trainer = Trainer(
                 model=self.model,
                 train_dataset=train_dataset,
