@@ -21,7 +21,7 @@ class ModelAdapter(dl.BaseModelAdapter):
 
         module_name = self.model_entity.configuration.get('module_name', 'models.ocr')
         module = __import__(module_name, fromlist=['HuggingAdapter'])
-        self.configuration['model_entity'] = self.model_entity
+        # self.configuration['model_entity'] = self.model_entity
         self.hugging = getattr(module, 'HuggingAdapter')(self.configuration)
         logger.info("Loaded module {!r} successfully".format(module_name))
 
@@ -41,3 +41,9 @@ class ModelAdapter(dl.BaseModelAdapter):
         :return: `list[dl.AnnotationCollection]` each collection is per each image / item in the batch
         """
         return self.hugging.predict(model_entity=self.model_entity, batch=batch)
+
+
+if __name__ == "__main__":
+    model_entity = dl.models.get(model_id='691e271f9f2a0d398783e9a4')
+    adapter = ModelAdapter(model_entity=model_entity)
+    print('1')
