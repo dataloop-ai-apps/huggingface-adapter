@@ -44,6 +44,6 @@ class ModelAdapter(dl.BaseModelAdapter):
 
 
 if __name__ == "__main__":
-    model_entity = dl.models.get(model_id='691e271f9f2a0d398783e9a4')
+    model_entity = dl.models.get(model_id='')
     adapter = ModelAdapter(model_entity=model_entity)
     print('1')
