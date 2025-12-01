@@ -418,11 +418,23 @@ class HuggingAdapter(dl.BaseModelAdapter):
         )
 
         # Prepare label mappings , dfine wants the ids to start from 0
-        if 0 not in self.model_entity.dataset.instance_map.values():
-            self.model_entity.dataset.instance_map = {
-                label: label_id - 1 for label, label_id in self.model_entity.dataset.instance_map.items()
-            }
-        id2label = {label_id: label for label, label_id in self.model_entity.dataset.instance_map.items()}
+        num_labels = None
+        id2label = None
+        instance_map = None
+        
+        try:
+            instance_map = self.model_entity.dataset.instance_map
+            # Ensure IDs start from 0
+            if 0 not in instance_map.values():
+                instance_map = {
+                    label: label_id - 1 for label, label_id in instance_map.items()
+                }
+            num_labels = len(instance_map)
+            id2label = {label_id: label for label, label_id in instance_map.items()}
+        except RuntimeError:
+            # Dataset doesn't exist - keep num_labels and id2label as None
+            # Model will use its default configuration from checkpoint
+            logger.info("Model has no dataset. Will load with default configuration from checkpoint.")
 
         # Print subdirectories of checkpoint_path if it exists
         if os.path.exists(checkpoint_path):
@@ -442,14 +454,23 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # Load and initialize model
         logger.info(f"HuggingAdapter.load checkpoint: {checkpoint}")
-        self.model = DFineForObjectDetection.from_pretrained(
-            checkpoint,
-            num_labels=len(self.model_entity.dataset.instance_map),
-            use_safetensors=True,
-            ignore_mismatched_sizes=True,
-            id2label=id2label,
-            label2id=self.model_entity.dataset.instance_map,
-        )
+        if num_labels is None or id2label is None or instance_map is None:
+            # Dataset doesn't exist - load with default configuration
+            self.model = DFineForObjectDetection.from_pretrained(
+                checkpoint,
+                use_safetensors=True,
+                ignore_mismatched_sizes=True,
+            )
+        else:
+            # Dataset exists - use label mappings
+            self.model = DFineForObjectDetection.from_pretrained(
+                checkpoint,
+                num_labels=num_labels,
+                use_safetensors=True,
+                ignore_mismatched_sizes=True,
+                id2label=id2label,
+                label2id=instance_map,
+            )
 
         # Move model to the correct device
         self.model.to(self.device)
