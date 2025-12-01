@@ -11,12 +11,12 @@
         "Media Type": ["Text"]
     },
     "displayName": "OpenLLaMa-3B",
-    "version": "0.1.61",
+    "version": "0.1.62",
     "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.61"
+        "gitTag": "0.1.62"
     },
     "components": {
         "computeConfigs": [
