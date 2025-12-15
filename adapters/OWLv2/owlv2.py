@@ -117,10 +117,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         
         for item in batch:
             try:
-                # Get text queries based on label_source
                 text_queries = self._get_text_queries(item)
-                
-                # Get image
                 image = self._get_image_from_item(item)
                 
                 # Prepare inputs for OWLv2 (simultaneous processing of all queries)
@@ -130,7 +127,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     return_tensors="pt"
                 ).to(self.device)
                 
-                # Run inference
                 with torch.no_grad():
                     outputs = self.model(**inputs)
                 
@@ -142,9 +138,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     threshold=self.confidence_threshold
                 )[0]
                 
-                # Create annotations
                 item_annotations = dl.AnnotationCollection()
-                detected_objects = []  # Track detections for summary
                 
                 for box, score, label_idx in zip(
                     results["boxes"],
@@ -155,10 +149,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     label_idx = label_idx.item()
                     box = box.tolist()
                     
-                    # Get the label text from the query
                     label_text = text_queries[label_idx] if label_idx < len(text_queries) else f"object_{label_idx}"
                     
-                    # Convert box coordinates [x_min, y_min, x_max, y_max]
                     left, top, right, bottom = box
                     
                     # Clamp coordinates to image boundaries
@@ -169,11 +161,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                     bottom = max(0, min(bottom, img_height))
                     
                     logger.info(f"Detected: {label_text} with confidence {score:.3f}")
-                    
-                    # Track for summary
-                    detected_objects.append((label_text, score))
-                    
-                    # Add box annotations
+                
                     item_annotations.add(
                         annotation_definition=dl.Box(
                             label=label_text,
@@ -186,7 +174,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                             "name": self.model_entity.name,
                             "model_id": self.model_entity.id,
                             "confidence": round(score, 3),
-                            "text_query": label_text  # Store the text query that triggered this detection
+                            "text_query": label_text
                         }
                     )
                 
@@ -194,21 +182,18 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 
             except Exception as e:
                 logger.error(f"Error processing item {item.id if hasattr(item, 'id') else 'unknown'}: {str(e)}")
-                # Return empty annotation collection for failed items
                 batch_annotations.append(dl.AnnotationCollection())
         
         return batch_annotations
 
 if __name__ == "__main__":
-    # Example test code - update IDs as needed
     dl.setenv('rc')
-    item_id = "693ec85a024bde179c516108"
-    model_id = "69024e40e923c771112c29d5"
+    item_id = ""
+    model_id = ""
     
     item = dl.items.get(item_id=item_id)
     model_entity = dl.models.get(model_id=model_id)
     
-    # Initialize adapter and run prediction
     adapter = HuggingAdapter(model_entity=model_entity)
     adapter.predict_items(items=[item])
     
