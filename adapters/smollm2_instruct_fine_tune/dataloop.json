@@ -1,13 +1,13 @@
 {
-    "name": "llama-3-2-text-fine-tune",
-    "displayName": "Llama-3.2-Text-Fine-Tune",
+    "name": "smollm-instruct-fine-tune",
+    "displayName": "SmolLM-1-Instruct-Fine-Tune",
     "version": "0.1.45",
     "scope": "public",
-    "description": "Llama-3.2-Text-Fine-Tune from Hugging Face, ready for fintune with QLoRA.",
+    "description": "SmolLM-1-Instruct-Fine-Tune from Hugging Face, ready for fintune with QLoRA.",
     "attributes": {
       "Provider": "Hugging Face",
       "Deployed By": "Dataloop",
-      "License": "Llama 3.2",
+      "License": "Apache 2.0",
       "Media Type": [
         "Text"
       ],
@@ -26,7 +26,7 @@
     "components": {
       "computeConfigs": [
         {
-          "name": "llama-fintune-qlora-deploy",
+          "name": "smollm-instruct-fine-tune-deploy",
           "runtime": {
             "podType": "regular-s",
             "concurrency": 10,
@@ -39,10 +39,7 @@
           }
         },
         {
-            "name": "llama-fintune-qlora-train",
-            "versions": {
-              "dtlpy": "1.106.5"
-            },
+            "name": "smollm-instruct-fine-tune-train",
             "runtime": {
               "podType": "gpu-t4",
               "concurrency": 1,
@@ -57,14 +54,11 @@
       ],
       "modules": [
         {
-          "name": "llama-fintune-qlora-module",
-          "entryPoint": "adapters/llama_3_2_text_fine_tune/model_adapter_qlora.py",
+          "name": "smollm-instruct-fine-tune-module",
+          "entryPoint": "adapters/smollm_instruct_fine_tune/model_adapter_qlora.py",
           "className": "ModelAdapter",
-          "computeConfig": "llama-fintune-qlora-deploy",
-          "description": "llama-fintune-qlora-module",
-          "integrations": [
-            "dl-huggingface-api-key"
-          ],
+          "computeConfig": "smollm-instruct-fine-tune-deploy",
+          "description": "smollm-instruct-fine-tune-module",
           "initInputs": [
             {
               "type": "Model",
@@ -119,7 +113,7 @@
             },
             {
                 "name": "train_model",
-                "computeConfig": "llama-fintune-qlora-train",
+                "computeConfig": "smollm-instruct-fine-tune-train",
                 "input": [
                   {
                     "type": "Model",
@@ -143,14 +137,14 @@
       ],
       "models": [
         {
-          "name": "meta-llama/Llama-3.2-1B-Instruct",
-          "moduleName": "llama-fintune-qlora-module",
+          "name": "HuggingFaceTB/SmolLM-1.7B-Instruct",
+          "moduleName": "smollm-instruct-fine-tune-module",
           "scope": "project",
           "status": "pre-trained",
           "outputType": "text",
           "configuration": {
             "system_prompt": "You are a helpful and a bit cynical assistant. Give relevant and short answers, if you dont know the answer just say it, dont make up an answer",
-            "model_name": "meta-llama/Llama-3.2-1B-Instruct",
+            "model_name": "HuggingFaceTB/SmolLM-1.7B-Instruct",
             "r": 8,
             "lora_alpha": 16,
             "lora_dropout": 0.05,
@@ -178,7 +172,7 @@
             "logging_strategy": "steps",
             "save_every_n_epochs": 2
           },
-          "description": "Llama-3.2-1B-Instruct from Hugging Face ready for fintune with QLoRA."
+          "description": "SmolLM-1.7B-Instruct from Hugging Face ready for fintune with QLoRA."
         }
       ]
     }
