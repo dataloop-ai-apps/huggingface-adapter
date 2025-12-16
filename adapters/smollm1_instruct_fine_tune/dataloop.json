@@ -55,7 +55,7 @@
       "modules": [
         {
           "name": "smollm-instruct-fine-tune-module",
-          "entryPoint": "adapters/smollm_instruct_fine_tune/model_adapter_qlora.py",
+          "entryPoint": "adapters/smollm1_instruct_fine_tune/model_adapter_qlora.py",
           "className": "ModelAdapter",
           "computeConfig": "smollm-instruct-fine-tune-deploy",
           "description": "smollm-instruct-fine-tune-module",
