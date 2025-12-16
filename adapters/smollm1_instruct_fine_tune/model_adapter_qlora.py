@@ -627,8 +627,6 @@ class ModelAdapter(dl.BaseModelAdapter):
 
             # Format the input using the chat template
             prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-
-            print(f"Prompt: {prompt}")
             
             # Generate response - ensure inputs are on same device as model
             inputs = self.tokenizer(prompt, return_tensors="pt")
@@ -652,8 +650,6 @@ class ModelAdapter(dl.BaseModelAdapter):
             response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             input_text = self.tokenizer.decode(inputs["input_ids"][0], skip_special_tokens=True)
             response_text = response[len(input_text):].strip()
-
-            print(f"Response: {response_text}")
             
             prompt_item.add(
                 message={"role": "assistant", "content": [{"mimetype": dl.PromptType.TEXT, "value": response_text}]},
