@@ -1,16 +1,16 @@
 {
-    "name": "ivrit-ai-whisper-large-v2-app",
-    "description": "Whisper is a pre-trained model for automatic speech recognition (ASR) and speech translation.\nwhisper-large-v2-tuned is a version of whisper-large-v2, fine-tuned by ivrit.ai to improve Hebrew ASR using crowd-sourced labeling.",
+    "name": "apple-dclm-7b-huggingface-app",
+    "description": "The DCLM-Baseline-7B is a 7 billion parameter language model developed as part of the DataComp for Language Models (DCLM) benchmark. Its unique value lies in showcasing the impact of systematic data curation techniques to enhance model performance.",
     "attributes": {
         "Provider": "Hugging Face",
         "Deployed By": "Dataloop",
-        "License": "Apache 2.0",
+        "License": "Apple Sample Code License",
         "Category": "Model",
-        "Audio": "Auto Speech Recognition",
-        "Gen AI": "LMM",
-        "Media Type": ["Text", "Audio", "Multi Modal"]
+        "NLP": "Conversational",
+        "Gen AI":"LLM",
+        "Media Type": ["Text"]
     },
-    "displayName": "IvritAI Whisper Large",
+    "displayName": "DCLM-Baseline-7B",
     "version": "0.1.64",
     "scope": "public",
     "codebase": {
@@ -21,11 +21,11 @@
     "components": {
         "computeConfigs": [
             {
-                "name": "ivrit-ai-whisper-large-v2-deploy",
+                "name": "apple-dclm-7b-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "regular-m",
-                    "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+                    "podType": "highmem-l",
+                    "runnerImage": "gcr.io/viewo-g/piper/agent/gpu/huggingface-adapter-dclm-7b:0.0.1",
                     "concurrency": 1,
                     "autoscaler": {
                         "type": "rabbitmq",
@@ -39,10 +39,10 @@
         ],
         "modules": [
             {
-                "name": "ivrit-ai-whisper-large-v2-module",
+                "name": "apple-dclm-7b-module",
                 "entryPoint": "model_adapter.py",
                 "className": "ModelAdapter",
-                "computeConfig": "ivrit-ai-whisper-large-v2-deploy",
+                "computeConfig": "apple-dclm-7b-huggingface-deploy",
                 "initInputs": [
                     {
                         "type": "Model",
@@ -99,19 +99,40 @@
         ],
         "models": [
             {
-                "name": "ivrit-ai-whisper-large-v2-model",
-                "moduleName": "ivrit-ai-whisper-large-v2-module",
+                "name": "DCLM-Baseline-7B",
+                "moduleName": "apple-dclm-7b-module",
                 "scope": "project",
                 "status": "pre-trained",
                 "configuration": {
-                    "weights_filename": "ivrit_ai_whisper.pt",
-                    "model_path": "ivrit-ai/whisper-large-v2-tuned",
-                    "module_name": "adapters.ivrit_ai_whisper_large_v2_tuned.whisper_large_v2_tuned",
-                    "device": "cpu"
+                    "weights_filename": "dclm_7b.pt",
+                    "module_name": "adapters.apple_dclm_7b.apple_dclm_7b",
+                    "max_new_tokens": 50,
+                    "top_p": 0.5,
+                    "temperature": 0.7,
+                    "do_sample": true,
+                    "repetition_penalty": 1.0
                 },
-                "tags": ["speech-to-text", "pretrained", "hugging-face"],
+                "tags": ["llm", "pretrained", "hugging-face"],
                 "metadata": {},
-                "description": "Whisper is a pre-trained model for automatic speech recognition (ASR) and speech translation.\nwhisper-large-v2-tuned is a version of whisper-large-v2, fine-tuned by ivrit.ai to improve Hebrew ASR using crowd-sourced labeling."
+                "description": "The DCLM-Baseline-7B is a 7 billion parameter language model developed as part of the DataComp for Language Models (DCLM) benchmark. Its unique value lies in showcasing the impact of systematic data curation techniques to enhance model performance."
+            },
+            {
+                "name": "DCLM-Baseline-7B-8k",
+                "moduleName": "apple-dclm-7b-module",
+                "scope": "project",
+                "status": "pre-trained",
+                "configuration": {
+                    "weights_filename": "dclm_7b_8k.pt",
+                    "module_name": "adapters.apple_dclm_7b.apple_dclm_7b",
+                    "max_new_tokens": 50,
+                    "top_p": 0.5,
+                    "temperature": 0.7,
+                    "do_sample": true,
+                    "repetition_penalty": 1.0
+                },
+                "tags": ["llm", "pretrained", "hugging-face"],
+                "metadata": {},
+                "description": "The DCLM-Baseline-7B-8K is a 7 billion parameter language model developed as part of the DataComp for Language Models (DCLM) benchmark. Its unique value lies in showcasing the impact of systematic data curation techniques to enhance model performance. This model has an increased context length from 2k to 8k."
             }
         ]
     }

@@ -1,16 +1,16 @@
 {
-  "name": "autoforcausallm-huggingface-app",
-  "description": "AutoForCausalLM for chatting - HF",
+  "name": "smollm-1-7b-huggingface-app",
+  "description": "Smollm 1.7b Huggingface Model",
   "attributes": {
-    "Provider": "Hugging Face",
+    "Provider": "HuggingFace",
     "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
-    "NLP": "Conversational",
+    "NLP": "Other",
     "Gen AI": "LLM",
     "Media Type": ["Text"]
   },
-  "displayName": "AutoForCausalLM",
+  "displayName": "Smollm 1.7b Huggingface Model",
   "version": "0.1.64",
   "scope": "public",
   "codebase": {
@@ -21,10 +21,10 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "autoforcausallm-huggingface-deploy",
+        "name": "smollm-1-7b-huggingface-deploy",
         "secrets": [],
         "runtime": {
-          "podType": "highmem-l",
+          "podType": "regular-m",
           "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
           "concurrency": 1,
           "autoscaler": {
@@ -39,10 +39,10 @@
     ],
     "modules": [
       {
-        "name": "autoforcausallm-module",
+        "name": "smollm-1-7b-huggingface-module",
         "entryPoint": "model_adapter.py",
         "className": "ModelAdapter",
-        "computeConfig": "autoforcausallm-huggingface-deploy",
+        "computeConfig": "smollm-1-7b-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -99,19 +99,17 @@
     ],
     "models": [
       {
-        "name": "autoforcausallm-huggingface-model",
-        "moduleName": "autoforcausallm-module",
+        "name": "smollm-1-7b-huggingface-model",
+        "moduleName": "smollm-1-7b-huggingface-module",
         "scope": "project",
         "status": "pre-trained",
         "configuration": {
-          "weights_filename": "dialogpt-auto.pt",
-          "module_name": "adapters.auto_for_causal_lm.auto_for_causal_lm",
-          "model_name": "microsoft/DialoGPT-large",
-          "tokenizer": "microsoft/DialoGPT-large",
-          "device": "cpu"
+          "module_name": "adapters.smollm_1_7b.smollm_adapter",
+          "model_name": "HuggingFaceTB/SmolLM2-1.7B-Instruct"
         },
+        "tags": ["llm", "pretrained", "hugging-face"],
         "metadata": {},
-        "description": "Flexible AutoForCausalLM adapter for HF models"
+        "description": "Smollm 1.7b Huggingface Model"
       }
     ]
   }
