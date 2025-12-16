@@ -94,6 +94,13 @@ The model configuration is defined in `dataloop.json`. Below is an explanation o
 - **lr_scheduler_type**: Learning rate scheduler type. (Default: `"constant"`)
 - **save_every_n_epochs**: Epochs between checkpoint saves. (Default: `2`)
 
+### Compute Resources
+- **Default GPU**: `gpu-t4` is used for training by default
+- **Changing GPU**: You can change the machine type from the Dataloop UI during the training phase:
+  - `gpu-t4` - Default, good for most fine-tuning tasks
+  - `gpu-t4-medium` - More memory
+  - `gpu-a100` - Recommended for larger models or faster training
+
 ### Advanced Training Settings
 - **bf16**: Use bfloat16 precision. (Default: `true`)
 - **group_by_length**: Group sequences by length for efficiency. (Default: `true`)
