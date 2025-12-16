@@ -98,7 +98,7 @@ The model configuration is defined in `dataloop.json`. Below is an explanation o
 - **Default GPU**: `gpu-t4` is used for training by default
 - **Changing GPU**: You can change the machine type from the Dataloop UI during the training phase:
   - `gpu-t4` - Default, good for most fine-tuning tasks
-  - `gpu-t4-medium` - More memory
+  - `gpu-t4-m` - More memory
   - `gpu-a100` - Recommended for larger models or faster training
 
 ### Advanced Training Settings

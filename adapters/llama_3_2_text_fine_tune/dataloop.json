@@ -58,7 +58,7 @@
       "modules": [
         {
           "name": "llama-fintune-qlora-module",
-          "entryPoint": "adapters/llama_3_2_text_fine_tune/model_adapter_qlora.py",
+          "entryPoint": "adapters/smollm1_instruct_fine_tune/model_adapter_qlora.py",
           "className": "ModelAdapter",
           "computeConfig": "llama-fintune-qlora-deploy",
           "description": "llama-fintune-qlora-module",

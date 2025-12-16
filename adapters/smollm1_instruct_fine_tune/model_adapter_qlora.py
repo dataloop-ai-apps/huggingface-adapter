@@ -18,14 +18,23 @@ import subprocess
 import threading
 import time
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from huggingface_hub import login
 
-logger = logging.getLogger("finetune-smollm-qlora")
+logger = logging.getLogger("finetune-qlora")
 
 
 class ModelAdapter(dl.BaseModelAdapter):
 
 
     def load(self, local_path, **kwargs):
+        
+        # Login to HuggingFace - For llama 3.2 model
+        self.hf_token = os.environ.get("HUGGINGFACE_TOKEN")
+        if self.hf_token:
+            logger.info("Logging in to HuggingFace...")
+            login(token=self.hf_token)
+            logger.info("Logged in to HuggingFace successfully.")
+        
         self.adapter_defaults.allow_empty_subset = True
 
         self.hf_model_name = self.model_entity.configuration.get("model_name", "HuggingFaceTB/SmolLM-1.7B-Instruct")
