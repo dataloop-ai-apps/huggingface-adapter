@@ -1,7 +1,6 @@
 import dtlpy as dl
 import json
 import os
-import sys
 from pathlib import Path
 from transformers import (
     AutoModelForCausalLM,
@@ -14,14 +13,11 @@ from transformers import (
 from peft import PeftModel
 import torch
 import transformers
-from huggingface_hub import login
 import logging
-from datasets import load_dataset
 import subprocess
 import threading
 import time
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, AutoPeftModelForCausalLM
-import glob
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 
 logger = logging.getLogger("finetune-smollm-qlora")
 
@@ -83,16 +79,12 @@ class ModelAdapter(dl.BaseModelAdapter):
             gc.collect()
             self.logger.info("Memory cleared.")
 
-        # Get HuggingFace token if available
-        # hf_token = os.environ.get("HUGGINGFACE_TOKEN")
-
         # Load tokenizer if not already loaded (reuse from load() if available)
         if not hasattr(self, 'tokenizer') or self.tokenizer is None:
             self.logger.info(f"Loading tokenizer from: {model_path}")
             self.tokenizer = AutoTokenizer.from_pretrained(
                 model_path,
                 trust_remote_code=True,
-                # token=hf_token if hf_token else None
             )
             # Set pad token if not present
             if self.tokenizer.pad_token_id is None:
@@ -126,7 +118,6 @@ class ModelAdapter(dl.BaseModelAdapter):
                 trust_remote_code=True,
                 use_cache=False,
                 low_cpu_mem_usage=True,
-                # token=hf_token if hf_token else None,
             )
             self.logger.info("Model loaded successfully with 4-bit quantization on GPU.")
             
@@ -145,7 +136,6 @@ class ModelAdapter(dl.BaseModelAdapter):
                         trust_remote_code=True,
                         use_cache=False,
                         low_cpu_mem_usage=True,
-                        # token=hf_token if hf_token else None,
                     )
                     self.logger.warning("Model loaded WITHOUT quantization. Training will require more memory.")
                     self.logger.warning("Consider using a smaller model or increasing GPU memory for quantization.")
@@ -176,8 +166,6 @@ class ModelAdapter(dl.BaseModelAdapter):
         Load the model and tokenizer by name or from local path.
         SmolLM uses its own chat template, so we'll use the model's default template.
         """
-        is_peft = os.path.sep in model_path and os.path.exists(os.path.join(model_path, "adapter_config.json"))
-        
         # Load tokenizer
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
         
@@ -185,8 +173,10 @@ class ModelAdapter(dl.BaseModelAdapter):
         if tokenizer.chat_template is None:
             tokenizer.chat_template = """{% for message in messages %}{% if message['role'] == 'system' %}{{ '<|system|>\n' + message['content'] + '<|end|>\n' }}{% elif message['role'] == 'user' %}{{ '<|user|>\n' + message['content'] + '<|end|>\n<|assistant|>\n' }}{% elif message['role'] == 'assistant' %}{{ message['content'] + '<|end|>\n' }}{% endif %}{% endfor %}"""
 
-        # Load model
-        model_path = os.path.normpath(model_path)
+        # Load model - only normalize if it's a local path (not HuggingFace model ID)
+        if os.path.exists(model_path) or os.path.exists(os.path.dirname(model_path)):
+            model_path = os.path.normpath(model_path)
+            
         is_peft = self._is_local_peft_adapter(model_path)
         
         if is_peft:
@@ -204,13 +194,7 @@ class ModelAdapter(dl.BaseModelAdapter):
                 model_path,
                 local_files_only=True,
             )
-            # model = AutoPeftModelForCausalLM.from_pretrained(
-            #     model_path,
-            #     device_map="auto",
-            #     torch_dtype=torch.bfloat16,
-            #     trust_remote_code=True,
-            #     local_files_only=True,
-            # )
+            
         else:
             model = AutoModelForCausalLM.from_pretrained(
                 model_path,
@@ -231,7 +215,6 @@ class ModelAdapter(dl.BaseModelAdapter):
 
         # PEFT adapters always have this
         return (p / "adapter_config.json").is_file()
-
 
     def preprocess_chatbot_dataset(self, dataset, max_length=2048):
         """
@@ -331,32 +314,104 @@ class ModelAdapter(dl.BaseModelAdapter):
         )
 
     def convert_from_dtlpy(self, data_path, **kwargs):
-        # Subsets validation
-        subsets = self.model_entity.metadata.get("system", {}).get("subsets", None)
-        for subset, filters_dict in subsets.items():
-            data_subset_base_path = os.path.join(data_path, subset)
-            # Add json type validation
-            new_condition = {"metadata.system.mimetype": {"$eq": "application/json"}}
-            if new_condition not in filters_dict["filter"]["$and"]:
-                filters_dict["filter"]["$and"].append(new_condition)
-
-            filters = dl.Filters(custom_filter=filters_dict)
-            pages = self.model_entity.dataset.items.list(filters=filters)
-            if pages.items_count == 0:
-                raise ValueError(
-                    f"Finetune Datasets expects only json files in the subset {subset}. Found 0 jsons files in subset {subset}."
-                )
-
-            # Items are not downloaded in prepare_data() because of the annotations filters
-            self.model_entity.dataset.items.download(filters=filters, local_path=data_subset_base_path)
-
-        train_files = glob.glob(os.path.join(data_path, "train", "items", "**", "*.json"), recursive=True)
-        eval_files = glob.glob(os.path.join(data_path, "validation", "items", "**", "*.json"), recursive=True)
-
-        # Prepare datasets
-        finetune_dataset = load_dataset("json", data_files={"train": train_files, "eval": eval_files})
-        self.train_dataset = self.preprocess_chatbot_dataset(finetune_dataset["train"])
-        self.eval_dataset = self.preprocess_chatbot_dataset(finetune_dataset["eval"])
+        """Convert Dataloop prompt items to training format."""
+        dataset = self.model_entity.dataset
+        
+        # Download all items with annotations
+        dataset.items.download(
+            local_path=data_path, 
+            annotation_options=dl.ViewAnnotationOptions.JSON,
+            include_annotations_in_output=True
+        )
+        dataset.export(local_path=data_path, include_annotations=True)
+        
+        # Load exported metadata to get item info with tags
+        entities = []
+        for json_file in Path(data_path).glob("*.json"):
+            with open(json_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    entities.extend(data)
+        
+        # Split by train/validation tags
+        train_messages = []
+        validation_messages = []
+        
+        for entity in entities:
+            mimetype = entity.get("metadata", {}).get("system", {}).get("mimetype", "")
+            if mimetype != "application/json":
+                continue
+                
+            subset_tags = entity.get("metadata", {}).get("system", {}).get("tags", {})
+            entity_filepath = entity.get("filename", "").lstrip("/").split("/")
+            prompt_path = os.path.join(data_path, "items", *entity_filepath)
+            
+            if not os.path.exists(prompt_path):
+                continue
+                
+            # Read prompt item content
+            with open(prompt_path, "r", encoding="utf-8") as f:
+                prompt_data = json.load(f)
+            
+            # Extract messages from Dataloop prompt item structure
+            messages = self._extract_messages_from_prompt_item(prompt_data, prompt_path)
+            if not messages:
+                continue
+            
+            if "train" in subset_tags:
+                train_messages.append({"messages": messages})
+            elif "validation" in subset_tags:
+                validation_messages.append({"messages": messages})
+        
+        logger.info(f"Loaded {len(train_messages)} train and {len(validation_messages)} validation samples")
+        
+        if len(train_messages) == 0 or len(validation_messages) == 0:
+            raise ValueError("Missing train or validation data. Check that items have train/validation tags.")
+        
+        # Create datasets
+        from datasets import Dataset
+        train_ds = Dataset.from_list(train_messages)
+        eval_ds = Dataset.from_list(validation_messages)
+        
+        self.train_dataset = self.preprocess_chatbot_dataset(train_ds)
+        self.eval_dataset = self.preprocess_chatbot_dataset(eval_ds)
+    
+    def _extract_messages_from_prompt_item(self, prompt_data, prompt_path):
+        """Extract chat messages from Dataloop prompt item structure."""
+        messages = []
+        
+        # Check if it's already in simple messages format
+        if "messages" in prompt_data and isinstance(prompt_data["messages"], list):
+            return prompt_data["messages"]
+        
+        # Handle Dataloop prompt item format with prompts dict
+        prompts = prompt_data.get("prompts", {})
+        if isinstance(prompts, dict):
+            for prompt_key, prompt_content in prompts.items():
+                # Extract user message from prompt elements
+                elements = prompt_content if isinstance(prompt_content, list) else []
+                for element in elements:
+                    if element.get("mimetype") in ["text", "application/text", dl.PromptType.TEXT]:
+                        messages.append({
+                            "role": "user",
+                            "content": element.get("value", "")
+                        })
+        
+        # Read annotations file for assistant response (take only first text annotation)
+        annotation_path = prompt_path.replace("items", "json")
+        if os.path.exists(annotation_path):
+            with open(annotation_path, "r", encoding="utf-8") as f:
+                annotations_data = json.load(f)
+            
+            for annotation in annotations_data.get("annotations", []):
+                if annotation.get("type") == "text":
+                    messages.append({
+                        "role": "assistant",
+                        "content": annotation.get("coordinates", "")
+                    })
+                    break  # Only take first annotation
+        
+        return messages
 
     def train(self, data_path, output_path, **kwargs):
         # Make sure CUDA is available
@@ -371,7 +426,6 @@ class ModelAdapter(dl.BaseModelAdapter):
         torch.cuda.empty_cache()
         monitor_thread = threading.Thread(target=self.keep, daemon=True)
         monitor_thread.start()
-
 
         peft_config = self.setup_peft_config()
         self.peft_model = get_peft_model(self.model, peft_config)
@@ -652,46 +706,3 @@ class SaveEpochCallback(TrainerCallback):
             logger.info(f"Model and tokenizer saved in {epoch_dir}")
         else:
             logger.info(f"Skipping save for epoch {epoch} (Only saving every {self.save_every_n_epochs} epochs)")
-
-
-
-if __name__ == "__main__":
-    dl.setenv('prod')
-    # dl.login()
-    item_before_ft = dl.items.get(item_id='67dfd16f53776f576f15da57')
-    item_after_ft = dl.items.get(item_id='67dfd1716e1a1a110b99e08e')
-    
-    # # predict with pretrained model
-    # model_entity_pretrained = dl.models.get(model_id='693eaa0d091ef902d972228c')
-    # model_entity_pretrained.configuration["model_name"] = "HuggingFaceTB/SmolLM-1.7B-Instruct"
-    # model_entity_pretrained.update(True)
-    # print(f"{model_entity_pretrained.name}")
-    # model_adapter = ModelAdapter(model_entity=model_entity_pretrained)
-    # model_adapter.predict_items([item_before_ft])
-    
-    # # fine tune model
-    # model_entity = dl.models.get(model_id='693eaa0d091ef902d972228c')
-    # model_adapter = ModelAdapter(model_entity=model_entity)
-    # model_entity.status = "training"
-    # model_entity.dataset_id = "67dfd1611da607d34685a2a3"
-    # # subsets = {
-    # #     "train": json.dumps(dl.Filters(field="metadata.system.tags.train", values=True).prepare()),
-    # #     "validation": json.dumps(dl.Filters(field="metadata.system.tags.validation", values=True).prepare()),
-    # # }
-    # # model.metadata["system"]={}
-    # model_entity.metadata["system"]["subsets"] = {
-    #     "train": dl.Filters(field="metadata.system.tags.train", values=True).prepare(),
-    #     "validation": dl.Filters(field="metadata.system.tags.validation", values=True).prepare(),
-    # }
-    # model_entity.configuration["model_name"] = "HuggingFaceTB/SmolLM-1.7B-Instruct"
-    # model_entity.configuration["num_train_epochs"] = 1
-    
-    # model_entity.update(True)
-
-    # model_adapter.train_model(model=model_entity)
-    
-    
-    # predict wuth the fine tuned model
-    model_entity = dl.models.get(model_id='693eaa0d091ef902d972228c')
-    model_adapter = ModelAdapter(model_entity=model_entity)
-    model_adapter.predict_items([item_after_ft])
