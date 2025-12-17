@@ -65,31 +65,16 @@ class HuggingAdapter(dl.BaseModelAdapter):
             List of text queries for object detection
         """
         if self.label_source == "dataset_labels":
-            try:
-                labels = list(item.dataset.labels_flat_dict.keys())
-                if not labels:
-                    raise ValueError(
-                        "label_source is set to 'dataset_labels' but item.dataset has no labels defined. "
-                        "Please add labels to the dataset or change label_source to 'custom'."
-                    )
-                logger.info(f"Using dataset labels: {labels}")
-                return labels
-            except AttributeError:
-                raise ValueError(
-                    "label_source is set to 'dataset_labels' but item.dataset is not accessible. "
-                    "Please ensure the item belongs to a dataset with labels or change label_source to 'custom'."
-                )
+            labels = list(item.dataset.labels_flat_dict.keys())
+            if len(labels) == 0:
+                raise ValueError("the dataset has no labels defined, please add a recipe")
+            logger.info(f"Using dataset labels: {labels}")
+            return labels
         
         elif self.label_source == "custom":
-            if not self.custom_labels:
-                raise ValueError(
-                    "label_source is set to 'custom' but custom_labels is empty. "
-                    "Please provide a list of labels in the configuration."
-                )
-            logger.info(f"Using custom labels: {self.custom_labels}")
+            if type(self.custom_labels) != list and len(self.custom_labels) == 0:
+                raise ValueError("custom_labels must be a list of strings")
             return self.custom_labels
-        else:
-            raise ValueError(f"Invalid label_source: {self.label_source}")
 
     def _get_image_from_item(self, item: dl.Item):
         """Get PIL Image from item.
@@ -122,7 +107,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 
                 # Prepare inputs for OWLv2 (simultaneous processing of all queries)
                 inputs = self.processor(
-                    text=[[query for query in text_queries]],
+                    text=[text_queries],
                     images=image,
                     return_tensors="pt"
                 ).to(self.device)
@@ -173,8 +158,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                         model_info={
                             "name": self.model_entity.name,
                             "model_id": self.model_entity.id,
-                            "confidence": round(score, 3),
-                            "text_query": label_text
+                            "confidence": round(score, 3)
                         }
                     )
                 
@@ -182,7 +166,6 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 
             except Exception as e:
                 logger.error(f"Error processing item {item.id if hasattr(item, 'id') else 'unknown'}: {str(e)}")
-                batch_annotations.append(dl.AnnotationCollection())
         
         return batch_annotations
 

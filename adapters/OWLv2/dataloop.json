@@ -25,7 +25,7 @@
         "secrets": [],
         "runtime": {
           "podType": "regular-m",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.45",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/owlv2-adapter:0.0.1",
           "concurrency": 1,
           "autoscaler": {
             "type": "rabbitmq",
