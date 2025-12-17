@@ -11,12 +11,12 @@
       "Media Type": ["Text", "Image", "Multi Modal"]
     },
     "displayName": "BLIP 2",
-    "version": "0.1.64",
+    "version": "0.1.65",
     "scope": "public",
     "codebase": {
       "type": "git",
       "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-      "gitTag": "0.1.64"
+      "gitTag": "0.1.65"
     },
     "components": {
       "computeConfigs": [
