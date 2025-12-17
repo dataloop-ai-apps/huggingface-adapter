@@ -24,7 +24,7 @@
         "name": "owlv2-huggingface-deploy",
         "secrets": [],
         "runtime": {
-          "podType": "regular-m",
+          "podType": "regular-s",
           "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/owlv2-adapter:0.0.1",
           "concurrency": 1,
           "autoscaler": {
