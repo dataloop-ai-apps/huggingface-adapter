@@ -31,7 +31,7 @@
               "minReplicas": 0,
               "maxReplicas": 2,
               "queueLength": 1000
-            }
+            } 
           }
         }
       ],

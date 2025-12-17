@@ -1,0 +1,118 @@
+{
+  "name": "owlv2-huggingface-app",
+  "description": "OWLv2 (Open-World Localization v2): Zero-shot text-conditioned object detection model from Google Research. Detect objects using natural language queries without category-specific training.",
+  "attributes": {
+    "Provider": "Hugging Face",
+    "Deployed By": "Dataloop",
+    "License": "Apache 2.0",
+    "Category": "Model",
+    "Computer Vision": "Object Detection",
+    "Gen AI": "Zero-Shot Detection",
+    "Media Type": ["Image"]
+  },
+  "displayName": "OWLv2 Object Detection",
+  "version": "0.1.64",
+  "scope": "public",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+    "gitTag": "0.1.64"
+  },
+  "components": {
+    "computeConfigs": [
+      {
+        "name": "owlv2-huggingface-deploy",
+        "secrets": [],
+        "runtime": {
+          "podType": "regular-s",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/owlv2-adapter:0.0.1",
+          "concurrency": 1,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 1000
+          },
+          "preemptible": false
+        }
+      }
+    ],
+    "modules": [
+      {
+        "name": "owlv2-module",
+        "entryPoint": "adapters/OWLv2/owlv2.py",
+        "className": "HuggingAdapter",
+        "computeConfig": "owlv2-huggingface-deploy",
+        "initInputs": [
+          {
+            "type": "Model",
+            "name": "model_entity"
+          }
+        ],
+        "functions": [
+          {
+            "name": "predict_items",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The input images for prediction."
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input images for prediction."
+              },
+              {
+                "type": "Annotation[]",
+                "name": "annotations",
+                "description": "The predicted annotations."
+              }
+            ],
+            "displayName": "Predict Items",
+            "displayIcon": "",
+            "description": "The inference function of the model."
+          },
+          {
+            "name": "predict_dataset",
+            "input": [
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "The input dataset of the items required for prediction."
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "The DQL in json format to get all the items required for prediction."
+              }
+            ],
+            "output": [],
+            "displayName": "Predict Dataset",
+            "displayIcon": "",
+            "description": "Inference function of the model on a dataset."
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "owlv2-huggingface-model",
+        "moduleName": "owlv2-module",
+        "scope": "project",
+        "status": "pre-trained",
+        "configuration": {
+          "model_weights": "google/owlv2-base-patch16",
+          "confidence_threshold": 0.2,
+          "label_source": "dataset_labels",
+          "custom_labels": []
+        },
+        "inputType": "image",
+        "outputType": "box",
+        "description": "OWLv2 (Open-World Localization v2): Zero-shot text-conditioned object detection model from Hugging Face for images."
+      }
+    ]
+  }
+}
