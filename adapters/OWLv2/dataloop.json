@@ -1,16 +1,16 @@
 {
-  "name": "smollm-1-7b-huggingface-app",
-  "description": "Smollm 1.7b Huggingface Model",
+  "name": "owlv2-huggingface-app",
+  "description": "OWLv2 (Open-World Localization v2): Zero-shot text-conditioned object detection model from Google Research. Detect objects using natural language queries without category-specific training.",
   "attributes": {
-    "Provider": "HuggingFace",
+    "Provider": "Hugging Face",
     "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
-    "NLP": "Other",
-    "Gen AI": "LLM",
-    "Media Type": ["Text"]
+    "Computer Vision": "Object Detection",
+    "Gen AI": "Zero-Shot Detection",
+    "Media Type": ["Image"]
   },
-  "displayName": "Smollm 1.7b Huggingface Model",
+  "displayName": "OWLv2 Object Detection",
   "version": "0.1.65",
   "scope": "public",
   "codebase": {
@@ -21,11 +21,11 @@
   "components": {
     "computeConfigs": [
       {
-        "name": "smollm-1-7b-huggingface-deploy",
+        "name": "owlv2-huggingface-deploy",
         "secrets": [],
         "runtime": {
-          "podType": "regular-m",
-          "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+          "podType": "regular-s",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/owlv2-adapter:0.0.1",
           "concurrency": 1,
           "autoscaler": {
             "type": "rabbitmq",
@@ -39,10 +39,10 @@
     ],
     "modules": [
       {
-        "name": "smollm-1-7b-huggingface-module",
-        "entryPoint": "model_adapter.py",
-        "className": "ModelAdapter",
-        "computeConfig": "smollm-1-7b-huggingface-deploy",
+        "name": "owlv2-module",
+        "entryPoint": "adapters/OWLv2/owlv2.py",
+        "className": "HuggingAdapter",
+        "computeConfig": "owlv2-huggingface-deploy",
         "initInputs": [
           {
             "type": "Model",
@@ -99,17 +99,19 @@
     ],
     "models": [
       {
-        "name": "smollm-1-7b-huggingface-model",
-        "moduleName": "smollm-1-7b-huggingface-module",
+        "name": "owlv2-huggingface-model",
+        "moduleName": "owlv2-module",
         "scope": "project",
         "status": "pre-trained",
         "configuration": {
-          "module_name": "adapters.smollm_1_7b.smollm_adapter",
-          "model_name": "HuggingFaceTB/SmolLM2-1.7B-Instruct"
+          "model_weights": "google/owlv2-base-patch16",
+          "confidence_threshold": 0.2,
+          "label_source": "dataset_labels",
+          "custom_labels": []
         },
-        "tags": ["llm", "pretrained", "hugging-face"],
-        "metadata": {},
-        "description": "Smollm 1.7b Huggingface Model"
+        "inputType": "image",
+        "outputType": "box",
+        "description": "OWLv2 (Open-World Localization v2): Zero-shot text-conditioned object detection model from Hugging Face for images."
       }
     ]
   }
