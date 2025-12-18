@@ -41,7 +41,7 @@
         {
             "name": "smollm-instruct-fine-tune-train",
             "runtime": {
-              "podType": "gpu-t4",
+              "podType": "gpu-t4-m",
               "concurrency": 1,
               "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.5",
               "autoscaler": {

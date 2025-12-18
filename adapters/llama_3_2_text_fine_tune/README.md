@@ -84,7 +84,7 @@ The model configuration is defined in a JSON file, typically `dataloop.json`. Be
 - **save_every_n_epochs**: Number of epochs between model checkpoint saves. (Default: `2`)
 
 ### Compute Resources
-- **Default GPU**: `gpu-t4` is used for training by default
+- **Default GPU**: `gpu-t4-m` is used for training by default
 - **Changing GPU**: You can change the machine type from the Dataloop UI during the training phase:
   - `gpu-t4` - Default, good for most fine-tuning tasks
   - `gpu-t4-m` - More memory
