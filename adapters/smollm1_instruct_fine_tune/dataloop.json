@@ -141,7 +141,7 @@
           "moduleName": "smollm-instruct-fine-tune-module",
           "scope": "project",
           "status": "pre-trained",
-          "outputType": "text",
+          "outputType": "embedding",
           "configuration": {
             "system_prompt": "You are a helpful and a bit cynical assistant. Give relevant and short answers, if you dont know the answer just say it, dont make up an answer",
             "model_name": "HuggingFaceTB/SmolLM-1.7B-Instruct",
