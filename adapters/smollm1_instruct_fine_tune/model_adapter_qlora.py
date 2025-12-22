@@ -34,8 +34,7 @@ class ModelAdapter(dl.BaseModelAdapter):
             logger.info("Logging in to HuggingFace...")
             login(token=self.hf_token)
             logger.info("Logged in to HuggingFace successfully.")
-        
-        self.adapter_defaults.allow_empty_subset = True
+
 
         self.hf_model_name = self.model_entity.configuration.get("model_name", "HuggingFaceTB/SmolLM-1.7B-Instruct")
         self.logger.info(f"Model name: {self.hf_model_name}")
@@ -322,6 +321,52 @@ class ModelAdapter(dl.BaseModelAdapter):
             task_type=self.configuration.get("task_type", "CAUSAL_LM"),
         )
 
+    def prepare_data(
+        self,
+        dataset: dl.Dataset,
+        # paths
+        root_path=None,
+        data_path=None,
+        output_path=None,
+        #
+        overwrite=False,
+        **kwargs,
+    ):
+        """
+        Prepares paths for downloading dataset.
+
+        :param dataset: dl.Dataset
+        :param root_path: `str` root directory for training. default is "tmp". Can be set using self.adapter_defaults.root_path
+        :param data_path: `str` dataset directory. default <root_path>/"data". Can be set using self.adapter_defaults.data_path
+        :param output_path: `str` save everything to this folder. default <root_path>/"output". Can be set using self.adapter_defaults.output_path
+
+        :param bool overwrite: overwrite the data path (download again). default is False
+        """
+        # define paths
+        dataloop_path = dl.service_defaults.DATALOOP_PATH
+        root_path = self.adapter_defaults.resolve("root_path", root_path)
+        data_path = self.adapter_defaults.resolve("data_path", data_path)
+        output_path = self.adapter_defaults.resolve("output_path", output_path)
+
+        if root_path is None:
+            now = datetime.now()
+            root_path = os.path.join(
+                dataloop_path,
+                'model_data',
+                "{s_id}_{s_n}".format(s_id=self.model_entity.id, s_n=self.model_entity.name),
+                now.strftime('%Y-%m-%d-%H%M%S'),
+            )
+        if data_path is None:
+            data_path = os.path.join(root_path, 'datasets', self.model_entity.dataset.id)
+            os.makedirs(data_path, exist_ok=True)
+        if output_path is None:
+            output_path = os.path.join(root_path, 'output')
+            os.makedirs(output_path, exist_ok=True)
+
+        self.convert_from_dtlpy(data_path)
+
+        return root_path, data_path, output_path
+    
     def convert_from_dtlpy(self, data_path, **kwargs):
         """Convert Dataloop prompt items to training format."""
         dataset = self.model_entity.dataset
