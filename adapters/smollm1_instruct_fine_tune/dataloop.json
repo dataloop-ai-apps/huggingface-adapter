@@ -1,7 +1,7 @@
 {
     "name": "smollm-instruct-fine-tune",
     "displayName": "SmolLM-1-Instruct-Fine-Tune",
-    "version": "0.1.65",
+    "version": "0.1.66",
     "scope": "public",
     "description": "SmolLM-1-Instruct-Fine-Tune from Hugging Face, ready for fintune with QLoRA.",
     "attributes": {
@@ -21,7 +21,7 @@
     "codebase": {
       "type": "git",
       "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-      "gitTag": "0.1.65"
+      "gitTag": "0.1.66"
     },
     "components": {
       "computeConfigs": [
