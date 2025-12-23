@@ -1,0 +1,182 @@
+{
+    "name": "llama-3-2-text-fine-tune",
+    "displayName": "Llama-3.2-Text-Fine-Tune",
+    "version": "0.1.67",
+    "scope": "public",
+    "description": "Llama-3.2-Text-Fine-Tune from Hugging Face, ready for finetune with QLoRA.",
+    "attributes": {
+      "Provider": "Hugging Face",
+      "Deployed By": "Dataloop",
+      "License": "Llama 3.2",
+      "Media Type": [
+        "Text"
+      ],
+      "Category": "Model",
+      "Gen AI": "LLM",
+      "NLP": "Conversational",
+      "Hub": [
+        "Dataloop"
+      ]
+    },
+    "codebase": {
+      "type": "git",
+      "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+      "gitTag": "0.1.67"
+    },
+    "components": {
+      "computeConfigs": [
+        {
+          "name": "llama-fintune-qlora-deploy",
+          "runtime": {
+            "podType": "regular-s",
+            "concurrency": 10,
+            "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.5",
+            "autoscaler": {
+              "type": "rabbitmq",
+              "minReplicas": 0,
+              "maxReplicas": 2
+            }
+          }
+        },
+        {
+            "name": "llama-fintune-qlora-train",
+            "runtime": {
+              "podType": "gpu-t4-m",
+              "concurrency": 1,
+              "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.5",
+              "autoscaler": {
+                "type": "rabbitmq",
+                "minReplicas": 0,
+                "maxReplicas": 1
+              }
+            }
+          }
+      ],
+      "modules": [
+        {
+          "name": "llama-fintune-qlora-module",
+          "entryPoint": "adapters/smollm1_instruct_fine_tune/model_adapter_qlora.py",
+          "className": "ModelAdapter",
+          "computeConfig": "llama-fintune-qlora-deploy",
+          "description": "llama-fintune-qlora-module",
+          "integrations": [
+            "dl-huggingface-api-key"
+          ],
+          "initInputs": [
+            {
+              "type": "Model",
+              "name": "model_entity"
+            }
+          ],
+          "functions": [
+            {
+              "name": "predict_items",
+              "input": [
+                {
+                  "type": "Item[]",
+                  "name": "items",
+                  "description": "List of items to run inference on"
+                }
+              ],
+              "output": [
+                {
+                  "type": "Item[]",
+                  "name": "items",
+                  "description": "The same input images for prediction."
+                },
+                {
+                  "type": "Annotation[]",
+                  "name": "annotations",
+                  "description": "The predicted annotations."
+                }
+              ],
+              "displayName": "Predict Items",
+              "displayIcon": "",
+              "description": "predict items"
+            },
+            {
+              "name": "predict_dataset",
+              "input": [
+                {
+                  "type": "Dataset",
+                  "name": "dataset",
+                  "description": ""
+                },
+                {
+                  "type": "Json",
+                  "name": "filters",
+                  "description": "Dataloop Filter DQL"
+                }
+              ],
+              "output": [
+              ],
+              "displayName": "Predict Dataset",
+              "displayIcon": "",
+              "description": "Function to inference on a dataset"
+            },
+            {
+                "name": "train_model",
+                "computeConfig": "llama-fintune-qlora-train",
+                "input": [
+                  {
+                    "type": "Model",
+                    "name": "model",
+                    "description": "Dataloop Model Entity"
+                  }
+                ],
+                "output": [
+                  {
+                    "type": "Model",
+                    "name": "model",
+                    "description": "Dataloop Model Entity"
+                  }
+                ],
+                "displayName": "Train A Model",
+                "displayIcon": "",
+                "description": "Fine-tune model on a custom dataset. "
+              }
+          ]
+        }
+      ],
+      "models": [
+        {
+          "name": "meta-llama/Llama-3.2-1B-Instruct",
+          "moduleName": "llama-fintune-qlora-module",
+          "scope": "project",
+          "status": "pre-trained",
+          "outputType": "embedding",
+          "configuration": {
+            "system_prompt": "You are a helpful and a bit cynical assistant. Give relevant and short answers, if you dont know the answer just say it, dont make up an answer",
+            "model_name": "meta-llama/Llama-3.2-1B-Instruct",
+            "r": 16,
+            "lora_alpha": 32,
+            "lora_dropout": 0.05,
+            "task_type": "CAUSAL_LM",
+            "target_modules": [],
+            "num_train_epochs": 15,
+            "per_device_train_batch_size": 1,
+            "gradient_accumulation_steps": 16,
+            "optim": "paged_adamw_32bit",
+            "save_steps": 10,
+            "logging_steps": 10,
+            "learning_rate": 2e-4,
+            "warmup_ratio": 0.03,
+            "lr_scheduler_type": "constant",
+            "bf16": true,
+            "group_by_length": true,
+            "save_total_limit": 3,
+            "max_grad_norm": 0.3,
+            "remove_unused_columns": false,
+            "gradient_checkpointing": true,
+            "use_reentrant": false,
+            "report_to": ["tensorboard"],
+            "logging_first_step": true,
+            "log_level": "info",
+            "logging_strategy": "steps",
+            "save_every_n_epochs": 2
+          },
+          "description": "Llama-3.2-1B-Instruct from Hugging Face ready for fintune with QLoRA."
+        }
+      ]
+    }
+  }

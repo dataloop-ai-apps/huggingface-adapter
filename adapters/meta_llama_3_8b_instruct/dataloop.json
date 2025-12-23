@@ -12,13 +12,13 @@
             "Text"
         ]
     },
-    "displayName": "Meta LLama 3 8b Instruct",
-    "version": "0.1.57",
+    "displayName": "Meta-Llama-3-8B-Instruct",
+    "version": "0.1.67",
     "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.57"
+        "gitTag": "0.1.67"
     },
     "components": {
         "computeConfigs": [

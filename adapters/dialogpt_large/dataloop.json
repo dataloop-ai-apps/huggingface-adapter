@@ -13,12 +13,12 @@
         ]
     },
     "displayName": "DialoGPT Large",
-    "version": "0.1.57",
+    "version": "0.1.67",
     "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.57"
+        "gitTag": "0.1.67"
     },
     "components": {
         "computeConfigs": [

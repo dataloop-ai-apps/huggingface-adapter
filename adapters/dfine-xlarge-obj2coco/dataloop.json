@@ -12,11 +12,11 @@
     ]
   },
   "displayName": "DFine XLarge Object Detection",
-  "version": "0.1.57",
+  "version": "0.1.67",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.57"
+    "gitTag": "0.1.67"
   },
   "scope": "public",
   "components": {
@@ -167,6 +167,50 @@
             "displayName": "Predict Dataset",
             "displayIcon": "",
             "description": "Inference function of the model on a dataset."
+          },
+          {
+            "name": "embed_items",
+            "input": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The input items for embeddings."
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items",
+                "description": "The same input items for embeddings."
+              },
+              {
+                "type": "Json",
+                "name": "json",
+                "description": "Embeddings of items."
+              }
+            ],
+            "displayName": "Embed Items",
+            "displayIcon": "",
+            "description": "Extract features function of the model for a list of items."
+          },
+          {
+            "name": "embed_dataset",
+            "input": [
+              {
+                "type": "Dataset",
+                "name": "dataset",
+                "description": "The input dataset of the items required for embedding."
+              },
+              {
+                "type": "Json",
+                "name": "filters",
+                "description": "The DQL in json format to get all the items required for embedding."
+              }
+            ],
+            "output": [],
+            "displayName": "Embed Dataset",
+            "displayIcon": "",
+            "description": "Extract features function of the model for a dataset."
           }
         ]
       }
