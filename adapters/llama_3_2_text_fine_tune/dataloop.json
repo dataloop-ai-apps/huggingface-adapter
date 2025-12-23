@@ -1,7 +1,7 @@
 {
     "name": "llama-3-2-text-fine-tune",
     "displayName": "Llama-3.2-Text-Fine-Tune",
-    "version": "0.1.45",
+    "version": "0.1.65",
     "scope": "public",
     "description": "Llama-3.2-Text-Fine-Tune from Hugging Face, ready for fintune with QLoRA.",
     "attributes": {
@@ -21,7 +21,7 @@
     "codebase": {
       "type": "git",
       "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-      "gitTag": "0.1.45"
+      "gitTag": "0.1.65"
     },
     "components": {
       "computeConfigs": [
