@@ -49,7 +49,7 @@
     "modules": [
       {
         "name": "llama3.2-11b-vision-finetune-module",
-        "entryPoint": "adapters/meta_llama_3.2_11b_vision_finetune/model_adapter.py",
+        "entryPoint": "adapters/meta_llama_3_2_11b_vision_finetune/model_adapter.py",
         "className": "ModelAdapter",
         "computeConfig": "llama3.2-11b-vision-finetune-deploy",
         "description": "Llama 3.2 Vision or Vision-Instruct model adapter for fine-tuning and inference",
@@ -140,8 +140,8 @@
         "outputType": "text",
         "configuration": {
           "system_prompt": "You are a helpful visual assistant. Describe what you see in the image accurately and answer questions related to the visual content. If you don't know or can't see clearly, just say so.",
-          "model_name": "meta-llama/Llama-3.2-11B-Vision-Instruct",
-          "module_name": "adapters.meta_llama_3_2_11b_vision_finetune",
+          "model_name": "meta-llama/Llama-3.2-11B-Vision",
+          "module_name": "adapters.meta_llama_3_2_11b_vision_finetune.meta_llama_3_2_11b_vision_finetune",
           "max_new_tokens": 512,
           "temperature": 0.7,
           "do_sample": true,
