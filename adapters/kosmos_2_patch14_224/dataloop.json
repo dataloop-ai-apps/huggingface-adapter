@@ -102,7 +102,7 @@
         ],
         "models": [
             {
-                "name": "microsoft-kosmos-2-huggingface-model",
+                "name": "kosmos-2-patch14-224-huggingface-model",
                 "moduleName": "microsoft-kosmos-2-module",
                 "scope": "project",
                 "status": "pre-trained",
