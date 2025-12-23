@@ -2,7 +2,7 @@
   "name": "smollm-1-7b-huggingface-app",
   "description": "Smollm 1.7b Huggingface Model",
   "attributes": {
-    "Provider": "HuggingFace",
+    "Provider": "Hugging Face",
     "Deployed By": "Dataloop",
     "License": "Apache 2.0",
     "Category": "Model",
