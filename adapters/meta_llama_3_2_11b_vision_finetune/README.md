@@ -1,6 +1,6 @@
-# LLaMA 3.2 Vision Instruct Model Adapter for Fine-Tuning on Dataloop
+# LLaMA 3.2 Vision/Vision Instruct Model Adapter for Fine-Tuning on Dataloop
 
-This repository provides a **LoRA-based fine-tuning adapter** for **LLaMA 3.2 Vision Instruct**, enabling efficient fine-tuning with **LoRA** and other parameter-efficient methods.
+This repository provides a **LoRA-based fine-tuning adapter** for **LLaMA 3.2 Vision/Vision Instruct**, enabling efficient fine-tuning with **LoRA** and other parameter-efficient methods.
 
 This adapter is designed for use within the **Dataloop AI platform** and can be **installed and utilized for both fine-tuning and inference** directly from the **Dataloop Model Marketplace**.
 

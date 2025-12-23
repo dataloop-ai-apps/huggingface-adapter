@@ -17,7 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 from peft import PeftModel, LoraConfig, get_peft_model
 from transformers import AutoProcessor, MllamaForConditionalGeneration, Trainer, TrainerCallback, TrainingArguments
 
-logger = logging.getLogger("llama-vision-finetune")
+logger = logging.getLogger("[Meta Llama-3.2-11B-Vision]")
 
 
 class ModelAdapter(dl.BaseModelAdapter):
