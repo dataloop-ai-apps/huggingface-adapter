@@ -11,12 +11,12 @@
     "Media Type": ["Text"]
   },
   "displayName": "Pegasus Huggingface Model",
-  "version": "0.1.66",
+  "version": "0.1.67",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.66"
+    "gitTag": "0.1.67"
   },
   "components": {
     "computeConfigs": [
