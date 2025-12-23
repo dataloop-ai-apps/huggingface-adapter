@@ -109,7 +109,7 @@
                 "configuration": {
                     "model_name": "kosmos-2-patch14-224",
                     "max_new_tokens": 128,
-                    "module_name": "adapters.microsoft_kosmos_2.kosmos_2_patch14_224"
+                    "module_name": "adapters.kosmos_2_patch14_224.kosmos_2_patch14_224"
                 },
                 "tags": ["llm", "pretrained", "hugging-face"],
                 "metadata": {},
