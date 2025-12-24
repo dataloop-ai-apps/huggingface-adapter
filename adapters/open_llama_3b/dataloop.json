@@ -26,7 +26,7 @@
                 "name": "open-llama-3b-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "gpu-t4",
+                    "podType": "highmem-l",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {
@@ -36,7 +36,8 @@
                         "queueLength": 1000
                     },
                     "preemptible": false
-                }
+                },
+                "executionTimeout": 36000000
             }
         ],
         "modules": [

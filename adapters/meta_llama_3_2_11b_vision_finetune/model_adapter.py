@@ -88,6 +88,8 @@ class ModelAdapter(dl.BaseModelAdapter):
                         logger.info(f"Prompt text: {prompt_txt}")
                         logger.info(f"Processing image of size: {image.size}")
 
+                        # NOTE: ValueError: No chat template is set for this processor. Please either set the `chat_template` attribute, or provide a chat template as an argument. See https://huggingface.co/docs/transformers/main/en/chat_templating for more information.
+                        
                         # prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n<|image|>Answer briefly. <|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{prompt_txt}<|eot_id|>"
                         prompt_content = [{"type": "image", "image": image}, {"type": "text", "text": prompt_txt}]
                         prompt = self.processor.apply_chat_template(
@@ -134,7 +136,7 @@ class ModelAdapter(dl.BaseModelAdapter):
                             torch.cuda.synchronize()
                             gc.collect()  # TODO test this by loading images and deleting
                     except Exception as e:
-                        logger.error(f"Error processing item {prompt_item.id}: {str(e)}")
+                        logger.error(f"Error processing item {prompt_item.name}: {str(e)}")
                         continue
 
         except Exception as e:
