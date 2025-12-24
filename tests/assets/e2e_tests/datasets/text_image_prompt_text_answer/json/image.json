@@ -1,0 +1,38 @@
+{
+  "id": "66be0c84b9f61c61aa2ad311",
+  "datasetId": "66bb828cef35204d5a284538",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/66be0c84b9f61c61aa2ad311",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/66bb828cef35204d5a284538",
+  "createdAt": "2024-08-15T14:11:16.440Z",
+  "dir": "/",
+  "filename": "/image.jpeg",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "channels": 3,
+      "encoding": "7bit",
+      "height": 1024,
+      "isBinary": true,
+      "mimetype": "image/jpeg",
+      "originalname": "image.jpeg",
+      "refs": [],
+      "size": 90094,
+      "taskStatusLog": [],
+      "thumbnailId": "66be0c854e89e9a684fa753b",
+      "width": 1024
+    },
+    "tags": {
+      "predict": true
+    }
+  },
+  "name": "image.jpeg",
+  "creator": "ofir.g@dataloop.ai",
+  "updatedAt": "2024-08-15T14:11:17.449Z",
+  "updatedBy": "ofir.g@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/66be0c84b9f61c61aa2ad311/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/66be0c84b9f61c61aa2ad311/thumbnail",
+  "annotations": [],
+  "annotationsCount": 0,
+  "annotated": false
+}

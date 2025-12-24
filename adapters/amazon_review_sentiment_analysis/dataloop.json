@@ -1,116 +1,122 @@
 {
-  "name": "amazon-review-sentiment-analysis",
-  "description": "This model is a fine-tuned version of nlptown/bert-base-multilingual-uncased-sentiment on an Amazon US Customer Reviews Dataset.",
-  "attributes": {
-    "Provider": "AWS",
-    "Deployed By": "Dataloop",
-    "License": "Apache 2.0",
-    "Category": "Model",
-    "Media Type": ["Text"],
-    "Gen AI": "LLM",
-    "NLP": "Sentiment Analysis"
-  },
-  "displayName": "Amazon Review Sentiment Analysis",
-  "version": "0.1.67",
-  "scope": "public",
-  "codebase": {
-    "type": "git",
-    "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.67"
-  },
-  "components": {
-    "computeConfigs": [
-      {
-        "name": "amazon-review-sentiment-analysis-deploy",
-        "secrets": [],
-        "runtime": {
-          "podType": "regular-m",
-          "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
-          "concurrency": 1,
-          "autoscaler": {
-            "type": "rabbitmq",
-            "minReplicas": 0,
-            "maxReplicas": 2,
-            "queueLength": 1000
-          },
-          "preemptible": false
-        }
-      }
-    ],
-    "modules": [
-      {
-        "name": "amazon-review-sentiment-analysis-module",
-        "entryPoint": "model_adapter.py",
-        "className": "ModelAdapter",
-        "computeConfig": "amazon-review-sentiment-analysis-deploy",
-        "initInputs": [
-          {
-            "type": "Model",
-            "name": "model_entity"
-          }
+    "name": "amazon-review-sentiment-analysis",
+    "description": "This model is a fine-tuned version of nlptown/bert-base-multilingual-uncased-sentiment on an Amazon US Customer Reviews Dataset.",
+    "attributes": {
+        "Provider": "AWS",
+        "Deployed By": "Dataloop",
+        "License": "Apache 2.0",
+        "Category": "Model",
+        "Media Type": [
+            "Text"
         ],
-        "functions": [
-          {
-            "name": "predict_items",
-            "input": [
-              {
-                "type": "Item[]",
-                "name": "items",
-                "description": "The input images for prediction."
-              }
-            ],
-            "output": [
-              {
-                "type": "Item[]",
-                "name": "items",
-                "description": "The same input images for prediction."
-              },
-              {
-                "type": "Annotation[]",
-                "name": "annotations",
-                "description": "The predicted annotations."
-              }
-            ],
-            "displayName": "Predict Items",
-            "displayIcon": "",
-            "description": "The inference function of the model."
-          },
-          {
-            "name": "predict_dataset",
-            "input": [
-              {
-                "type": "Dataset",
-                "name": "dataset",
-                "description": "The input dataset of the items required for prediction."
-              },
-              {
-                "type": "Json",
-                "name": "filters",
-                "description": "The DQL in json format to get all the items required for prediction."
-              }
-            ],
-            "output": [],
-            "displayName": "Predict Dataset",
-            "displayIcon": "",
-            "description": "Inference function of the model on a dataset."
-          }
+        "Gen AI": "LLM",
+        "NLP": "Sentiment Analysis"
+    },
+    "displayName": "Amazon Review Sentiment Analysis",
+    "version": "0.1.67",
+    "scope": "public",
+    "codebase": {
+        "type": "git",
+        "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+        "gitTag": "0.1.67"
+    },
+    "components": {
+        "computeConfigs": [
+            {
+                "name": "amazon-review-sentiment-analysis-deploy",
+                "secrets": [],
+                "runtime": {
+                    "podType": "regular-m",
+                    "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+                    "concurrency": 1,
+                    "autoscaler": {
+                        "type": "rabbitmq",
+                        "minReplicas": 0,
+                        "maxReplicas": 2,
+                        "queueLength": 1000
+                    },
+                    "preemptible": false
+                }
+            }
+        ],
+        "modules": [
+            {
+                "name": "amazon-review-sentiment-analysis-module",
+                "entryPoint": "model_adapter.py",
+                "className": "ModelAdapter",
+                "computeConfig": "amazon-review-sentiment-analysis-deploy",
+                "initInputs": [
+                    {
+                        "type": "Model",
+                        "name": "model_entity"
+                    }
+                ],
+                "functions": [
+                    {
+                        "name": "predict_items",
+                        "input": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The input images for prediction."
+                            }
+                        ],
+                        "output": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The same input images for prediction."
+                            },
+                            {
+                                "type": "Annotation[]",
+                                "name": "annotations",
+                                "description": "The predicted annotations."
+                            }
+                        ],
+                        "displayName": "Predict Items",
+                        "displayIcon": "",
+                        "description": "The inference function of the model."
+                    },
+                    {
+                        "name": "predict_dataset",
+                        "input": [
+                            {
+                                "type": "Dataset",
+                                "name": "dataset",
+                                "description": "The input dataset of the items required for prediction."
+                            },
+                            {
+                                "type": "Json",
+                                "name": "filters",
+                                "description": "The DQL in json format to get all the items required for prediction."
+                            }
+                        ],
+                        "output": [],
+                        "displayName": "Predict Dataset",
+                        "displayIcon": "",
+                        "description": "Inference function of the model on a dataset."
+                    }
+                ]
+            }
+        ],
+        "models": [
+            {
+                "name": "amazon-review-sentiment-analysis-huggingface-model",
+                "moduleName": "amazon-review-sentiment-analysis-module",
+                "scope": "project",
+                "status": "pre-trained",
+                "configuration": {
+                    "model_path": "LiYuan/amazon-review-sentiment-analysis",
+                    "module_name": "adapters.amazon_review_sentiment_analysis.amazon_review_sentiment_analysis"
+                },
+                "tags": [
+                    "SentimentAnalysis",
+                    "pretrained",
+                    "hugging-face"
+                ],
+                "metadata": {},
+                "description": "This model is a fine-tuned version of nlptown/bert-base-multilingual-uncased-sentiment on an Amazon US Customer Reviews Dataset."
+            }
         ]
-      }
-    ],
-    "models": [
-      {
-        "name": "amazon-review-sentiment-analysis-model",
-        "moduleName": "amazon-review-sentiment-analysis-module",
-        "scope": "project",
-        "status": "pre-trained",
-        "configuration": {
-          "model_path": "LiYuan/amazon-review-sentiment-analysis",
-          "module_name": "adapters.amazon_review_sentiment_analysis.amazon_review_sentiment_analysis"
-        },
-        "tags": ["SentimentAnalysis", "pretrained", "hugging-face"],
-        "metadata": {},
-        "description": "This model is a fine-tuned version of nlptown/bert-base-multilingual-uncased-sentiment on an Amazon US Customer Reviews Dataset."
-      }
-    ]
-  }
+    }
 }
