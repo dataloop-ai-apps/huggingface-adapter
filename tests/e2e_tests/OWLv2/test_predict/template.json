@@ -46,7 +46,7 @@
     {
       "name": "label",
       "type": "String",
-      "value": "free-text",
+      "value": "car",
       "description": null
     }
   ],
@@ -89,7 +89,7 @@
       "projectId": null,
       "config": {
         "package": {
-          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def run(dataset: dl.Dataset):\n        # Define filters\n        filters = dl.Filters()\n        filters.add(field=\"metadata.tags.predict\", values=True)\n\n        # Get predict item (image for object detection)\n        predict_item = None\n        for item in list(dataset.items.list(filters=filters).all()):\n            if \"image\" in item.mimetype:\n                predict_item = item\n                break\n        \n        if predict_item is None:\n            raise ValueError(\"Image item with predict tag not found\")\n        \n        predict_item.annotations.delete(filters=dl.Filters(resource=dl.FiltersResource.ANNOTATION))\n\n        return predict_item\n",
+          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def run(dataset: dl.Dataset):\n        # Define filters\n        filters = dl.Filters()\n        filters.add(field=\"metadata.tags.predict\", values=True)\n\n        # Get predict item\n        predict_item = list(dataset.items.list(filters=filters).all())[0]\n        predict_item.annotations.delete(filters=dl.Filters(resource=dl.FiltersResource.ANNOTATION))\n\n        return predict_item\n",
           "name": "run",
           "type": "code",
           "codebase": {
@@ -204,7 +204,7 @@
       "projectId": null,
       "config": {
         "package": {
-          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def run(item: dl.Item, label: str):\n        annotations = item.annotations.list()\n        if len(annotations) == 0:\n            raise ValueError(f\"Model did not produce any annotations\")\n        for annotation in annotations:\n            if len(annotation.coordinates) == 0:\n                raise ValueError(f\"Model annotation coordinates are empty\")\n",
+          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def run(item: dl.Item, label: str):\n        annotations = item.annotations.list()\n        for annotation in annotations:\n            if annotation.label != label:\n                raise ValueError(f\"Expected the model to predict: {label}, but got: {annotation.label} instead\")\n",
           "name": "run",
           "type": "code",
           "codebase": {
