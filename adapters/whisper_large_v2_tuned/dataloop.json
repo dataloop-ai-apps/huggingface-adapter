@@ -15,12 +15,12 @@
         ]
     },
     "displayName": "Whisper Large v2 Tuned",
-    "version": "0.1.67",
+    "version": "0.1.68",
     "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.67"
+        "gitTag": "0.1.68"
     },
     "components": {
         "computeConfigs": [
