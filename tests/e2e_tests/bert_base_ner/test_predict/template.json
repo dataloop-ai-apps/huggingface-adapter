@@ -213,7 +213,7 @@
       "projectId": null,
       "config": {
         "package": {
-          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def run(item: dl.Item, labels: list):\n        annotations = item.annotations.list()\n        for annotation in annotations:\n            if annotation.label not in labels:\n                raise ValueError(f\"Expected the model to predict a label from: {labels}, but got: {annotation.label} instead\")\n            if annotation.coordinates[\"start\"] > annotation.coordinates[\"end\"]:\n                raise ValueError(f\"Annotation '{annotation.id}' value of 'start' is bigger than 'end'\")\n",
+          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def run(item: dl.Item, labels: list):\n        annotations = item.annotations.list()\n        if len(annotations) == 0:\n            raise ValueError(f\"Model did not produce any annotations\")\n        for annotation in annotations:\n            if annotation.label not in labels:\n                raise ValueError(f\"Expected the model to predict a label from: {labels}, but got: {annotation.label} instead\")\n            if annotation.coordinates[\"start\"] > annotation.coordinates[\"end\"]:\n                raise ValueError(f\"Annotation '{annotation.id}' value of 'start' is bigger than 'end'\")\n",
           "name": "run",
           "type": "code",
           "codebase": {

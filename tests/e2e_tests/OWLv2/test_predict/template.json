@@ -204,7 +204,7 @@
       "projectId": null,
       "config": {
         "package": {
-          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def run(item: dl.Item, label: str):\n        annotations = item.annotations.list()\n        for annotation in annotations:\n            if annotation.label != label:\n                raise ValueError(f\"Expected the model to predict: {label}, but got: {annotation.label} instead\")\n",
+          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def run(item: dl.Item, label: str):\n        annotations = item.annotations.list()\n        if len(annotations) == 0:\n            raise ValueError(f\"Model did not produce any annotations\")\n        for annotation in annotations:\n            if annotation.label != label:\n                raise ValueError(f\"Expected the model to predict: {label}, but got: {annotation.label} instead\")\n",
           "name": "run",
           "type": "code",
           "codebase": {
@@ -226,4 +226,3 @@
   "preview": "66bb3f663015aed90ebe4b7b",
   "_id": "66bb3f891b31d97f384f61fc"
 }
-
