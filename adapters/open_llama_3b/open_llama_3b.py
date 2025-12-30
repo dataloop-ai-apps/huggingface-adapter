@@ -4,7 +4,7 @@ import json
 import logging
 from transformers import LlamaTokenizer, LlamaForCausalLM
 
-logger = logging.getLogger("[OpenLlama3b]")
+logger = logging.getLogger("[Open Llama 3b]")
 
 
 class HuggingAdapter:
@@ -56,11 +56,14 @@ class HuggingAdapter:
                         generation_output = self.model.generate(input_ids=new_user_input_ids, max_length=100)
                         response = self.tokenizer.decode(generation_output[:, new_user_input_ids.shape[-1] + 1:][0])
                         logger.info("Response: {}".format(response))
-                        item_annotations.add(annotation_definition=dl.FreeText(text=response), prompt_id=prompt_key,
-                                             model_info={
-                                                 "name": "OpenLlama",
-                                                 "confidence": self.compute_confidence(new_user_input_ids)
-                                             })
+                        item_annotations.add(
+                            annotation_definition=dl.FreeText(text=response),
+                            prompt_id=prompt_key,
+                            model_info={
+                                "name": logger.name.strip('[]'),
+                                "confidence": self.compute_confidence(new_user_input_ids)
+                            }
+                        )
                     else:
                         logger.warning(f"OpenLlama only accepts text prompts, ignoring the current prompt.")
             annotations.append(item_annotations)

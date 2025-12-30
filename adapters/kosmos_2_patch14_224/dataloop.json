@@ -1,0 +1,120 @@
+{
+    "name": "microsoft-kosmos-2-huggingface-app",
+    "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world. Can be used with prompt items and images directly (image captions will be saved as item description).",
+    "attributes": {
+        "Provider": "Microsoft",
+        "Deployed By": "Dataloop",
+        "License": "MIT",
+        "Category": "Model",
+        "NLP": "Conversational",
+        "Gen AI": "LMM",
+        "Media Type": [
+            "Text",
+            "Image",
+            "Multi Modal"
+        ]
+    },
+    "displayName": "Microsoft Kosmos-2",
+    "version": "0.1.67",
+    "scope": "public",
+    "codebase": {
+        "type": "git",
+        "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+        "gitTag": "0.1.67"
+    },
+    "components": {
+        "computeConfigs": [
+            {
+                "name": "microsoft-kosmos-2-huggingface-deploy",
+                "runtime": {
+                    "podType": "regular-l",
+                    "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.45",
+                    "concurrency": 1,
+                    "autoscaler": {
+                        "type": "rabbitmq",
+                        "minReplicas": 0,
+                        "maxReplicas": 2,
+                        "queueLength": 1000
+                    },
+                    "preemptible": false
+                }
+            }
+        ],
+        "modules": [
+            {
+                "name": "microsoft-kosmos-2-module",
+                "entryPoint": "adapters/kosmos_2_patch14_224/kosmos_2_patch14_224.py",
+                "className": "HuggingAdapter",
+                "computeConfig": "microsoft-kosmos-2-huggingface-deploy",
+                "initInputs": [
+                    {
+                        "type": "Model",
+                        "name": "model_entity"
+                    }
+                ],
+                "functions": [
+                    {
+                        "name": "predict_items",
+                        "input": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The input images for prediction."
+                            }
+                        ],
+                        "output": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The same input images for prediction."
+                            },
+                            {
+                                "type": "Annotation[]",
+                                "name": "annotations",
+                                "description": "The predicted annotations."
+                            }
+                        ],
+                        "displayName": "Predict Items",
+                        "displayIcon": "",
+                        "description": "The inference function of the model."
+                    },
+                    {
+                        "name": "predict_dataset",
+                        "input": [
+                            {
+                                "type": "Dataset",
+                                "name": "dataset",
+                                "description": "The input dataset of the items required for prediction."
+                            },
+                            {
+                                "type": "Json",
+                                "name": "filters",
+                                "description": "The DQL in json format to get all the items required for prediction."
+                            }
+                        ],
+                        "output": [],
+                        "displayName": "Predict Dataset",
+                        "displayIcon": "",
+                        "description": "Inference function of the model on a dataset."
+                    }
+                ]
+            }
+        ],
+        "models": [
+            {
+                "name": "kosmos-2-patch14-224-huggingface-model",
+                "moduleName": "microsoft-kosmos-2-module",
+                "scope": "project",
+                "status": "pre-trained",
+                "configuration": {
+                    "model_name": "kosmos-2-patch14-224",
+                    "max_new_tokens": 128,
+                    "module_name": "adapters.kosmos_2_patch14_224.kosmos_2_patch14_224"
+                },
+                "tags": ["llm", "pretrained", "hugging-face"],
+                "metadata": {},
+                "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world. Can be used with prompt items and images directly (image captions will be saved as item description)."
+            }
+        ]
+    }
+}

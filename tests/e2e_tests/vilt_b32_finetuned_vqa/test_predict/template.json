@@ -1,0 +1,228 @@
+{
+  "projectId": null,
+  "orgId": null,
+  "connections": [
+    {
+      "src": {
+        "nodeId": "7872a906-e85b-4359-a97b-18fdb9760eca",
+        "portId": "70f81e52-7ab2-443d-bc3c-4ab15e1bc522"
+      },
+      "tgt": {
+        "nodeId": "5854fbb9-f5c7-481a-9c9d-624a58bbe988",
+        "portId": "d65e5ce6-8cfe-4e42-acb0-5d730091aa21"
+      },
+      "condition": "{}"
+    },
+    {
+      "src": {
+        "nodeId": "5854fbb9-f5c7-481a-9c9d-624a58bbe988",
+        "portId": "3e3f9d7c-0b4c-4f03-8c9a-e565068ca251"
+      },
+      "tgt": {
+        "nodeId": "701aa3a0-ba30-40dd-9a4d-1cb4c4878da2",
+        "portId": "04a5393d-f273-4eb1-be3a-1d25034bd56d"
+      },
+      "condition": "{}"
+    }
+  ],
+  "startNodes": [
+    {
+      "nodeId": "7872a906-e85b-4359-a97b-18fdb9760eca",
+      "type": "root",
+      "id": "a76d4a01-b66c-4eb2-9784-a21eeca371cf"
+    }
+  ],
+  "variables": [
+    {
+      "name": "dataset",
+      "type": "Dataset",
+      "description": null
+    },
+    {
+      "name": "model",
+      "type": "Model",
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "String",
+      "value": "free-text",
+      "description": null
+    }
+  ],
+  "description": "",
+  "name": "Model Predict",
+  "templateKind": "org",
+  "nodes": [
+    {
+      "id": "7872a906-e85b-4359-a97b-18fdb9760eca",
+      "inputs": [
+        {
+          "portId": "7d82fa6e-e4c9-42ec-994c-0773960bf346",
+          "nodeId": "7d82fa6e-e4c9-42ec-994c-0773960bf346",
+          "type": "Dataset",
+          "name": "dataset",
+          "displayName": "dataset",
+          "variableName": "dataset",
+          "io": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "portId": "70f81e52-7ab2-443d-bc3c-4ab15e1bc522",
+          "nodeId": "70f81e52-7ab2-443d-bc3c-4ab15e1bc522",
+          "type": "Item",
+          "name": "item",
+          "displayName": "item",
+          "io": "output"
+        }
+      ],
+      "name": "preprocess",
+      "type": "code",
+      "namespace": {
+        "functionName": "run",
+        "projectName": null,
+        "serviceName": "",
+        "moduleName": null,
+        "packageName": ""
+      },
+      "projectId": null,
+      "config": {
+        "package": {
+          "code": "import dtlpy as dl\nimport json\n\nclass ServiceRunner:\n    @staticmethod\n    def run(dataset: dl.Dataset):\n        image_item = None\n        prompt_item = None\n\n        # Define filters\n        filters = dl.Filters()\n        filters.add(field=\"metadata.tags.predict\", values=True)\n\n        # Get prompt and image items\n        item: dl.Item\n        for item in list(dataset.items.list(filters=filters).all()):\n            if \"application/json\" in item.mimetype:\n                prompt_item = item\n            elif \"image\" in item.mimetype:\n                image_item = item\n            else:\n                continue\n        if prompt_item is None:\n            raise ValueError(\"Prompt item not found\")\n        if image_item is None:\n            raise ValueError(\"Image item not found\")\n\n        # Update prompt item\n        prompt_item_data = json.loads(prompt_item.download(save_locally=False).getvalue())\n        for prompt_data_list in list(prompt_item_data[\"prompts\"].values()):\n            for prompt_data in prompt_data_list:\n                if \"image\" in prompt_data[\"mimetype\"]:\n                    prompt_data[\"value\"] = image_item.stream\n        prompt_item._Item__update_item_binary(_json=prompt_item_data)\n\n        # Get predict item\n        prompt_item.annotations.delete(filters=dl.Filters(resource=dl.FiltersResource.ANNOTATION))\n\n        return prompt_item\n",
+          "name": "run",
+          "type": "code",
+          "codebase": {
+            "type": "item"
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": 9892.65234375,
+          "y": 9944.2744140625,
+          "z": 0
+        },
+        "repeatable": true,
+        "componentGroupName": "automation"
+      }
+    },
+    {
+      "id": "5854fbb9-f5c7-481a-9c9d-624a58bbe988",
+      "inputs": [
+        {
+          "portId": "d65e5ce6-8cfe-4e42-acb0-5d730091aa21",
+          "nodeId": "d65e5ce6-8cfe-4e42-acb0-5d730091aa21",
+          "type": "Item",
+          "name": "item",
+          "displayName": "item",
+          "io": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "portId": "3e3f9d7c-0b4c-4f03-8c9a-e565068ca251",
+          "nodeId": "3e3f9d7c-0b4c-4f03-8c9a-e565068ca251",
+          "type": "Item",
+          "name": "item",
+          "displayName": "item",
+          "io": "output"
+        },
+        {
+          "portId": "25755c9e-e8d2-4e4c-b726-0573689a6e47",
+          "nodeId": "25755c9e-e8d2-4e4c-b726-0573689a6e47",
+          "type": "Annotation[]",
+          "name": "annotations",
+          "displayName": "annotations",
+          "io": "output"
+        }
+      ],
+      "name": "Generate",
+      "type": "ml",
+      "namespace": {
+        "functionName": "predict",
+        "projectName": null,
+        "serviceName": "model-mgmt-app-predict",
+        "moduleName": "",
+        "packageName": "model-mgmt-app"
+      },
+      "projectId": null,
+      "metadata": {
+        "position": {
+          "x": 10225.100199180075,
+          "y": 9945.04989170792,
+          "z": 0
+        },
+        "variableModel": "model",
+        "variableDataset": "model",
+        "componentGroupName": "models",
+        "repeatable": true,
+        "mlType": "genAi"
+      }
+    },
+    {
+      "id": "701aa3a0-ba30-40dd-9a4d-1cb4c4878da2",
+      "inputs": [
+        {
+          "portId": "04a5393d-f273-4eb1-be3a-1d25034bd56d",
+          "nodeId": "04a5393d-f273-4eb1-be3a-1d25034bd56d",
+          "type": "Item",
+          "name": "item",
+          "displayName": "item",
+          "io": "input"
+        },
+        {
+          "portId": "1a3bc0d0-41d6-47d2-b297-867cde12f262",
+          "nodeId": "1a3bc0d0-41d6-47d2-b297-867cde12f262",
+          "type": "String",
+          "name": "label",
+          "displayName": "label",
+          "defaultValue": "",
+          "variableName": "label",
+          "io": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "portId": "a08eaa18-cf05-48ec-ab80-d48954edb249",
+          "nodeId": "a08eaa18-cf05-48ec-ab80-d48954edb249",
+          "type": "Item",
+          "name": "item",
+          "displayName": "item",
+          "io": "output"
+        }
+      ],
+      "name": "postprocess",
+      "type": "code",
+      "namespace": {
+        "functionName": "run",
+        "projectName": null,
+        "serviceName": "",
+        "moduleName": null,
+        "packageName": ""
+      },
+      "projectId": null,
+      "config": {
+        "package": {
+          "code": "import dtlpy as dl\n\nclass ServiceRunner:\n    @staticmethod\n    def run(item: dl.Item, label: str):\n        annotations = item.annotations.list()\n        for annotation in annotations:\n            if annotation.label != label:\n                raise ValueError(f\"Expected the model to predict: {label}, but got: {annotation.label} instead\")\n            if len(annotation.coordinates) == 0:\n                raise ValueError(f\"Model answer is empty\")\n",
+          "name": "run",
+          "type": "code",
+          "codebase": {
+            "type": "item"
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": 10543.912090037129,
+          "y": 9949.009765625,
+          "z": 0
+        },
+        "repeatable": true,
+        "componentGroupName": "automation"
+      }
+    }
+  ],
+  "preview": "66bb3f663015aed90ebe4b7b",
+  "_id": "66bb3f891b31d97f384f61fc"
+}

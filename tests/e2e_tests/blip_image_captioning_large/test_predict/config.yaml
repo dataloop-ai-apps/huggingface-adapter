@@ -1,0 +1,26 @@
+# ordered list of dpks to publish and install
+dpks:
+    - name: blip-image-captioning-large-huggingface-app
+      install_app: True
+
+# ordered list of datasets to create from local assets or to get from installed apps
+datasets:
+    - name: text_image_prompt_text_answer
+      type: local
+
+# ordered list of models to get from apps
+models:
+    - name: blip-image-captioning-large-huggingface-model
+      deploy_model: False
+      source_app: blip-image-captioning-large-huggingface-app
+
+# list of pipeline variables to update with reference
+variables:
+    - name: dataset
+      resource_type: datasets
+      resource_value:
+          resource_name: text_image_prompt_text_answer
+    - name: model
+      resource_type: models
+      resource_value:
+          resource_name: blip-image-captioning-large-huggingface-model

@@ -1,0 +1,34 @@
+{
+  "id": "66be0cd2b9f61c40d52ad3d4",
+  "datasetId": "66bb828cef35204d5a284538",
+  "url": "https://rc-gate.dataloop.ai/api/v1/items/66be0cd2b9f61c40d52ad3d4",
+  "dataset": "https://rc-gate.dataloop.ai/api/v1/datasets/66bb828cef35204d5a284538",
+  "createdAt": "2024-08-15T14:12:34.642Z",
+  "dir": "/",
+  "filename": "/audio.flac",
+  "type": "file",
+  "hidden": false,
+  "metadata": {
+    "system": {
+      "encoding": "7bit",
+      "isBinary": true,
+      "mimetype": "audio/x-flac",
+      "originalname": "audio.flac",
+      "refs": [],
+      "size": 278018,
+      "taskStatusLog": []
+    },
+    "tags": {
+      "predict": true
+    }
+  },
+  "name": "audio.flac",
+  "creator": "ofir.g@dataloop.ai",
+  "updatedAt": "2024-08-15T14:12:34.742Z",
+  "updatedBy": "ofir.g@dataloop.ai",
+  "stream": "https://rc-gate.dataloop.ai/api/v1/items/66be0cd2b9f61c40d52ad3d4/stream",
+  "thumbnail": "https://rc-gate.dataloop.ai/api/v1/items/66be0cd2b9f61c40d52ad3d4/thumbnail",
+  "annotations": [],
+  "annotationsCount": 0,
+  "annotated": false
+}

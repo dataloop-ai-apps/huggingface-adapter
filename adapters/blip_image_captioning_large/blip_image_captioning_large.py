@@ -7,7 +7,7 @@ import dtlpy as dl
 import logging
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
-logger = logging.getLogger("[BLIP]")
+logger = logging.getLogger("[BLIP Image Captioning Large]")
 CAPTIONING_PROMPT = "Caption this image."
 
 
@@ -32,7 +32,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             encoding = self.processor(
                 PIL.Image.open(image_buffer).convert('RGB'), prompt_txt, return_tensors="pt"
             ).to(self.device)
-            
+
             output = self.model.generate(**encoding, max_new_tokens=50)
             response = self.processor.decode(
                 output[0], skip_special_tokens=True
@@ -50,33 +50,33 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 },
             )
         return []
-    
+
     @staticmethod
     def get_last_prompt_message(messages):
         for message in reversed(messages):
             if message.get("role") == "user":
                 return message
         raise ValueError("No message with role 'user' found")
-        
+
     @staticmethod
     def reformat_messages(messages):
         # In case of multiple messages, 
         # we assume the last user message contains the image of interest
 
         last_user_message = HuggingAdapter.get_last_prompt_message(messages)
-        
+
         prompt_txt = None
         image_buffer = None
-        
+
         # The last user message may contain multiple contents, 
         # such as a text component and an image component
         # or multiple text components (e.g., multiple questions)
         for content in last_user_message["content"]:
-            
+
             content_type = content.get("type", None)
             if content_type is None:
                 raise ValueError("Message content type not found")
-            
+
             if content_type == "text":
                 # Concatenate multiple text contents with space
                 new_text = content.get("text", "").strip()
@@ -89,14 +89,14 @@ class HuggingAdapter(dl.BaseModelAdapter):
             elif content_type == "image_url":
                 image_url = content.get("image_url", {}).get("url")
                 if image_url is not None:
-                    if image_buffer is not None: # i.e., we previously found an image
+                    if image_buffer is not None:  # i.e., we previously found an image
                         raise ValueError("Multiple images not supported")
                     else:
                         base64_str = content["image_url"]["url"].split("base64,")[1]
                         image_buffer = BytesIO(base64.b64decode(base64_str))
             else:
                 raise ValueError(f"Unsupported content type: {content_type}")
-        
+
         if prompt_txt is None:
             prompt_txt = "What is in this image?"
         prompt_txt = "Question: {} Answer:".format(prompt_txt)

@@ -1,0 +1,26 @@
+# ordered list of dpks to publish and install
+dpks:
+    - name: instruct-pix2pix-huggingface-app
+      install_app: True
+
+# ordered list of datasets to create from local assets or to get from installed apps
+datasets:
+    - name: text_image_prompt_image_answer
+      type: local
+
+# ordered list of models to get from apps
+models:
+    - name: instruct-pix2pix-huggingface-model
+      deploy_model: False
+      source_app: instruct-pix2pix-huggingface-app
+
+# list of pipeline variables to update with reference
+variables:
+    - name: dataset
+      resource_type: datasets
+      resource_value:
+          resource_name: text_image_prompt_image_answer
+    - name: model
+      resource_type: models
+      resource_value:
+          resource_name: instruct-pix2pix-huggingface-model

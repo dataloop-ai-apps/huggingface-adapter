@@ -1,0 +1,26 @@
+# ordered list of dpks to publish and install
+dpks:
+    - name: bert-base-ner-huggingface-app
+      install_app: True
+
+# ordered list of datasets to create from local assets or to get from installed apps
+datasets:
+    - name: dataset_text
+      type: local
+
+# ordered list of models to get from apps
+models:
+    - name: bert-base-ner-huggingface-model
+      deploy_model: False
+      source_app: bert-base-ner-huggingface-app
+
+# list of pipeline variables to update with reference
+variables:
+    - name: dataset
+      resource_type: datasets
+      resource_value:
+          resource_name: dataset_text
+    - name: model
+      resource_type: models
+      resource_value:
+          resource_name: bert-base-ner-huggingface-model

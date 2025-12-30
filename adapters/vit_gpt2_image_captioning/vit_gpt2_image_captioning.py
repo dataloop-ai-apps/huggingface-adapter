@@ -6,7 +6,7 @@ from PIL import Image
 import logging
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 
-logger = logging.getLogger("[ViTGPT2ImageCaptioning]")
+logger = logging.getLogger("[ViT GPT2 Image Captioning]")
 
 
 def create_folder(folder):
@@ -75,8 +75,8 @@ class HuggingAdapter:
                     annotation_definition=dl.FreeText(text=response),
                     prompt_id=prompt_key,
                     model_info={
-                        'name': self.model_name,
-                        'confidence': 1.0
+                        "name": logger.name.strip('[]'),
+                        "confidence": 1.0
                     }
                 )
             annotations.append(item_annotations)
