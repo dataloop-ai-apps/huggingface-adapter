@@ -28,7 +28,7 @@
                 "name": "vilt-b32-finetuned-vqa-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "highmem-l",
+                    "podType": "regular-l",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {

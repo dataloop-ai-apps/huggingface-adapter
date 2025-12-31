@@ -5,6 +5,7 @@ import shutil
 import dtlpy as dl
 import logging
 from diffusers import StableDiffusionPipeline
+import torch
 
 # STREAM_URL = r"https://gate.dataloop.ai/api/v1/items/{}/stream"
 logger = logging.getLogger("[Stable Diffusion v1.5]")
@@ -19,7 +20,7 @@ def create_folder(folder):
 class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
-        self.device = configuration.get("device")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         self.model = StableDiffusionPipeline.from_pretrained(
             "runwayml/stable-diffusion-v1-5",

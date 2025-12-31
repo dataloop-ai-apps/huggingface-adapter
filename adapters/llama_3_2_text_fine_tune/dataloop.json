@@ -28,7 +28,7 @@
         {
           "name": "llama-fintune-qlora-deploy",
           "runtime": {
-            "podType": "regular-s",
+            "podType": "highmem-l",
             "concurrency": 10,
             "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.5",
             "autoscaler": {

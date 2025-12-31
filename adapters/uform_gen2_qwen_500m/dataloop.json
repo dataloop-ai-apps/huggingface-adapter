@@ -28,7 +28,7 @@
                 "name": "uform-gen2-qwen-500m-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "regular-m",
+                    "podType": "regular-l",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {

@@ -26,7 +26,7 @@
                 "name": "autoforcausallm-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "highmem-l",
+                    "podType": "regular-m",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {

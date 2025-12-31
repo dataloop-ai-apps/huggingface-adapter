@@ -8,12 +8,17 @@
     "Provider": "Meta",
     "Deployed By": "Dataloop",
     "License": "Llama 3.2",
-    "Media Type": ["Image", "Text"],
+    "Media Type": [
+      "Image",
+      "Text"
+    ],
     "Category": "Model",
     "Gen AI": "LLM",
     "Vision": "Multimodal",
     "NLP": "Conversational",
-    "Hub": ["Dataloop"]
+    "Hub": [
+      "Dataloop"
+    ]
   },
   "codebase": {
     "type": "git",
@@ -26,7 +31,7 @@
         "name": "llama3.2-11b-vision-finetune-deploy",
         "executionTimeout": 36000,
         "runtime": {
-          "podType": "regular-l",
+          "podType": "highmem-l",
           "concurrency": 5,
           "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.7",
           "autoscaler": {
@@ -58,7 +63,9 @@
         "className": "ModelAdapter",
         "computeConfig": "llama3.2-11b-vision-finetune-deploy",
         "description": "Llama 3.2 Vision or Vision-Instruct model adapter for fine-tuning and inference",
-        "integrations": ["dl-huggingface-api-key"],
+        "integrations": [
+          "dl-huggingface-api-key"
+        ],
         "initInputs": [
           {
             "type": "Model",

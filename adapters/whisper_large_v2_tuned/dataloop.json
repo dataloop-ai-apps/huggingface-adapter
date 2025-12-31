@@ -28,7 +28,7 @@
                 "name": "ivrit-ai-whisper-large-v2-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "regular-m",
+                    "podType": "regular-s",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {

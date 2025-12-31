@@ -27,7 +27,7 @@
                 "name": "stable-diffusion-v1-5-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "gpu-t4",
+                    "podType": "regular-l",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {
@@ -107,8 +107,7 @@
                 "scope": "project",
                 "status": "pre-trained",
                 "configuration": {
-                    "module_name": "adapters.stable_diffusion_v1_5.stable_diffusion_v1_5",
-                    "device": "cuda"
+                    "module_name": "adapters.stable_diffusion_v1_5.stable_diffusion_v1_5"
                 },
                 "metadata": {},
                 "description": "Stable Diffusion is a latent text-to-image diffusion model capable of generating photo-realistic images given any text input."

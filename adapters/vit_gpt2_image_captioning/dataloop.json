@@ -28,7 +28,7 @@
                 "name": "vit-gpt2-image-captioning-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "gpu-t4",
+                    "podType": "regular-l",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {
@@ -110,8 +110,7 @@
                 "configuration": {
                     "module_name": "adapters.vit_gpt2_image_captioning.vit_gpt2_image_captioning",
                     "image_width": 512,
-                    "image_height": 512,
-                    "device": "cuda"
+                    "image_height": 512
                 },
                 "metadata": {},
                 "description": "Vision Transformer (ViT) GPT2 an image captioning model."

@@ -46,7 +46,9 @@
                 "entryPoint": "model_adapter.py",
                 "className": "ModelAdapter",
                 "computeConfig": "meta-llama-3-8b-instruct-huggingface-deploy",
-                "integrations": ["dl-huggingface-api-key"],
+                "integrations": [
+                    "dl-huggingface-api-key"
+                ],
                 "initInputs": [
                     {
                         "type": "Model",

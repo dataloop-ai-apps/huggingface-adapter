@@ -28,7 +28,7 @@
         {
           "name": "smollm-instruct-fine-tune-deploy",
           "runtime": {
-            "podType": "regular-m",
+            "podType": "highmem-m",
             "concurrency": 10,
             "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.5",
             "autoscaler": {
