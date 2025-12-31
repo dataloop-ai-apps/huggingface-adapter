@@ -36,7 +36,6 @@ class ModelAdapter(dl.BaseModelAdapter):
         logger.info(f"Model name: {hf_model_name}")
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f'Using device: {self.device}')
-        self.device_map = self.configuration.get("device_map", "auto")
         self.prompt_items_dir = self.configuration.get("prompt_items_dir", "/prompt_items")
 
         # load base model
@@ -46,7 +45,8 @@ class ModelAdapter(dl.BaseModelAdapter):
         # check if lora adapter weights exist
         if os.path.exists(local_path) is True:
             logger.info(f"Loading LoRA weights from {local_path}")
-            model_to_merge = PeftModel.from_pretrained(base_model, local_path, device_map=self.device_map)
+            model_to_merge = PeftModel.from_pretrained(base_model, local_path)
+            model_to_merge = model_to_merge.to(self.device)
             merged_model = model_to_merge.merge_and_unload()
             self.model = merged_model
         else:
@@ -91,15 +91,26 @@ class ModelAdapter(dl.BaseModelAdapter):
                         # NOTE: ValueError: No chat template is set for this processor. Please either set the `chat_template` attribute, or provide a chat template as an argument. See https://huggingface.co/docs/transformers/main/en/chat_templating for more information.
                         
                         # prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n<|image|>Answer briefly. <|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{prompt_txt}<|eot_id|>"
-                        prompt_content = [{"type": "image", "image": image}, {"type": "text", "text": prompt_txt}]
-                        prompt = self.processor.apply_chat_template(
-                            [{"role": "user", "content": prompt_content}], add_generation_prompt=True
-                        )
+                        # prompt_content = [{"type": "image", "image": image}, {"type": "text", "text": prompt_txt}]
+                        # prompt = self.processor.apply_chat_template(
+                        #     [{"role": "user", "content": prompt_content}], add_generation_prompt=True
+                        # )
+                        # inputs = self.processor(text=prompt, images=image, return_tensors="pt", padding=True).to(
+                        #     self.device
+                        # )
+
+                        # Format prompt manually since processor doesn't have chat template set
+                        # Format matches Llama 3.2 Vision structure: user section with image token and question, then assistant section for generation
+                        # The <|image|> token will be replaced by the processor with actual image embeddings
+                        formatted_prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n<|image|>{prompt_txt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
                         # Process the image and text together
-                        inputs = self.processor(text=prompt, images=image, return_tensors="pt", padding=True).to(
-                            self.device
-                        )
+                        # The processor will replace <|image|> token with the actual image embeddings
+                        inputs = self.processor(text=formatted_prompt, images=image, return_tensors="pt", padding=True)
+                        
+                        # Move inputs to device (single GPU assumption)
+                        inputs = {k: v.to(self.device) if isinstance(v, torch.Tensor) else v for k, v in inputs.items()}
+                        
                         logger.info("Generating response...")
                         # start_time = time.time()
                         outputs = self.model.generate(
@@ -109,7 +120,7 @@ class ModelAdapter(dl.BaseModelAdapter):
                             do_sample=do_sample,
                             use_cache=use_cache,
                             top_p=top_p,
-                        ).to(self.device)
+                        )
                         # end_time = time.time()
                         # logger.info(f"Time taken: {end_time - start_time} seconds")
                         # response = self.processor.batch_decode(outputs[0], skip_special_tokens=True)
@@ -386,13 +397,13 @@ class ModelAdapter(dl.BaseModelAdapter):
                 init_lora_weights=self.configuration.get("init_lora_weights", "gaussian"),
             )
 
-            # Initialize model with proper device handling
+            # Initialize model on single GPU
             model = MllamaForConditionalGeneration.from_pretrained(
                 ckpt,
                 torch_dtype=torch.bfloat16,
-                device_map=self.device_map,
-                low_cpu_mem_usage=True,  # Enable low CPU memory usage
+                low_cpu_mem_usage=True,
             )
+            model = model.to(self.device)
 
             # Apply LoRA
             model = get_peft_model(model, lora_config)
@@ -402,8 +413,9 @@ class ModelAdapter(dl.BaseModelAdapter):
             if freeze_llm is True:
                 raise ValueError("You cannot freeze image encoder and text decoder at the same time.")
             model = MllamaForConditionalGeneration.from_pretrained(
-                ckpt, torch_dtype=torch.bfloat16, device_map=self.device_map
+                ckpt, torch_dtype=torch.bfloat16
             )
+            model = model.to(self.device)
             # freeze vision model to save up on compute
             for param in model.vision_model.parameters():
                 param.requires_grad = False
@@ -412,16 +424,18 @@ class ModelAdapter(dl.BaseModelAdapter):
             if freeze_image is True:
                 raise ValueError("You cannot freeze image encoder and text decoder at the same time.")
             model = MllamaForConditionalGeneration.from_pretrained(
-                ckpt, torch_dtype=torch.bfloat16, device_map=self.device_map
+                ckpt, torch_dtype=torch.bfloat16
             )
+            model = model.to(self.device)
             # freeze text model, this is encouraged in paper
             for param in model.language_model.parameters():
                 param.requires_grad = False
 
         else:  # full ft
             model = MllamaForConditionalGeneration.from_pretrained(
-                ckpt, torch_dtype=torch.bfloat16, device_map=self.device_map
+                ckpt, torch_dtype=torch.bfloat16
             )
+            model = model.to(self.device)
 
         processor = AutoProcessor.from_pretrained(ckpt)
 

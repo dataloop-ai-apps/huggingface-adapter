@@ -40,6 +40,7 @@
         },
         {
             "name": "llama-fintune-qlora-train",
+            "executionTimeout": 36000000,
             "runtime": {
               "podType": "gpu-t4-m",
               "concurrency": 1,

@@ -43,9 +43,9 @@
       },
       {
         "name": "llama3.2-11b-vision-finetune-train",
-        "executionTimeout": 360000,
+        "executionTimeout": 36000000,
         "runtime": {
-          "podType": "regular-l",
+          "podType": "gpu-t4",
           "concurrency": 1,
           "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/llm-finetune-playground:0.0.7",
           "autoscaler": {

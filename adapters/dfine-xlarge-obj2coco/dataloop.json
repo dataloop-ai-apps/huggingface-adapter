@@ -39,6 +39,7 @@
       },
       {
         "name": "dfine-xlarge-obj2coco-huggingface-train-evaluate",
+        "executionTimeout": 36000000,
         "runtime": {
           "podType": "gpu-t4",
           "concurrency": 1,
@@ -50,8 +51,7 @@
             "queueLength": 100
           }
         },
-        "preemptible": false,
-        "executionTimeout": 432000
+        "preemptible": false
       }
     ],
     "modules": [
@@ -239,7 +239,7 @@
             "per_device_train_batch_size": 8,
             "per_device_eval_batch_size": 8,
             "gradient_accumulation_steps": 1,
-            "learning_rate": 5e-05,
+            "learning_rate": 5e-5,
             "weight_decay": 0.0,
             "num_train_epochs": 3,
             "warmup_steps": 300,
