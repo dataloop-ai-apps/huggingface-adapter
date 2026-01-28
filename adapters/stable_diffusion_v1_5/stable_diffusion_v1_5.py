@@ -19,7 +19,6 @@ def create_folder(folder):
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.model_name = configuration.get("model_name")
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         self.model = StableDiffusionPipeline.from_pretrained(

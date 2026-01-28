@@ -20,7 +20,6 @@ def create_folder(folder):
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.model_name = configuration.get("model_name")
         self.image_width = configuration.get("image_width", 512)
         self.image_height = configuration.get("image_height", 512)
         self.device = "cuda" if torch.cuda.is_available() else "cpu"

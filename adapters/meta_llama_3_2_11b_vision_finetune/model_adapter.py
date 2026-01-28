@@ -34,7 +34,7 @@ class ModelAdapter(dl.BaseModelAdapter):
 
         hf_model_name = self.model_entity.configuration.get("model_name", "meta-llama/Llama-3.2-11B-Vision")
         logger.info(f"Model name: {hf_model_name}")
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f'Using device: {self.device}')
         self.prompt_items_dir = self.configuration.get("prompt_items_dir", "/prompt_items")
 
@@ -87,17 +87,6 @@ class ModelAdapter(dl.BaseModelAdapter):
 
                         logger.info(f"Prompt text: {prompt_txt}")
                         logger.info(f"Processing image of size: {image.size}")
-
-                        # NOTE: ValueError: No chat template is set for this processor. Please either set the `chat_template` attribute, or provide a chat template as an argument. See https://huggingface.co/docs/transformers/main/en/chat_templating for more information.
-                        
-                        # prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n<|image|>Answer briefly. <|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n{prompt_txt}<|eot_id|>"
-                        # prompt_content = [{"type": "image", "image": image}, {"type": "text", "text": prompt_txt}]
-                        # prompt = self.processor.apply_chat_template(
-                        #     [{"role": "user", "content": prompt_content}], add_generation_prompt=True
-                        # )
-                        # inputs = self.processor(text=prompt, images=image, return_tensors="pt", padding=True).to(
-                        #     self.device
-                        # )
 
                         # Format prompt manually since processor doesn't have chat template set
                         # Format matches Llama 3.2 Vision structure: user section with image token and question, then assistant section for generation

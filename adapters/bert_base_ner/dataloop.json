@@ -105,8 +105,7 @@
                 "scope": "project",
                 "status": "pre-trained",
                 "configuration": {
-                    "module_name": "adapters.bert_base_ner.bert_base_ner",
-                    "device": "cpu"
+                    "module_name": "adapters.bert_base_ner.bert_base_ner"
                 },
                 "metadata": {},
                 "description": "bert-base-NER is a fine-tuned BERT model that is ready to use for Named Entity Recognition and achieves state-of-the-art performance for the NER task."

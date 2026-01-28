@@ -14,7 +14,7 @@ logger = logging.getLogger("[Kosmos-2 Patch 14 224]")
 class HuggingAdapter(dl.BaseModelAdapter):
     def load(self, local_path, **kwargs):
         self.model_name = self.configuration.get("model_name", "kosmos-2")
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.processor = AutoProcessor.from_pretrained("microsoft/kosmos-2-patch14-224")
         self.model = AutoModelForVision2Seq.from_pretrained("microsoft/kosmos-2-patch14-224")
         self.model.to(self.device)

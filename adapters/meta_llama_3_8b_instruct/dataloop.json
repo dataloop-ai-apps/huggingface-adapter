@@ -113,7 +113,6 @@
                     "weights_filename": "openllama.pt",
                     "model_path": "meta-llama/Meta-Llama-3-8B-Instruct",
                     "module_name": "adapters.meta_llama_3_8b_instruct.meta_llama_3_8b_instruct",
-                    "device": "cuda:0",
                     "torch_dtype": "4bits",
                     "max_new_tokens": 20,
                     "temperature": 0.6,
