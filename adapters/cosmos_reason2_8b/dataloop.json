@@ -1,0 +1,118 @@
+{
+    "name": "cosmos-reason2-8b-huggingface-app",
+    "description": "NVIDIA Cosmos Reason 2 is an 8B-parameter reasoning vision-language model (VLM) for physical AI and robotics. It understands space, time, and fundamental physics, and can reason about images (and video) with chain-of-thought. Input: image + optional text prompt. Output: text.",
+    "attributes": {
+        "Provider": "NVIDIA",
+        "Deployed By": "Dataloop",
+        "License": "NVIDIA Open Model License",
+        "Category": "Model",
+        "NLP": "Conversational",
+        "Gen AI": "LMM",
+        "Media Type": ["Text", "Image", "Multi Modal"]
+    },
+    "displayName": "NVIDIA Cosmos-Reason2-8B",
+    "version": "0.1.68",
+    "scope": "public",
+    "codebase": {
+        "type": "git",
+        "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
+        "gitTag": "0.1.68"
+    },
+    "components": {
+        "computeConfigs": [
+            {
+                "name": "cosmos-reason2-8b-huggingface-deploy",
+                "runtime": {
+                    "podType": "gpu-t4",
+                    "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
+                    "concurrency": 1,
+                    "autoscaler": {
+                        "type": "rabbitmq",
+                        "minReplicas": 0,
+                        "maxReplicas": 2,
+                        "queueLength": 1000
+                    },
+                    "preemptible": false
+                }
+            }
+        ],
+        "modules": [
+            {
+                "name": "cosmos-reason2-8b-module",
+                "entryPoint": "adapters/cosmos_reason2_8b/cosmos_reason2_8b.py",
+                "className": "HuggingAdapter",
+                "computeConfig": "cosmos-reason2-8b-huggingface-deploy",
+                "integrations": ["dl-huggingface-api-key"],
+                "initInputs": [
+                    {
+                        "type": "Model",
+                        "name": "model_entity"
+                    }
+                ],
+                "functions": [
+                    {
+                        "name": "predict_items",
+                        "input": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The input images for prediction."
+                            }
+                        ],
+                        "output": [
+                            {
+                                "type": "Item[]",
+                                "name": "items",
+                                "description": "The same input images for prediction."
+                            },
+                            {
+                                "type": "Annotation[]",
+                                "name": "annotations",
+                                "description": "The predicted annotations."
+                            }
+                        ],
+                        "displayName": "Predict Items",
+                        "displayIcon": "",
+                        "description": "The inference function of the model."
+                    },
+                    {
+                        "name": "predict_dataset",
+                        "input": [
+                            {
+                                "type": "Dataset",
+                                "name": "dataset",
+                                "description": "The input dataset of the items required for prediction."
+                            },
+                            {
+                                "type": "Json",
+                                "name": "filters",
+                                "description": "The DQL in json format to get all the items required for prediction."
+                            }
+                        ],
+                        "output": [],
+                        "displayName": "Predict Dataset",
+                        "displayIcon": "",
+                        "description": "Inference function of the model on a dataset."
+                    }
+                ]
+            }
+        ],
+        "models": [
+            {
+                "name": "cosmos-reason2-8b-huggingface-model",
+                "moduleName": "cosmos-reason2-8b-module",
+                "scope": "project",
+                "status": "pre-trained",
+                "configuration": {
+                    "model_name": "nvidia/Cosmos-Reason2-8B",
+                    "module_name": "adapters.cosmos_reason2_8b.cosmos_reason2_8b",
+                    "max_new_tokens": 4096,
+                    "system_prompt": "You are a helpful assistant. Describe what you see in the image accurately and answer questions related to the visual content."
+                },
+                "tags": ["llm", "pretrained", "hugging-face", "vlm", "nvidia"],
+                "metadata": {},
+                "description": "NVIDIA Cosmos Reason 2 is an 8B-parameter reasoning vision-language model (VLM) for physical AI and robotics. It understands space, time, and fundamental physics. Given an image and optional text prompt, it outputs text (with optional chain-of-thought reasoning). Requires HuggingFace token (gated model)."
+            }
+        ]
+    }
+}
