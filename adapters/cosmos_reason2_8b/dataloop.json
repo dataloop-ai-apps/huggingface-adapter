@@ -1,6 +1,6 @@
 {
-    "name": "cosmos-reason2-8b-huggingface-app-husam-2-newnew777new",
-    "description": "new new 7777 NVIDIA Cosmos Reason 2 is an 8B-parameter reasoning vision-language model (VLM) for physical AI and robotics. It understands space, time, and fundamental physics, and can reason about images (and video) with chain-of-thought. Input: image + optional text prompt. Output: text new last.",
+    "name": "cosmos-reason2-8b-huggingface-app-husam-2602",
+    "description": "Husam- 2602 NVIDIA Cosmos Reason 2 is an 8B-parameter reasoning vision-language model (VLM) for physical AI and robotics. It understands space, time, and fundamental physics, and can reason about images (and video) with chain-of-thought. Input: image + optional text prompt. Output: text",
     "attributes": {
         "Provider": "NVIDIA",
         "Deployed By": "Dataloop",
@@ -10,7 +10,7 @@
         "Gen AI": "LMM",
         "Media Type": ["Text", "Image", "Multi Modal"]
     },
-    "displayName": "NVIDIA Cosmos-Reason2-8B-Husam-2-newnew777new",
+    "displayName": "NVIDIA Cosmos-Reason2-8B-Husam-2602",
     "version": "0.1.72",
     "scope": "project",
     "components": {
@@ -19,7 +19,7 @@
                 "name": "cosmos-reason2-8b-huggingface-deploy",
                 "runtime": {
                     "podType": "gpu-t4",
-                    "runnerImage": "gcr.io/viewo-g/piper/agent/runner/gpu/huggingface-adapter:0.1.7",
+                    "runnerImage": "gcr.io/viewo-g/piper/agent/runner/gpu/huggingface-adapter:0.1.8",
                     "concurrency": 1,
                     "autoscaler": {
                         "type": "rabbitmq",
