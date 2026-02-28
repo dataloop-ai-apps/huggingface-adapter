@@ -11,7 +11,7 @@
         "Media Type": ["Text", "Image", "Multi Modal"]
     },
     "displayName": "NVIDIA Cosmos-Reason2-8B-Husam-2602",
-    "version": "0.1.72",
+    "version": "0.1.75",
     "scope": "project",
     "components": {
         "computeConfigs": [

@@ -30,9 +30,10 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # 4-bit NF4 quantization to reduce VRAM usage (~4-5 GB instead of ~16 GB),
         # required to fit the 8B model on a T4 (16 GB) GPU.
+        # Use float16 compute dtype -- T4 (sm_75) does not natively support bfloat16.
         quantization_config = BitsAndBytesConfig(
             load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_compute_dtype=torch.float16,
             bnb_4bit_quant_type="nf4",
         )
 
@@ -41,6 +42,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             quantization_config=quantization_config,
             device_map="cuda:0",
             attn_implementation="sdpa",
+            torch_dtype=torch.float16,
         )
         self.max_new_tokens = self.configuration.get("max_new_tokens", 4096)
         self.system_prompt = self.configuration.get(
@@ -85,7 +87,9 @@ class HuggingAdapter(dl.BaseModelAdapter):
             )
             inputs = inputs.to(self.model.device)
 
-            generated_ids = self.model.generate(**inputs, max_new_tokens=self.max_new_tokens)
+            with torch.inference_mode():
+                generated_ids = self.model.generate(**inputs, max_new_tokens=self.max_new_tokens)
+
             generated_ids_trimmed = [
                 out_ids[len(in_ids) :]
                 for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
@@ -95,6 +99,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 skip_special_tokens=True,
                 clean_up_tokenization_spaces=False,
             )[0].strip()
+
+            del inputs, generated_ids, generated_ids_trimmed
 
             logger.info("Response: %s", response)
             prompt_item.add(
