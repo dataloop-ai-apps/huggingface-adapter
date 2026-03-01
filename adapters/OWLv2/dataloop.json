@@ -8,7 +8,9 @@
     "Category": "Model",
     "Computer Vision": "Object Detection",
     "Gen AI": "Zero-Shot Detection",
-    "Media Type": ["Image"]
+    "Media Type": [
+      "Image"
+    ]
   },
   "displayName": "OWLv2 Object Detection",
   "version": "0.1.69",
@@ -24,7 +26,7 @@
         "name": "owlv2-huggingface-deploy",
         "secrets": [],
         "runtime": {
-          "podType": "regular-s",
+          "podType": "regular-l",
           "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/owlv2-adapter:0.0.1",
           "concurrency": 1,
           "autoscaler": {

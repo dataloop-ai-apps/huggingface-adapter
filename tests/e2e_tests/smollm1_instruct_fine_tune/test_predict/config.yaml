@@ -1,0 +1,27 @@
+# ordered list of dpks to publish and install
+dpks:
+    - name: smollm-instruct-fine-tune
+      install_app: True
+
+# ordered list of datasets to create from local assets or to get from installed apps
+datasets:
+    - name: text_prompt_text_answer
+      type: local
+
+# ordered list of models to get from apps
+models:
+    - name: HuggingFaceTB/SmolLM-1.7B-Instruct
+      deploy_model: False
+      source_app: smollm-instruct-fine-tune
+
+# list of pipeline variables to update with reference
+variables:
+    - name: dataset
+      resource_type: datasets
+      resource_value:
+          resource_name: text_prompt_text_answer
+    - name: model
+      resource_type: models
+      resource_value:
+          resource_name: HuggingFaceTB/SmolLM-1.7B-Instruct
+

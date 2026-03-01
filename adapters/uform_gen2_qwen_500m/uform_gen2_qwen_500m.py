@@ -11,8 +11,7 @@ CAPTIONING_PROMPT = "Caption this image."
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.model_name = configuration.get("model_name")
-        self.device = configuration.get("device")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.captioning = configuration.get("captioning", False)
 
         self.model = AutoModel.from_pretrained("unum-cloud/uform-gen2-qwen-500m", trust_remote_code=True)

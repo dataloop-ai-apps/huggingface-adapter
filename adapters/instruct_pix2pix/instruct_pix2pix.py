@@ -6,6 +6,7 @@ import PIL
 import dtlpy as dl
 import logging
 from diffusers import StableDiffusionInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
+import torch
 
 # STREAM_URL = r"https://gate.dataloop.ai/api/v1/items/{}/stream"
 logger = logging.getLogger("[Instruct Pix2Pix]")
@@ -19,10 +20,9 @@ def create_folder(folder):
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.model_name = configuration.get("model_name")
         self.image_width = configuration.get("image_width", 512)
         self.image_height = configuration.get("image_height", 512)
-        self.device = configuration.get("device")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         self.model = StableDiffusionInstructPix2PixPipeline.from_pretrained(
             "timbrooks/instruct-pix2pix",

@@ -28,7 +28,7 @@
                 "name": "ivrit-ai-whisper-large-v2-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "regular-m",
+                    "podType": "regular-s",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {
@@ -110,8 +110,7 @@
                 "configuration": {
                     "weights_filename": "ivrit_ai_whisper.pt",
                     "model_path": "ivrit-ai/whisper-large-v2-tuned",
-                    "module_name": "adapters.whisper_large_v2_tuned.whisper_large_v2_tuned",
-                    "device": "cpu"
+                    "module_name": "adapters.whisper_large_v2_tuned.whisper_large_v2_tuned"
                 },
                 "tags": [
                     "speech-to-text",

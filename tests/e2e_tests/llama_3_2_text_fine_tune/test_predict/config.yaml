@@ -1,0 +1,30 @@
+# ordered list of dpks to publish and install
+dpks:
+    - name: llama-3-2-text-fine-tune
+      install_app: True
+      integrations:
+        - key: "dl-huggingface-api-key"
+          value: "HUGGINGFACE_TOKEN"
+
+# ordered list of datasets to create from local assets or to get from installed apps
+datasets:
+    - name: text_prompt_text_answer
+      type: local
+
+# ordered list of models to get from apps
+models:
+    - name: meta-llama/Llama-3.2-1B-Instruct
+      deploy_model: False
+      source_app: llama-3-2-text-fine-tune
+
+# list of pipeline variables to update with reference
+variables:
+    - name: dataset
+      resource_type: datasets
+      resource_value:
+          resource_name: text_prompt_text_answer
+    - name: model
+      resource_type: models
+      resource_value:
+          resource_name: meta-llama/Llama-3.2-1B-Instruct
+

@@ -10,7 +10,7 @@ logger = logging.getLogger("[AutoModelForCausalLM]")
 class HuggingAdapter:
     def __init__(self, configuration):
         self.model_name = configuration.get("model_name")
-        self.device = configuration.get("device")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         trust_remote_code = configuration.get("trust_remote_code", False)
         padding_side = configuration.get("padding_side", 'left')

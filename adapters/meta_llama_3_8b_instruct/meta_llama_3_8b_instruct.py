@@ -10,6 +10,7 @@ logger = logging.getLogger("[Meta LLama 3 8b Instruct]")
 
 class HuggingAdapter:
     def __init__(self, configuration):
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         access_token = os.environ.get("HUGGINGFACE_TOKEN")
         model_path = configuration.get("model_path", "meta-llama/Meta-Llama-3-8B-Instruct")
         torch_dtype = configuration.get("torch_dtype", "4bits")
@@ -32,13 +33,13 @@ class HuggingAdapter:
             )
             model_args["quantization_config"] = bnb_config
         else:
-            torch_dtype = torch.float32 if configuration.get("device", "cpu") else None
+            torch_dtype = torch.float32 if self.device == "cpu" else None
             model_args["torch_dtype"] = torch_dtype
         self.pipeline = pipeline(
             "text-generation",
             model=model_path,
             model_kwargs=model_args,
-            device_map=configuration.get("device", "cpu"),
+            device_map=self.device,
             token=access_token
         )
         self.terminators = [

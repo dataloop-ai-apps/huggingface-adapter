@@ -26,7 +26,7 @@
                 "name": "autoforcausallm-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "highmem-l",
+                    "podType": "regular-m",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {
@@ -109,8 +109,7 @@
                     "weights_filename": "dialogpt-auto.pt",
                     "module_name": "adapters.auto_for_causal_lm.auto_for_causal_lm",
                     "model_name": "microsoft/DialoGPT-large",
-                    "tokenizer": "microsoft/DialoGPT-large",
-                    "device": "cpu"
+                    "tokenizer": "microsoft/DialoGPT-large"
                 },
                 "metadata": {},
                 "description": "Flexible AutoForCausalLM adapter for HF models"
