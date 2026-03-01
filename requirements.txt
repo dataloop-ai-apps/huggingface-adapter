@@ -4,6 +4,7 @@ requests
 transformers>=4.57.0
 timm
 torch
+av
 sentencepiece
 accelerate
 diffusers
