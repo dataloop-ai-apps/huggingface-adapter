@@ -11,7 +11,7 @@
         "Media Type": ["Text", "Image", "Multi Modal"]
     },
     "displayName": "NVIDIA Cosmos-Reason2-8B-Husam-2602",
-    "version": "0.1.75",
+    "version": "0.1.83",
     "scope": "project",
     "components": {
         "computeConfigs": [
@@ -101,7 +101,12 @@
                 "configuration": {
                     "model_name": "nvidia/Cosmos-Reason2-8B",
                     "module_name": "adapters.cosmos_reason2_8b.cosmos_reason2_8b",
-                    "max_new_tokens": 4096,
+                    "max_new_tokens": 512,
+                    "min_pixels": 3136,
+                    "max_pixels": 200704,
+                    "max_image_size": 512,
+                    "video_fps": 2,
+                    "max_video_frames": 8,
                     "system_prompt": "You are a helpful assistant. Describe what you see in the image accurately and answer questions related to the visual content."
                 },
                 "tags": ["llm", "pretrained", "hugging-face", "vlm", "nvidia"],
