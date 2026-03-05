@@ -9,7 +9,7 @@ logger = logging.getLogger("[DialoGPT Large]")
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.device = configuration.get("device")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         self.tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-large", padding_side='left')
         self.model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-large")

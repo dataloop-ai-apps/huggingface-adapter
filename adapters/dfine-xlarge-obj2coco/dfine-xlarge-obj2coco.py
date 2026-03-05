@@ -379,7 +379,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
 
         # Get configuration parameters
         image_size = self.configuration.get("image_size", 640)
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.confidence_threshold = self.configuration.get("confidence_threshold", 0.25)
         image_processor_path = self.configuration.get("image_processor_path", "ustc-community/dfine-xlarge-obj2coco")
         checkpoint = self.configuration.get("checkpoint_name", "ustc-community/dfine-xlarge-obj2coco")

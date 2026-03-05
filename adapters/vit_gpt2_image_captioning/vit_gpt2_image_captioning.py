@@ -5,6 +5,7 @@ import dtlpy as dl
 from PIL import Image
 import logging
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
+import torch
 
 logger = logging.getLogger("[ViT GPT2 Image Captioning]")
 
@@ -17,10 +18,9 @@ def create_folder(folder):
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.model_name = configuration.get("model_name")
         self.image_width = configuration.get("image_width", 512)
         self.image_height = configuration.get("image_height", 512)
-        self.device = configuration.get("device")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         model_id = "nlpconnect/vit-gpt2-image-captioning"
         self.model = VisionEncoderDecoderModel.from_pretrained(model_id)

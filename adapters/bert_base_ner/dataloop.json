@@ -25,7 +25,7 @@
                 "name": "bert-base-ner-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "highmem-l",
+                    "podType": "regular-s",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {
@@ -105,8 +105,7 @@
                 "scope": "project",
                 "status": "pre-trained",
                 "configuration": {
-                    "module_name": "adapters.bert_base_ner.bert_base_ner",
-                    "device": "cpu"
+                    "module_name": "adapters.bert_base_ner.bert_base_ner"
                 },
                 "metadata": {},
                 "description": "bert-base-NER is a fine-tuned BERT model that is ready to use for Named Entity Recognition and achieves state-of-the-art performance for the NER task."

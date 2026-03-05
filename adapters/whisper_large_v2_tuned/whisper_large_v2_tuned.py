@@ -12,12 +12,9 @@ class HuggingAdapter:
         model_path = configuration.get("model_path", 'ivrit-ai/whisper-large-v2-tuned')
         self.processor = WhisperProcessor.from_pretrained(model_path)
         torch_dtype = configuration.get("torch_dtype", torch.float32) if torch.cuda.is_available() else torch.float32
-        self.device = configuration.get("device", "cpu")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model = WhisperForConditionalGeneration.from_pretrained(model_path,
                                                                      torch_dtype=torch_dtype)
-        if "cuda" in self.device and not torch.cuda.is_available():
-            logger.warning("Configuration set device to CUDA, but no GPU is available. Switching to CPU")
-            self.device = "cpu"
         self.model.to(self.device)
         self.pipe = pipeline(
             "automatic-speech-recognition",

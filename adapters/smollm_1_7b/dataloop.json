@@ -8,7 +8,9 @@
     "Category": "Model",
     "NLP": "Other",
     "Gen AI": "LLM",
-    "Media Type": ["Text"]
+    "Media Type": [
+      "Text"
+    ]
   },
   "displayName": "Smollm 1.7b Huggingface Model",
   "version": "0.1.69",
@@ -24,7 +26,7 @@
         "name": "smollm-1-7b-huggingface-deploy",
         "secrets": [],
         "runtime": {
-          "podType": "regular-m",
+          "podType": "highmem-l",
           "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
           "concurrency": 1,
           "autoscaler": {
@@ -107,7 +109,11 @@
           "module_name": "adapters.smollm_1_7b.smollm_adapter",
           "model_name": "HuggingFaceTB/SmolLM2-1.7B-Instruct"
         },
-        "tags": ["llm", "pretrained", "hugging-face"],
+        "tags": [
+          "llm",
+          "pretrained",
+          "hugging-face"
+        ],
         "metadata": {},
         "description": "Smollm 1.7b Huggingface Model"
       }

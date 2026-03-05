@@ -26,7 +26,7 @@
                 "name": "dialogpt-large-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "highmem-l",
+                    "podType": "highmem-m",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {
@@ -107,8 +107,7 @@
                 "status": "pre-trained",
                 "configuration": {
                     "weights_filename": "dialogpt.pt",
-                    "module_name": "adapters.dialogpt_large.dialogpt_large",
-                    "device": "cpu"
+                    "module_name": "adapters.dialogpt_large.dialogpt_large"
                 },
                 "metadata": {},
                 "description": "DialoGPT is a SOTA large-scale pretrained dialogue response generation model for multiturn conversations."
