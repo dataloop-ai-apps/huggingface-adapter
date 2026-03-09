@@ -27,7 +27,7 @@
                 "name": "stable-diffusion-v1-5-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "regular-l",
+                    "podType": "highmem-l",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {

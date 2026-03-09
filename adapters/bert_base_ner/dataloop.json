@@ -25,7 +25,7 @@
                 "name": "bert-base-ner-huggingface-deploy",
                 "secrets": [],
                 "runtime": {
-                    "podType": "regular-s",
+                    "podType": "highmem-l",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
                     "concurrency": 1,
                     "autoscaler": {
