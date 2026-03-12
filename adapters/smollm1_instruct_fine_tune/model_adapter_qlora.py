@@ -664,7 +664,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         do_sample = self.configuration.get("do_sample", True)
         top_p = self.configuration.get("top_p", 0.95)
         repetition_penalty = self.configuration.get("repetition_penalty", 1.1)
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"Predicting on device: {device}")
         
         for prompt_item in batch:
