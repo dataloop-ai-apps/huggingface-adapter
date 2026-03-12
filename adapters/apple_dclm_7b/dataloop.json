@@ -122,6 +122,7 @@
                 "scope": "project",
                 "status": "pre-trained",
                 "configuration": {
+                    "model_name": "DCLM-Baseline-7B",
                     "weights_filename": "dclm_7b_8k.pt",
                     "module_name": "adapters.apple_dclm_7b.apple_dclm_7b",
                     "max_new_tokens": 50,
