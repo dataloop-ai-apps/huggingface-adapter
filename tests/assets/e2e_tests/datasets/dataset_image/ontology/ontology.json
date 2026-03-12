@@ -1,0 +1,29 @@
+{
+	"id": null,
+	"creator": null,
+	"title": "dataset_image-ontology",
+	"roots": [
+		{
+			"value": {
+				"tag": "car",
+				"displayLabel": "car",
+				"color": "#ff0000",
+				"attributes": [],
+				"displayData": {}
+			},
+			"children": [],
+			"identifier": "car"
+		}
+	],
+	"metadata": {
+		"system": {
+			"projectIds": [
+				null
+			],
+			"system": false,
+			"systemLabelDisplayData": {}
+		},
+		"attributes": []
+	},
+	"attributes": null
+}

@@ -28,7 +28,7 @@
                 "name": "microsoft-kosmos-2-huggingface-deploy",
                 "runtime": {
                     "podType": "regular-l",
-                    "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.45",
+                    "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.6",
                     "concurrency": 1,
                     "autoscaler": {
                         "type": "rabbitmq",

@@ -1,6 +1,7 @@
 import json
 import PIL
 import dtlpy as dl
+import torch
 import logging
 from transformers import ViltProcessor, ViltForQuestionAnswering
 
@@ -9,8 +10,7 @@ logger = logging.getLogger("[ViLT B32 Finetuned VQA]")
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.model_name = configuration.get("model_name")
-        self.device = configuration.get("device")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         self.processor = ViltProcessor.from_pretrained("dandelin/vilt-b32-finetuned-vqa")
         self.model = ViltForQuestionAnswering.from_pretrained("dandelin/vilt-b32-finetuned-vqa")

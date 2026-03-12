@@ -1,6 +1,7 @@
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 import dtlpy as dl
+import torch
 import logging
 
 logger = logging.getLogger("[Bert Base NER]")
@@ -8,7 +9,7 @@ logger = logging.getLogger("[Bert Base NER]")
 
 class HuggingAdapter:
     def __init__(self, configuration):
-        self.device = configuration.get("device")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         self.tokenizer = AutoTokenizer.from_pretrained("dslim/bert-base-NER")
         self.model = AutoModelForTokenClassification.from_pretrained("dslim/bert-base-NER")

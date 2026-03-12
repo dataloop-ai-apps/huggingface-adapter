@@ -9,6 +9,7 @@ logger = logging.getLogger("[Open Llama 3b]")
 
 class HuggingAdapter:
     def __init__(self, configuration):
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         model_path = configuration.get("model_path", 'openlm-research/open_llama_3b')
         torch_dtype = configuration.get("torch_dtype")
         if torch_dtype == 'fp32':
@@ -18,11 +19,11 @@ class HuggingAdapter:
         elif torch_dtype == 'bf16':
             torch_dtype = torch.bfloat16
         else:
-            torch_dtype = torch.float32 if configuration.get("device", "cpu") else None
+            torch_dtype = torch.float32 if self.device == "cpu" else None
         self.tokenizer = LlamaTokenizer.from_pretrained(model_path)
         self.model = LlamaForCausalLM.from_pretrained(model_path,
                                                       torch_dtype=torch_dtype,
-                                                      device_map='auto')
+                                                      device_map=self.device)
         self.top_k = configuration.get("top_k", 5)
     
     def prepare_item_func(self, item: dl.Item):
@@ -41,7 +42,6 @@ class HuggingAdapter:
 
     def predict(self, batch, **kwargs):
         annotations = []
-        model_device = self.model.device
         for item in batch:
             prompts = item["prompts"]
             item_annotations = dl.AnnotationCollection()
@@ -52,7 +52,7 @@ class HuggingAdapter:
                     if question["mimetype"] == dl.PromptType.TEXT:
                         logger.info(f"User: {question['value']}")
                         new_user_input_ids = self.tokenizer(question['value'],
-                                                            return_tensors='pt').input_ids.to(model_device)
+                                                            return_tensors='pt').input_ids.to(self.device)
                         generation_output = self.model.generate(input_ids=new_user_input_ids, max_length=100)
                         response = self.tokenizer.decode(generation_output[:, new_user_input_ids.shape[-1] + 1:][0])
                         logger.info("Response: {}".format(response))
