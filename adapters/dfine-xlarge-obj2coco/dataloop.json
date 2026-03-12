@@ -25,7 +25,7 @@
         "name": "dfine-xlarge-obj2coco-huggingface-deploy",
         "secrets": [],
         "runtime": {
-          "podType": "regular-s",
+          "podType": "regular-l",
           "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/huggingface-adapter:0.1.6",
           "concurrency": 1,
           "autoscaler": {
@@ -39,6 +39,7 @@
       },
       {
         "name": "dfine-xlarge-obj2coco-huggingface-train-evaluate",
+        "executionTimeout": 36000000,
         "runtime": {
           "podType": "gpu-t4",
           "concurrency": 1,
@@ -48,10 +49,9 @@
             "minReplicas": 0,
             "maxReplicas": 2,
             "queueLength": 100
-          }          
+          }
         },
-        "preemptible": false,
-        "executionTimeout": 432000
+        "preemptible": false
       }
     ],
     "modules": [
