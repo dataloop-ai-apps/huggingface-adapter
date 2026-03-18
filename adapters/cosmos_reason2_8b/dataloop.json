@@ -22,6 +22,7 @@
         "computeConfigs": [
             {
                 "name": "cosmos-reason2-8b-huggingface-deploy",
+                "secrets": [],
                 "runtime": {
                     "podType": "gpu-t4",
                     "runnerImage": "dataloop_runner-gpu/huggingface-adapter:0.1.4",
