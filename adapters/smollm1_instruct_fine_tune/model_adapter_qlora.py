@@ -131,7 +131,7 @@ class ModelAdapter(dl.BaseModelAdapter):
             
         except (ValueError, RuntimeError, torch.cuda.OutOfMemoryError) as e:
             error_msg = str(e)
-            self.logger.warning(f"Failed to load with 4-bit quantization: {error_msg}")
+            self.logger.warning(f"Failed to load with 4-bit quantization: {type(e).__name__}")
             
             if "dispatched on the CPU" in error_msg or "CPU or the disk" in error_msg or "OutOfMemoryError" in error_msg:
                 self.logger.warning("GPU memory insufficient for 4-bit quantization. Trying without quantization...")
@@ -148,11 +148,11 @@ class ModelAdapter(dl.BaseModelAdapter):
                     self.logger.warning("Model loaded WITHOUT quantization. Training will require more memory.")
                     self.logger.warning("Consider using a smaller model or increasing GPU memory for quantization.")
                 
-                except Exception as e2:
-                    self.logger.error(f"Failed to load model even without quantization: {str(e2)}")
-                    raise Exception(f"Could not load model. Original error: {error_msg}. Fallback error: {str(e2)}")
+                except (ValueError, RuntimeError, OSError) as e2:
+                    self.logger.error("Failed to load model even without quantization.")
+                    raise RuntimeError("Could not load model with or without quantization. Check model path and GPU configuration.") from e2
             else:
-                self.logger.error(f"Failed to load model: {error_msg}")
+                self.logger.error(f"Failed to load model: {type(e).__name__}")
                 raise
 
         # Prepare model for k-bit training
@@ -553,8 +553,8 @@ class ModelAdapter(dl.BaseModelAdapter):
             )
             self.trainer.train()
 
-        except Exception as e:
-            raise Exception(f"Training error: {e}") from e
+        except (RuntimeError, ValueError, OSError) as e:
+            raise RuntimeError("Training failed. Check model configuration and GPU resources.") from e
 
         finally:
             # Training finished or error - stop monitoring
@@ -590,14 +590,14 @@ class ModelAdapter(dl.BaseModelAdapter):
         Returns:
             tuple: Three lists containing free, total, and used memory for each GPU.
         """
-        command = "nvidia-smi --query-gpu=memory.free --format=csv"
-        info = subprocess.check_output(command.split()).decode("ascii").split("\n")[:-1][1:]
+        command = ["nvidia-smi", "--query-gpu=memory.free", "--format=csv"]
+        info = subprocess.check_output(command).decode("ascii").split("\n")[:-1][1:]
         free = [int(x.split()[0]) for i, x in enumerate(info)]
-        command = "nvidia-smi --query-gpu=memory.total --format=csv"
-        info = subprocess.check_output(command.split()).decode("ascii").split("\n")[:-1][1:]
+        command = ["nvidia-smi", "--query-gpu=memory.total", "--format=csv"]
+        info = subprocess.check_output(command).decode("ascii").split("\n")[:-1][1:]
         total = [int(x.split()[0]) for i, x in enumerate(info)]
-        command = "nvidia-smi --query-gpu=memory.used --format=csv"
-        info = subprocess.check_output(command.split()).decode("ascii").split("\n")[:-1][1:]
+        command = ["nvidia-smi", "--query-gpu=memory.used", "--format=csv"]
+        info = subprocess.check_output(command).decode("ascii").split("\n")[:-1][1:]
         used = [int(x.split()[0]) for i, x in enumerate(info)]
         return free, total, used
 
@@ -613,8 +613,8 @@ class ModelAdapter(dl.BaseModelAdapter):
                 free, total, used = self.get_gpu_memory()
                 logger.info(f"GPU Memory - Total: {total}MB, Used: {used}MB, Free: {free}MB")
                 time.sleep(5)  # Check every 5 seconds
-            except Exception as e:
-                logger.error(f"Error monitoring GPU: {e}")
+            except (subprocess.SubprocessError, OSError, ValueError) as e:
+                logger.error("Error monitoring GPU memory.")
                 break
 
     @staticmethod

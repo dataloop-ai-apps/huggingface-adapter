@@ -164,8 +164,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 
                 batch_annotations.append(item_annotations)
                 
-            except Exception as e:
-                logger.error(f"Error processing item {item.id if hasattr(item, 'id') else 'unknown'}: {str(e)}")
+            except (RuntimeError, ValueError, OSError) as e:
+                logger.error(f"Error processing item {item.id if hasattr(item, 'id') else 'unknown'}: {type(e).__name__}")
         
         return batch_annotations
 

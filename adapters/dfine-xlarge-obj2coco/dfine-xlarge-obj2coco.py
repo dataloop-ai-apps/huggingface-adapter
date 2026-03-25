@@ -588,8 +588,8 @@ class HuggingAdapter(dl.BaseModelAdapter):
             loop = coco_converter_services._get_event_loop()
             try:
                 loop.run_until_complete(converter.convert_dataset())
-            except Exception as e:
-                raise Exception(f"Error converting subset {subset_name}: {str(e)}")
+            except (RuntimeError, ValueError, OSError) as e:
+                raise RuntimeError(f"Error converting subset {subset_name}") from e
 
             # convert coco.json to _annotations.coco.json
             HuggingAdapter._process_coco_json(output_annotations_path)
