@@ -13,6 +13,12 @@ RUN ${DL_PYTHON_EXECUTABLE} -m pip install "numpy>=1.21,<3" "pyarrow"
 # --no-build-isolation so pip uses pre-installed numpy/pyarrow instead of building numpy==1.19.4 (incompatible with Python 3.10)
 RUN ${DL_PYTHON_EXECUTABLE} -m pip install --no-build-isolation transformers>=4.30.2 git+https://github.com/mlfoundations/open_lm.git
 
+# Patch open_lm: make xformers import conditional so torch/xformers version mismatches at runtime don't crash
+RUN find / -path "*/open_lm/*.py" -exec sed -i 's/^import xformers\.ops as xops$/try:\n    import xformers.ops as xops\nexcept (ImportError, Exception):\n    xops = None/' {} +
+
+# Allow runtime pip --upgrade --user to modify dist-info metadata (INSTALLER, etc.) in system site-packages
+RUN chmod -R o+w /usr/local/lib/python3.10/dist-packages/
+
 # docker build --no-cache -t gcr.io/viewo-g/piper/agent/gpu/huggingface-adapter-dclm-7b:0.0.1 -f Dockerfile .
 # docker push gcr.io/viewo-g/piper/agent/gpu/huggingface-adapter-dclm-7b:0.0.1
 
