@@ -135,12 +135,12 @@ class ModelAdapter(dl.BaseModelAdapter):
                             del inputs
                             torch.cuda.synchronize()
                             gc.collect()  # TODO test this by loading images and deleting
-                    except Exception as e:
-                        logger.error(f"Error processing item {prompt_item.name}: {str(e)}")
+                    except (RuntimeError, ValueError, OSError) as e:
+                        logger.error(f"Error processing item {prompt_item.name}: {type(e).__name__}")
                         continue
 
-        except Exception as e:
-            logger.error(f"Error in predict: {str(e)}")
+        except (RuntimeError, ValueError, OSError) as e:
+            logger.error(f"Error in predict: {type(e).__name__}")
             raise
 
         return []
@@ -506,8 +506,8 @@ class ModelAdapter(dl.BaseModelAdapter):
             for message in reversed(messages):
                 if message.get("role") == "user":
                     text = message
-        except Exception as e:
-            logger.error(f"Error getting last message from messages: {e}. Skipping...")
+        except (TypeError, KeyError, IndexError) as e:
+            logger.error(f"Error getting last message from messages: {type(e).__name__}. Skipping...")
         return text
 
 
