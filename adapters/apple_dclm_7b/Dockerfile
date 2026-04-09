@@ -11,7 +11,9 @@ RUN ${DL_PYTHON_EXECUTABLE} -m pip install "cython<3.0.0" wheel && pip3 install 
 # Pre-install numpy + pyarrow from wheels so open_lm's installer does not build them from source (numpy fails on Python 3.10 C API).
 RUN ${DL_PYTHON_EXECUTABLE} -m pip install "numpy>=1.21,<3" "pyarrow"
 # --no-build-isolation so pip uses pre-installed numpy/pyarrow instead of building numpy==1.19.4 (incompatible with Python 3.10)
-RUN ${DL_PYTHON_EXECUTABLE} -m pip install --no-build-isolation transformers>=4.30.2 git+https://github.com/mlfoundations/open_lm.git
+RUN TORCH_VER=$(${DL_PYTHON_EXECUTABLE} -c "import torch; print(torch.__version__.split('+')[0])") && \
+    echo "torch==${TORCH_VER}" > /tmp/constraints.txt && \
+    ${DL_PYTHON_EXECUTABLE} -m pip install --no-build-isolation -c /tmp/constraints.txt "transformers>=4.30.2,<4.51.0" git+https://github.com/mlfoundations/open_lm.git
 
 # Patch open_lm: make xformers import conditional so torch/xformers version mismatches at runtime don't crash
 RUN find / -path "*/open_lm/*.py" -exec sed -i 's/^import xformers\.ops as xops$/try:\n    import xformers.ops as xops\nexcept (ImportError, Exception):\n    xops = None/' {} +
