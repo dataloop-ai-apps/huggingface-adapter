@@ -53,7 +53,7 @@ class ModelAdapter(dl.BaseModelAdapter):
             self.model = base_model
 
     def save(self, local_path, **kwargs):
-        """Save the model and processor to Dataloop"""
+        """Save the model and processor to DDOE"""
         self.model.save_pretrained(save_directory=local_path)
         self.processor.save_pretrained(save_directory=local_path)
         logger.info(f"Successfully saved trained LoRA weights to {local_path}")
@@ -260,7 +260,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         return root_path, data_path, output_path
 
     def convert_from_dtlpy(self, data_path, prompt_items_dir):
-        """Convert Dataloop data to format suitable for training."""
+        """Convert DDOE data to format suitable for training."""
         dataset = self.model_entity.dataset
 
         # Download all items (images and prompt items)

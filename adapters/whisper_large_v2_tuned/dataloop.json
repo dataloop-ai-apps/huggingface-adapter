@@ -3,7 +3,7 @@
     "description": "Whisper is a pre-trained model for automatic speech recognition (ASR) and speech translation.\nwhisper-large-v2-tuned is a version of whisper-large-v2, fine-tuned by ivrit.ai to improve Hebrew ASR using crowd-sourced labeling.",
     "attributes": {
         "Provider": "Hugging Face",
-        "Deployed By": "Dataloop",
+        "Deployed By": "DDOE",
         "License": "Apache 2.0",
         "Category": "Model",
         "Audio": "Auto Speech Recognition",

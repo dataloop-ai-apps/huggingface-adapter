@@ -3,7 +3,7 @@
     "description": "NVIDIA Cosmos Reason 2 is an 8B-parameter reasoning vision-language model (VLM) for physical AI and robotics. It understands space, time, and fundamental physics, and can reason about images (and video) with chain-of-thought. Input: image + optional text prompt. Output: text.",
     "attributes": {
         "Provider": "NVIDIA",
-        "Deployed By": "Dataloop",
+        "Deployed By": "DDOE",
         "License": "NVIDIA Open Model License",
         "Category": "Model",
         "NLP": "Conversational",

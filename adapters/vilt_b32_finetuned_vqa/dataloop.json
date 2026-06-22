@@ -3,7 +3,7 @@
     "description": "Vision-and-Language Transformer (ViLT) model fine-tuned on VQAv2.",
     "attributes": {
         "Provider": "Hugging Face",
-        "Deployed By": "Dataloop",
+        "Deployed By": "DDOE",
         "License": "Apache 2.0",
         "Category": "Model",
         "NLP": "Conversational",

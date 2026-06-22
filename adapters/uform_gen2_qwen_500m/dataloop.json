@@ -3,7 +3,7 @@
     "description": "UForm-Gen is a small generative vision-language model primarily designed for Image Captioning and Visual Question Answering.",
     "attributes": {
         "Provider": "Unum",
-        "Deployed By": "Dataloop",
+        "Deployed By": "DDOE",
         "License": "Apache 2.0",
         "Category": "Model",
         "NLP": "Conversational",

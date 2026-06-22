@@ -6,7 +6,7 @@
   "description": "Llama-3.2 Vision or Vision Instruct from Hugging Face, ready for fine-tuning with LoRA. Supports multimodal vision-to-text capabilities.",
   "attributes": {
     "Provider": "Meta",
-    "Deployed By": "Dataloop",
+    "Deployed By": "DDOE",
     "License": "Llama 3.2",
     "Media Type": [
       "Image",
@@ -17,7 +17,7 @@
     "Vision": "Multimodal",
     "NLP": "Conversational",
     "Hub": [
-      "Dataloop"
+      "DDOE"
     ]
   },
   "codebase": {
@@ -111,7 +111,7 @@
               {
                 "type": "Json",
                 "name": "filters",
-                "description": "Dataloop Filter DQL"
+                "description": "DDOE Filter DQL"
               }
             ],
             "output": [],
@@ -126,14 +126,14 @@
               {
                 "type": "Model",
                 "name": "model",
-                "description": "Dataloop Model Entity"
+                "description": "DDOE Model Entity"
               }
             ],
             "output": [
               {
                 "type": "Model",
                 "name": "model",
-                "description": "Dataloop Model Entity"
+                "description": "DDOE Model Entity"
               }
             ],
             "displayName": "Fine-tuned Llama 3.2 11B Vision Model",

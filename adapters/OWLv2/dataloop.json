@@ -3,7 +3,7 @@
   "description": "OWLv2 (Open-World Localization v2): Zero-shot text-conditioned object detection model from Google Research. Detect objects using natural language queries without category-specific training.",
   "attributes": {
     "Provider": "Hugging Face",
-    "Deployed By": "Dataloop",
+    "Deployed By": "DDOE",
     "License": "Apache 2.0",
     "Category": "Model",
     "Computer Vision": "Object Detection",

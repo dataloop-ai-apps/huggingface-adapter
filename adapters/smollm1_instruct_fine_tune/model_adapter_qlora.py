@@ -368,7 +368,7 @@ class ModelAdapter(dl.BaseModelAdapter):
         return root_path, data_path, output_path
     
     def convert_from_dtlpy(self, data_path, **kwargs):
-        """Convert Dataloop prompt items to training format."""
+        """Convert DDOE prompt items to training format."""
         dataset = self.model_entity.dataset
         
         # Download all items with annotations
@@ -407,7 +407,7 @@ class ModelAdapter(dl.BaseModelAdapter):
             with open(prompt_path, "r", encoding="utf-8") as f:
                 prompt_data = json.load(f)
             
-            # Extract messages from Dataloop prompt item structure
+            # Extract messages from DDOE prompt item structure
             messages = self._extract_messages_from_prompt_item(prompt_data, prompt_path)
             if not messages:
                 continue
@@ -431,14 +431,14 @@ class ModelAdapter(dl.BaseModelAdapter):
         self.eval_dataset = self.preprocess_chatbot_dataset(eval_ds)
     
     def _extract_messages_from_prompt_item(self, prompt_data, prompt_path):
-        """Extract chat messages from Dataloop prompt item structure."""
+        """Extract chat messages from DDOE prompt item structure."""
         messages = []
         
         # Check if it's already in simple messages format
         if "messages" in prompt_data and isinstance(prompt_data["messages"], list):
             return prompt_data["messages"]
         
-        # Handle Dataloop prompt item format with prompts dict
+        # Handle DDOE prompt item format with prompts dict
         prompts = prompt_data.get("prompts", {})
         if isinstance(prompts, dict):
             for prompt_key, prompt_content in prompts.items():

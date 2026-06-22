@@ -1,15 +1,15 @@
-# LLaMA 3.2 Vision/Vision Instruct Model Adapter for Fine-Tuning on Dataloop
+# LLaMA 3.2 Vision/Vision Instruct Model Adapter for Fine-Tuning on DDOE
 
 This repository provides a **LoRA-based fine-tuning adapter** for **LLaMA 3.2 Vision/Vision Instruct**, enabling efficient fine-tuning with **LoRA** and other parameter-efficient methods.
 
-This adapter is designed for use within the **Dataloop AI platform** and can be **installed and utilized for both fine-tuning and inference** directly from the **Dataloop Model Marketplace**.
+This adapter is designed for use within the **DDOE AI platform** and can be **installed and utilized for both fine-tuning and inference** directly from the **DDOE Model Marketplace**.
 
 ---
 
 ## Features
 
 - **Multimodal Understanding**: Process both images and text inputs to generate coherent text responses
-- **Fine-Tuning Support**: Easily fine-tune **LLaMA 3.2 Vision/Vision Instruct** using your own datasets on **Dataloop**
+- **Fine-Tuning Support**: Easily fine-tune **LLaMA 3.2 Vision/Vision Instruct** using your own datasets on **DDOE**
 - **Multiple Training Strategies**: Support for LoRA, full fine-tuning, and selective freezing (vision encoder or language model)
 - **GPU Optimized**: Uses bfloat16 precision and device mapping for efficient training and inference
 - **Automatic Chat Template**: Configures necessary **chat templates and special tokens** for LLaMA 3.2 Vision
@@ -20,16 +20,16 @@ This adapter is designed for use within the **Dataloop AI platform** and can be 
 
 ## Requirements
 
-- Dataloop account with appropriate GPU access (GPU-A100-S recommended)
+- DDOE account with appropriate GPU access (GPU-A100-S recommended)
 - Hugging Face API key with access to LLaMA 3.2 Vision models
 - Dataset containing image-text pairs in the proper format
 
 ## Getting Started
 
 1. Add the `dl-huggingface-api-key` integration to your project
-2. Install this DPK in your Dataloop project
+2. Install this DPK in your DDOE project
 3. Create a dataset with your training data in prompt item format
-4. Deploy the model using the Dataloop platform
+4. Deploy the model using the DDOE platform
 
 ## Dataset Format
 
@@ -78,7 +78,7 @@ To fine-tune the model:
 
 1. Create training and validation subsets in your dataset (tagged with "train" and "validation")
 2. Configure hyperparameters in the model configuration
-3. Run the training process from the Dataloop UI or SDK
+3. Run the training process from the DDOE UI or SDK
 4. Monitor training progress through the built-in metrics and callbacks
 
 ## Inference
@@ -149,7 +149,7 @@ The model supports various hyperparameters including:
 ```python
 import dtlpy as dl
 
-# Login to Dataloop
+# Login to DDOE
 dl.login()
 
 # Get project and model

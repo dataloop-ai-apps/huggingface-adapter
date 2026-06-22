@@ -68,7 +68,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 item.update()
                 item.description = f"{processed_text} (captioned by {self.model_name})"
 
-                # Convert entities to Dataloop annotations
+                # Convert entities to DDOE annotations
                 entity_annotations = self.convert_entities_to_annotations(entities, image_width, image_height)
                 annotations.append(entity_annotations)
 
@@ -117,7 +117,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
     @staticmethod
     def convert_entities_to_annotations(entities, image_width, image_height):
         """
-        Convert entities from Kosmos-2 format to Dataloop bounding box annotations.
+        Convert entities from Kosmos-2 format to DDOE bounding box annotations.
 
         Args:
             entities: List of tuples in format [(entity_name, (start, end), [(x1_norm, y1_norm, x2_norm, y2_norm)])]
@@ -125,7 +125,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             image_height: Height of the image in pixels
 
         Returns:
-            List of Dataloop bounding box annotations
+            List of DDOE bounding box annotations
         """
         annotations = dl.AnnotationCollection()
 
@@ -139,7 +139,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
                 x2 = int(x2_norm * image_width)
                 y2 = int(y2_norm * image_height)
 
-                # Create Dataloop bounding box annotation
+                # Create DDOE bounding box annotation
                 annotations.add(
                     dl.Box(
                         top=y1,

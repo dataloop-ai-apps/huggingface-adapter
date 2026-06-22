@@ -45,7 +45,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         """Prepare item for prediction.
         
         Args:
-            item: Dataloop item to prepare
+            item: DDOE item to prepare
             
         Returns:
             The item itself
@@ -59,7 +59,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         """Get text queries based on configuration.
         
         Args:
-            item: Dataloop item
+            item: DDOE item
             
         Returns:
             List of text queries for object detection
@@ -80,7 +80,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         """Get PIL Image from item.
         
         Args:
-            item: Dataloop item
+            item: DDOE item
             
         Returns:
             PIL Image object

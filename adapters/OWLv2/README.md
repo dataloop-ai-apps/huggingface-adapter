@@ -24,7 +24,7 @@ OWLv2 detects objects in images using text queries. You can configure the source
 ### Two Configuration Modes
 
 #### 1. Dataset Labels Mode (Default)
-Uses labels from the Dataloop dataset.
+Uses labels from the DDOE dataset.
 
 ```json
 {
@@ -169,5 +169,5 @@ model.predict_items(items=items)
 
 For issues, questions, or feature requests:
 - [GitHub Repository](https://github.com/dataloop-ai-apps/huggingface-adapter)
-- [Dataloop Documentation](https://docs.dataloop.ai/)
+- [DDOE Documentation](https://docs.dataloop.ai/)
 - [OWLv2 Paper](https://arxiv.org/abs/2306.09683)
