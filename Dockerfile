@@ -13,5 +13,5 @@ WORKDIR /tmp
 
 RUN pip3 install --user -r requirements.txt
 
-# docker build --no-cache -t gcr.io/viewo-g/piper/agent/runner/gpu/huggingface-adapter:0.1.6 -f Dockerfile .
-# docker push gcr.io/viewo-g/piper/agent/runner/gpu/huggingface-adapter:0.1.6
+# docker build --no-cache -t hub.dataloop.ai/dtlpy-runner-images/piper/agent/runner/apps/huggingface-adapter:0.1.6  -f Dockerfile .
+# docker push hub.dataloop.ai/dtlpy-runner-images/piper/agent/runner/apps/huggingface-adapter:0.1.6
