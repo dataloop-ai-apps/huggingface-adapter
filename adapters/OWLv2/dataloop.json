@@ -13,12 +13,12 @@
     ]
   },
   "displayName": "OWLv2 Object Detection",
-  "version": "0.1.70",
+  "version": "0.1.71",
   "scope": "public",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-    "gitTag": "0.1.70"
+    "gitTag": "0.1.71"
   },
   "components": {
     "computeConfigs": [
