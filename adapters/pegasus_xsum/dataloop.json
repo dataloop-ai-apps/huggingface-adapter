@@ -3,7 +3,7 @@
     "description": "Pegasus Xsum Huggingface Model to summarize long text",
     "attributes": {
         "Provider": "Google",
-        "Deployed By": "Dataloop",
+        "Deployed By": "DDOE",
         "License": "Apache 2.0",
         "Category": "Model",
         "NLP": "Other",

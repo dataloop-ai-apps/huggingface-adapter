@@ -3,7 +3,7 @@
     "description": "Stable Diffusion is a latent text-to-image diffusion model capable of generating photo-realistic images given any text input.",
     "attributes": {
         "Provider": "Runway",
-        "Deployed By": "Dataloop",
+        "Deployed By": "DDOE",
         "License": "CreativeML Open RAIL-M",
         "Category": "Model",
         "Gen AI": "LMM",

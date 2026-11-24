@@ -3,7 +3,7 @@
     "description": "Kosmos-2, a Multimodal Large Language Model (MLLM), enabling new capabilities of perceiving object descriptions (e.g., bounding boxes) and grounding text to the visual world. Can be used with prompt items and images directly (image captions will be saved as item description).",
     "attributes": {
         "Provider": "Microsoft",
-        "Deployed By": "Dataloop",
+        "Deployed By": "DDOE",
         "License": "MIT",
         "Category": "Model",
         "NLP": "Conversational",

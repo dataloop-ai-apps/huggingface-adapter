@@ -6,7 +6,7 @@
     "description": "SmolLM-1-Instruct-Fine-Tune from Hugging Face, ready for fintune with QLoRA.",
     "attributes": {
       "Provider": "Hugging Face",
-      "Deployed By": "Dataloop",
+      "Deployed By": "DDOE",
       "License": "Apache 2.0",
       "Media Type": [
         "Text"
@@ -15,7 +15,7 @@
       "Gen AI": "LLM",
       "NLP": "Conversational",
       "Hub": [
-        "Dataloop"
+        "DDOE"
       ]
     },
     "codebase": {
@@ -103,7 +103,7 @@
                 {
                   "type": "Json",
                   "name": "filters",
-                  "description": "Dataloop Filter DQL"
+                  "description": "DDOE Filter DQL"
                 }
               ],
               "output": [
@@ -119,14 +119,14 @@
                   {
                     "type": "Model",
                     "name": "model",
-                    "description": "Dataloop Model Entity"
+                    "description": "DDOE Model Entity"
                   }
                 ],
                 "output": [
                   {
                     "type": "Model",
                     "name": "model",
-                    "description": "Dataloop Model Entity"
+                    "description": "DDOE Model Entity"
                   }
                 ],
                 "displayName": "Train A Model",

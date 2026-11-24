@@ -31,7 +31,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         This callback is triggered at the end of each training epoch to:
         - Log epoch completion and metrics
         - Call any provided FaaS callback function
-        - Record training metrics (loss, eval_loss) in Dataloop
+        - Record training metrics (loss, eval_loss) in DDOE
         - Update model configuration with current epoch and best checkpoint
 
         Attributes:
@@ -489,7 +489,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
         3. Running inference with the model
         4. Post-processing detection results
         5. Filtering detections by confidence threshold
-        6. Creating Dataloop annotation collections
+        6. Creating DDOE annotation collections
 
         Args:
             batch (List[np.ndarray]): List of images as numpy arrays with shape (H, W, C)
@@ -542,11 +542,11 @@ class HuggingAdapter(dl.BaseModelAdapter):
         return batch_annotations
 
     def convert_from_dtlpy(self, data_path: str, **kwargs: Any) -> None:
-        """Convert dataset from Dataloop format to COCO format for D-FINE training.
+        """Convert dataset from DDOE format to COCO format for D-FINE training.
 
-        This method converts a Dataloop dataset to the COCO format required by D-FINE model training.
+        This method converts a DDOE dataset to the COCO format required by D-FINE model training.
         The conversion process includes:
-        1. Converting Dataloop annotations to COCO format for each subset (train/validation)
+        1. Converting DDOE annotations to COCO format for each subset (train/validation)
         2. Processing COCO JSON files to ensure compatibility with D-FINE requirements
         3. Reorganizing image files from nested directory structure to flat structure
         4. Handling validation subset name conversion (validation -> valid)
@@ -561,7 +561,7 @@ class HuggingAdapter(dl.BaseModelAdapter):
             FileNotFoundError: If no image files are found in the source directory
             Exception: If conversion process fails for any subset
         """
-        logger.info(f'Converting dataset from Dataloop format to COCO format at {data_path}')
+        logger.info(f'Converting dataset from DDOE format to COCO format at {data_path}')
 
         subsets = self.model_entity.metadata.get("system", dict()).get("subsets", None)
         if len(self.model_entity.labels) == 0:

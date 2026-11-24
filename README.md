@@ -1,6 +1,6 @@
 # huggingface-adapter
 
-Use this repo to create Dataloop Model Adapters for Hugging Face Conversational models.
+Use this repo to create DDOE Model Adapters for Hugging Face Conversational models.
 
 ## Usage
 
@@ -141,7 +141,7 @@ When implementing the ```predict``` function, keep in mind that you will have to
 
 ### Create the huggingface-adapter Package
 
-If you already have this package created, you can skip to the next step to proceed with creating the specific model. If this is the first Hugging Face model adapter you create, open the ```creation.py``` script and adapt line ```41``` to use the project id of your Dataloop project.
+If you already have this package created, you can skip to the next step to proceed with creating the specific model. If this is the first Hugging Face model adapter you create, open the ```creation.py``` script and adapt line ```41``` to use the project id of your DDOE project.
 After that, run the ```creation.py``` script.
 
 ### Create the model

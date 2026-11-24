@@ -1,15 +1,15 @@
-# LLaMA 3.2 Text Model Adapter for Fine-Tuning on Dataloop  
+# LLaMA 3.2 Text Model Adapter for Fine-Tuning on DDOE  
 
 This repository provides a **QLoRA-based fine-tuning adapter** for **LLaMA 3.2**, enabling efficient fine-tuning with **4-bit quantization and CPU offloading**.  
 
-This adapter is designed for use within the **Dataloop AI platform** and can be **installed and utilized for both fine-tuning and inference** directly from the **Dataloop Model Marketplace**.  
+This adapter is designed for use within the **DDOE AI platform** and can be **installed and utilized for both fine-tuning and inference** directly from the **DDOE Model Marketplace**.  
 
 ---
 
 ## 🚀 Features  
 
-- **Fine-Tuning Support**: Easily fine-tune **LLaMA 3.2** using your own datasets on **Dataloop**.  
-- **Model Marketplace Integration**: Install and use the adapter from the **Dataloop Model Marketplace**.  
+- **Fine-Tuning Support**: Easily fine-tune **LLaMA 3.2** using your own datasets on **DDOE**.  
+- **Model Marketplace Integration**: Install and use the adapter from the **DDOE Model Marketplace**.  
 - **Flexible Model Loading**: Supports models from **local paths** or **HuggingFace's Model Hub**.  
 - **Automatic Tokenizer Setup**: Configures necessary **tokens and chat templates**.  
 - **Efficient Training**: Uses **4-bit quantization** for **resource-efficient fine-tuning**.  
@@ -21,7 +21,7 @@ This adapter is designed for use within the **Dataloop AI platform** and can be 
 
 Ensure the following dependencies are installed:  
 
-- [Dataloop SDK](https://github.com/dataloop-ai/dtlpy)  
+- [DDOE SDK](https://github.com/dataloop-ai/dtlpy)  
 - [HuggingFace Token](https://github.com/huggingface/transformers)  
 - To install the necessary dependencies, run:
 
@@ -85,7 +85,7 @@ The model configuration is defined in a JSON file, typically `dataloop.json`. Be
 
 ### Compute Resources
 - **Default GPU**: `gpu-t4-m` is used for training by default
-- **Changing GPU**: You can change the machine type from the Dataloop UI during the training phase:
+- **Changing GPU**: You can change the machine type from the DDOE UI during the training phase:
   - `gpu-t4` - Default, good for most fine-tuning tasks
   - `gpu-t4-m` - More memory
   - `gpu-a100` - Recommended for larger models or faster training
@@ -114,7 +114,7 @@ The model configuration is defined in a JSON file, typically `dataloop.json`. Be
 
 ## 🔧 Installation
 
-Install the model from [Dataloop's Marketplace](https://dataloop.ai/platform/marketplace/).
+Install the model from [DDOE's Marketplace](https://dataloop.ai/platform/marketplace/).
 
 
 ## 📜 License

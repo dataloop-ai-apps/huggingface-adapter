@@ -3,7 +3,7 @@
     "description": "The DCLM-Baseline-7B is a 7 billion parameter language model developed as part of the DataComp for Language Models (DCLM) benchmark. Its unique value lies in showcasing the impact of systematic data curation techniques to enhance model performance.",
     "attributes": {
         "Provider": "Hugging Face",
-        "Deployed By": "Dataloop",
+        "Deployed By": "DDOE",
         "License": "Apple Sample Code License",
         "Category": "Model",
         "NLP": "Conversational",

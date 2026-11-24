@@ -3,7 +3,7 @@
     "description": "DialoGPT is a SOTA large-scale pretrained dialogue response generation model for multiturn conversations.",
     "attributes": {
         "Provider": "Microsoft",
-        "Deployed By": "Dataloop",
+        "Deployed By": "DDOE",
         "License": "MIT",
         "Category": "Model",
         "NLP": "Conversational",

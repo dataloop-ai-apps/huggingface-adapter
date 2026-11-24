@@ -3,7 +3,7 @@
     "description": "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models",
     "attributes": {
         "Provider": "Hugging Face",
-        "Deployed By": "Dataloop",
+        "Deployed By": "DDOE",
         "License": "BSD-3-Clause",
         "Category": "Model",
         "NLP": "Conversational",

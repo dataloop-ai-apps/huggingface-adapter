@@ -1,15 +1,15 @@
-# SmolLM Model Adapter for Fine-Tuning on Dataloop  
+# SmolLM Model Adapter for Fine-Tuning on DDOE  
 
 This repository provides a **QLoRA-based fine-tuning adapter** for **SmolLM**, enabling efficient fine-tuning with **4-bit quantization**.  
 
-This adapter is designed for use within the **Dataloop AI platform** and can be **installed and utilized for both fine-tuning and inference** directly from the **Dataloop Model Marketplace**.  
+This adapter is designed for use within the **DDOE AI platform** and can be **installed and utilized for both fine-tuning and inference** directly from the **DDOE Model Marketplace**.  
 
 ---
 
 ## 🚀 Features  
 
-- **Fine-Tuning Support**: Easily fine-tune **SmolLM** using your own datasets on **Dataloop**.  
-- **Model Marketplace Integration**: Install and use the adapter from the **Dataloop Model Marketplace**.  
+- **Fine-Tuning Support**: Easily fine-tune **SmolLM** using your own datasets on **DDOE**.  
+- **Model Marketplace Integration**: Install and use the adapter from the **DDOE Model Marketplace**.  
 - **Flexible Model Loading**: Supports models from **local paths** or **HuggingFace's Model Hub**.  
 - **Automatic Tokenizer Setup**: Configures necessary **tokens and chat templates**.  
 - **Efficient Training**: Uses **4-bit quantization (QLoRA)** for **resource-efficient fine-tuning**.  
@@ -22,7 +22,7 @@ This adapter is designed for use within the **Dataloop AI platform** and can be 
 
 Ensure the following dependencies are installed:  
 
-- [Dataloop SDK](https://github.com/dataloop-ai/dtlpy)  
+- [DDOE SDK](https://github.com/dataloop-ai/dtlpy)  
 - To install the necessary dependencies, run:
 
     ```bash
@@ -31,11 +31,11 @@ Ensure the following dependencies are installed:
 
 ## 📂 Dataset Structure
 
-This adapter supports **Dataloop Prompt Items** for fine-tuning. Each prompt item contains a user message with the assistant response as an annotation.
+This adapter supports **DDOE Prompt Items** for fine-tuning. Each prompt item contains a user message with the assistant response as an annotation.
 
-### Using Dataloop Prompt Items
+### Using DDOE Prompt Items
 
-Upload prompt items to your Dataloop dataset with:
+Upload prompt items to your DDOE dataset with:
 - **User message**: As the prompt content
 - **Assistant response**: As a text annotation
 - **Tags**: `train` or `validation` to split the dataset
@@ -62,7 +62,7 @@ You can also use JSON files with the following structure:
 ```
 
 💡 **Notes**: 
-* To finetune the model, you need to provide both `train` and `validation` data tagged appropriately in your Dataloop dataset.
+* To finetune the model, you need to provide both `train` and `validation` data tagged appropriately in your DDOE dataset.
 * Currently, this adapter supports only **chatbot-style fine-tuning**.
 
 ## 🔧 Model Configuration
@@ -96,7 +96,7 @@ The model configuration is defined in `dataloop.json`. Below is an explanation o
 
 ### Compute Resources
 - **Default GPU**: `gpu-t4-m` is used for training by default
-- **Changing GPU**: You can change the machine type from the Dataloop UI during the training phase:
+- **Changing GPU**: You can change the machine type from the DDOE UI during the training phase:
   - `gpu-t4` - Default, good for most fine-tuning tasks
   - `gpu-t4-m` - More memory
   - `gpu-a100` - Recommended for larger models or faster training
@@ -125,7 +125,7 @@ The model configuration is defined in `dataloop.json`. Below is an explanation o
 
 ## 🔧 Installation
 
-Install the model from [Dataloop's Marketplace](https://dataloop.ai/platform/marketplace/).
+Install the model from [DDOE's Marketplace](https://dataloop.ai/platform/marketplace/).
 
 ## 📜 License
 
