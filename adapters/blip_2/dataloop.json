@@ -15,12 +15,12 @@
         ]
     },
     "displayName": "BLIP 2",
-    "version": "0.1.71",
+    "version": "0.1.72",
     "scope": "public",
     "codebase": {
         "type": "git",
         "gitUrl": "https://github.com/dataloop-ai-apps/huggingface-adapter.git",
-        "gitTag": "0.1.71"
+        "gitTag": "0.1.72"
     },
     "components": {
         "computeConfigs": [
