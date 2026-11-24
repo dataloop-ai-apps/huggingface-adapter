@@ -407,15 +407,18 @@ class ModelAdapter(dl.BaseModelAdapter):
             with open(prompt_path, "r", encoding="utf-8") as f:
                 prompt_data = json.load(f)
             
-            # Extract messages from Dataloop prompt item structure
-            messages = self._extract_messages_from_prompt_item(prompt_data, prompt_path)
-            if not messages:
-                continue
+            # Support JSON array format: [{"messages": [...]}, ...]
+            # Each element is treated as a separate conversation.
+            records = prompt_data if isinstance(prompt_data, list) else [prompt_data]
             
-            if "train" in subset_tags:
-                train_messages.append({"messages": messages})
-            elif "validation" in subset_tags:
-                validation_messages.append({"messages": messages})
+            for record in records:
+                messages = self._extract_messages_from_prompt_item(record, prompt_path)
+                if not messages:
+                    continue
+                if "train" in subset_tags:
+                    train_messages.append({"messages": messages})
+                elif "validation" in subset_tags:
+                    validation_messages.append({"messages": messages})
         
         logger.info(f"Loaded {len(train_messages)} train and {len(validation_messages)} validation samples")
         
